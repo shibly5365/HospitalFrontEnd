@@ -66,10 +66,10 @@ import PtientsDepartment from "./Project/Pages/Patients/Departments";
 import PatientsDepartmentDetails from "./Project/Pages/Patients/pages/viewDepartments";
 import AppointmentUI from "./Project/Pages/Patients/pages/doctor";
 import History from "./Project/Pages/Patients/pages/Appointments/History";
-import ChatUI from "./Project/Pages/Patients/Chat";
 import ConsultationHistory from "./Project/Pages/Patients/ConsultationHistory";
 import MedicalRecord from "./Project/Pages/Patients/MedicalRecord";
 import MedicalRecordDashboard from "./Project/Pages/Patients/MedicalRecord";
+import ChatPagePatient from "./Project/Pages/Patients/ChatPage";
 
 
 const AppRoutes = () => {
@@ -229,7 +229,7 @@ const AppRoutes = () => {
             { path: "doctors-search", element: <DoctorSearch /> },
             { path: "appointmentsHistory", element: <History /> },
             { path: "patient-departments/:id", element: <PatientsDepartmentDetails /> },
-            { path: "chatPage", element: <ChatUI /> },
+            { path: "chatPage", element: <ChatPagePatient /> },
             { path: "records", element: <MedicalRecordDashboard /> },
             { path: "consultation", element: <ConsultationHistory /> },
           ],

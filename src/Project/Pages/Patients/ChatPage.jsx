@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Search, Plus } from "lucide-react";
 
-const ChatPage = () => {
+const ChatPagePatient = () => {
   const [selectedChat, setSelectedChat] = useState(null);
 
   const conversations = [
@@ -145,4 +145,4 @@ const ChatPage = () => {
   );
 };
 
-export default ChatPage;
+export default ChatPagePatient;
