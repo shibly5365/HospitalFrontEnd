@@ -2,8 +2,6 @@ import React from "react";
 import { motion } from "framer-motion";
 
 function DoctorsCardAppointments({ doctor, onSelect, onOpenDetail }) {
-    console.log(doctor);
-    
   return (
     <motion.div
       whileHover={{ y: -5, scale: 1.02 }}

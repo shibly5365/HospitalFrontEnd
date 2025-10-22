@@ -3,6 +3,10 @@ import { motion } from "framer-motion";
 
 function DoctoresDetailsAppointmens({ doctor, onClose, onBook }) {
   const [currentReview, setCurrentReview] = useState(0);
+  // console.log(doctor );
+  // console.log( onClose);
+  // console.log( onBook);
+  
 
   const handleNext = () =>
     setCurrentReview((prev) => (prev === doctor.reviews.length - 1 ? 0 : prev + 1));

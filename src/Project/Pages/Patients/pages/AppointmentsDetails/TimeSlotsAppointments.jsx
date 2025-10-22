@@ -1,4 +1,4 @@
-export default function TimeSlotsAppointments({ selectedTime, onSelect, slots = [] }) {
+export default function TimeSlotsAppointments({ selectedTime, onSelect, slots = [] }) { 
   console.log(selectedTime);
   
   if (!slots.length)

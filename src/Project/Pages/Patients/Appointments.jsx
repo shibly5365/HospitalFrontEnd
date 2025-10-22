@@ -18,8 +18,11 @@ export default function PatientAppointments() {
   const [concern, setConcern] = useState(
     "Red, itchy skin for a week. Worse after sun.\nSymptoms:\n• Flaky patches\n• Mild burning\n• Skin sensitivity"
   );
+  const [availableDates, setAvailableDates] = useState([]); // ✅ added
+  const navigate = useNavigate();
 
-  const navigete=useNavigate()
+  
+
   // ✅ Fetch departments
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -29,12 +32,10 @@ export default function PatientAppointments() {
           { withCredentials: true }
         );
         setDepartments(response.data.data);
-        console.log("Departments:", response.data.data);
       } catch (error) {
         console.error("Error fetching departments:", error);
       }
     };
-
     fetchDepartments();
   }, []);
 
@@ -47,13 +48,11 @@ export default function PatientAppointments() {
           `http://localhost:4002/api/patient/doctors`,
           { withCredentials: true }
         );
-        setDoctors(response.data.doctors || []);
-        console.log("Doctors:", response.data);
-
-        if (response.data.doctors?.length > 0) {
-          const firstDoctor = mapDoctor(response.data.doctors[0]);
+        const docs = response.data.doctors || [];
+        setDoctors(docs);
+        if (docs.length > 0) {
+          const firstDoctor = mapDoctor(docs[0]);
           setSelectedDoctor(firstDoctor);
-          setSelectedTime(response.data);
         }
       } catch (error) {
         console.error("Error fetching doctors:", error);
@@ -61,9 +60,32 @@ export default function PatientAppointments() {
         setLoading(false);
       }
     };
-
     fetchDoctors();
   }, []);
+
+  // ✅ Fetch available dates for selected doctor
+  useEffect(() => {
+    if (!selectedDoctor?.id) return;
+
+    const fetchAvailableDates = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:4002/api/patient/schedules/available-dates/${selectedDoctor.id}`,
+          { withCredentials: true }
+        );
+        // console.log(res.data);
+        
+        setAvailableDates(res.data);
+        // auto-select first available date
+        if (res.data.availableDates?.length > 0) {
+          setSelectedDate(new Date(res.data.availableDates[0]));
+        }
+      } catch (err) {
+        console.error("Error fetching available dates:", err);
+      }
+    };
+    fetchAvailableDates();
+  }, [selectedDoctor]);
 
   // ✅ Map doctor object
   const mapDoctor = (doc) => ({
@@ -87,7 +109,7 @@ export default function PatientAppointments() {
     appointmentTime: selectedTime,
   });
 
-  // ✅ Get available slots for selected doctor & date
+  // ✅ Get available slots
   const getAvailableSlots = (doctor = selectedDoctor, date = selectedDate) => {
     if (!doctor || !doctor.availableSlots) return [];
     const dayName = date.toLocaleDateString("en-US", { weekday: "long" });
@@ -104,19 +126,14 @@ export default function PatientAppointments() {
     alert(
       `Booked ${mappedDoctor.name} on ${selectedDate.toLocaleDateString(
         "en-US",
-        {
-          weekday: "short",
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        }
+        { weekday: "short", day: "numeric", month: "long", year: "numeric" }
       )} at ${firstSlot}`
     );
   };
 
   const handleCloseDetail = () => setSelectedDoctor(null);
 
-  // ✅ Filter doctors by search + department
+  // ✅ Filter doctors
   const filtered = doctors.filter((d) => {
     const matchesQuery =
       (d.name || "").toLowerCase().includes(query.toLowerCase()) ||
@@ -126,13 +143,17 @@ export default function PatientAppointments() {
       )
         .toLowerCase()
         .includes(query.toLowerCase());
-
     const matchesDepartment = selectedDepartment
       ? d.department?.name === selectedDepartment
       : true;
-
     return matchesQuery && matchesDepartment;
   });
+  //   console.log(doctors);
+  // console.log(departments);
+  // console.log(selectedDepartment);
+  // console.log(selectedDate);
+  // console.log(selectedTime);
+  // console.log(selectedDoctor);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pe-0 md:p-8 font-sans text-gray-800">
@@ -153,13 +174,14 @@ export default function PatientAppointments() {
 
                 {/* 🕒 History Button */}
                 <button
-                  onClick={() =>navigete("/patient/appointmentsHistory") }
+                  onClick={() => navigate("/patient/appointmentsHistory")}
                   className="px-4 py-2 text-sm font-semibold bg-purple-600 text-white rounded-xl shadow-md hover:bg-purple-700 transition-all duration-200"
                 >
                   History
                 </button>
               </div>
 
+              {/* ✅ Calendar with availableDates */}
               <AppointmensCalender
                 selectedDate={selectedDate}
                 onSelect={(date) => {
@@ -168,6 +190,7 @@ export default function PatientAppointments() {
                     getAvailableSlots(selectedDoctor, date)[0] || "";
                   setSelectedTime(firstSlot);
                 }}
+                availableDates={availableDates} // ✅ passed new prop
               />
 
               <TimeSlotsAppointments

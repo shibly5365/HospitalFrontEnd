@@ -68,6 +68,9 @@ import AppointmentUI from "./Project/Pages/Patients/pages/doctor";
 import History from "./Project/Pages/Patients/pages/Appointments/History";
 import ChatUI from "./Project/Pages/Patients/Chat";
 import ConsultationHistory from "./Project/Pages/Patients/ConsultationHistory";
+import MedicalRecord from "./Project/Pages/Patients/MedicalRecord";
+import MedicalRecordDashboard from "./Project/Pages/Patients/MedicalRecord";
+
 
 const AppRoutes = () => {
   const routes = [
@@ -227,6 +230,7 @@ const AppRoutes = () => {
             { path: "appointmentsHistory", element: <History /> },
             { path: "patient-departments/:id", element: <PatientsDepartmentDetails /> },
             { path: "chatPage", element: <ChatUI /> },
+            { path: "records", element: <MedicalRecordDashboard /> },
             { path: "consultation", element: <ConsultationHistory /> },
           ],
         },

@@ -21,8 +21,10 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const History = () => {
-  const [activeTab, setActiveTab] = useState("upcoming");
+  const [activeTab, setActiveTab] = useState("all");
   const [appointments, setAppointments] = useState({
+    all: [],
+    confirmed: [],
     upcoming: [],
     past: [],
     cancelled: [],
@@ -34,8 +36,10 @@ const History = () => {
   const navigate = useNavigate();
 
   const tabs = [
-    { id: "upcoming", label: "Upcoming", color: "blue" },
-    { id: "past", label: "Past", color: "green" },
+    { id: "all", label: "All", color: "purple" },
+    { id: "confirmed", label: "Confirmed", color: "blue" },
+    { id: "upcoming", label: "Upcoming", color: "green" },
+    { id: "past", label: "Past", color: "gray" },
     { id: "cancelled", label: "Cancelled", color: "red" },
   ];
 
@@ -50,7 +54,6 @@ const History = () => {
         "http://localhost:4002/api/patient/getAllappointments",
         { withCredentials: true }
       );
-      console.log(data);
 
       if (!data.appointments) return;
 
@@ -62,7 +65,17 @@ const History = () => {
       const cancelled = data.appointments.filter(
         (a) => a.status === "Cancelled"
       );
-      setAppointments({ upcoming, past, cancelled });
+      const confirmed = data.appointments.filter(
+        (a) => a.status === "Confirmed"
+      );
+
+      setAppointments({
+        all: data.appointments,
+        confirmed,
+        upcoming,
+        past,
+        cancelled,
+      });
     } catch (err) {
       console.error("Error fetching:", err);
     } finally {
@@ -87,12 +100,10 @@ const History = () => {
       `http://localhost:4002/api/patient/appointmentsdeletes/${id}`,
       { withCredentials: true }
     );
-    // console.log();
-
     fetchAppointments();
   };
 
-  const filtered = appointments[activeTab].filter((a) =>
+  const filtered = appointments[activeTab]?.filter((a) =>
     a.doctor?.userId?.fullName?.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -124,7 +135,6 @@ const History = () => {
       </span>
     );
   };
-  console.log(filtered);
 
   if (loading)
     return (
@@ -170,14 +180,13 @@ const History = () => {
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
-              className={`flex-1 py-2 rounded-xl font-medium capitalize transition-all
-                ${
-                  activeTab === t.id
-                    ? `bg-gradient-to-r from-${t.color}-500 to-${t.color}-600 text-white shadow`
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+              className={`flex-1 py-2 rounded-xl font-medium capitalize transition-all ${
+                activeTab === t.id
+                  ? `bg-gradient-to-r from-${t.color}-500 to-${t.color}-600 text-white shadow`
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
             >
-              {t.label} ({appointments[t.id].length})
+              {t.label} ({appointments[t.id]?.length || 0})
             </button>
           ))}
         </div>
@@ -200,7 +209,7 @@ const History = () => {
         </div>
 
         {/* Appointment List */}
-        {filtered.length > 0 ? (
+        {filtered?.length > 0 ? (
           filtered.map((a) => {
             const { date, time } = formatDate(a.appointmentDate);
             return (
@@ -236,6 +245,7 @@ const History = () => {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
+                  {/* Upcoming actions */}
                   {activeTab === "upcoming" && (
                     <>
                       {a.consultationType === "Online" && (
@@ -266,6 +276,16 @@ const History = () => {
                       )}
                     </>
                   )}
+
+                  {/* Confirmed tab actions */}
+                  {activeTab === "confirmed" &&
+                    a.consultationType === "Online" && (
+                      <button className="flex items-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                        <Video className="w-4 h-4" /> Join
+                      </button>
+                    )}
+
+                  {/* Cancelled actions */}
                   {activeTab === "cancelled" && (
                     <button
                       onClick={() => handleDelete(a._id)}
@@ -274,11 +294,16 @@ const History = () => {
                       <Trash2 className="w-4 h-4" /> Delete
                     </button>
                   )}
+
+                  {/* Past actions */}
                   {activeTab === "past" && (
                     <button className="flex items-center gap-2 px-3 py-2 bg-green-100 text-green-600 rounded-lg">
                       <CheckCircle className="w-4 h-4" /> Completed
                     </button>
                   )}
+
+                  {/* All tab: show status */}
+                  {activeTab === "all" && <StatusBadge status={a.status} />}
                 </div>
               </div>
             );
@@ -308,8 +333,8 @@ const History = () => {
               </h3>
             </div>
             <p className="text-gray-700 mb-6">
-              Cancel appointment with <b>{selected.doctor?.fullName}</b> on{" "}
-              <b>{formatDate(selected.appointmentDate).date}</b>?
+              Cancel appointment with <b>{selected.doctor?.userId?.fullName}</b>{" "}
+              on <b>{formatDate(selected.appointmentDate).date}</b>?
             </p>
             <div className="flex gap-3">
               <button
