@@ -7,6 +7,9 @@ import {
   Stethoscope,
   Clock,
   BarChart2,
+  FileText,
+  MessageSquare,
+  CreditCard,
   Settings,
   Menu,
   LogOut,
@@ -14,13 +17,13 @@ import {
 import { toast } from "react-hot-toast";
 import { useAuth } from "../../Components/AuthContext";
 
-
 const DoctorSideBar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
-   const { logout } = useAuth();
+  const { logout } = useAuth();
 
+  // ✅ Sidebar menu items
   const menuItems = [
     {
       name: "Dashboard",
@@ -32,11 +35,25 @@ const DoctorSideBar = () => {
       icon: <CalendarCheck size={20} />,
       path: "/doctors/doctors-appointments",
     },
-    { name: "Patients", icon: <Users size={20} />, path: "/doctors/doctors-patients" },
     {
-      name: "Consultation",
+      name: "Patients",
+      icon: <Users size={20} />,
+      path: "/doctors/doctors-patients",
+    },
+    {
+      name: "Consultations",
       icon: <Stethoscope size={20} />,
-      path: "/doctors/doctors-consuletion ",
+      path: "/doctors/doctors-consuletion",
+    },
+    {
+      name: "Prescriptions",
+      icon: <FileText size={20} />,
+      path: "/doctors/doctors-prescription",
+    },
+    {
+      name: "Messages",
+      icon: <MessageSquare size={20} />,
+      path: "/doctors/doctors-messages",
     },
     {
       name: "Availability",
@@ -44,9 +61,14 @@ const DoctorSideBar = () => {
       path: "/doctors/doctors-availability",
     },
     {
+      name: "Payments",
+      icon: <CreditCard size={20} />,
+      path: "/doctors/doctors-payment",
+    },
+    {
       name: "Analytics",
       icon: <BarChart2 size={20} />,
-      path: "/doctors/analytics",
+      path: "/doctors/doctors-analytics",
     },
     {
       name: "Settings",
@@ -55,7 +77,7 @@ const DoctorSideBar = () => {
     },
   ];
 
-  // ✅ Logout handler with confirmation
+  // ✅ Logout handler with confirmation toast
   const handleLogout = () => {
     toast(
       (t) => (
@@ -77,13 +99,15 @@ const DoctorSideBar = () => {
                   });
 
                   localStorage.clear();
-                    logout(); 
-                  navigate("/") ; 
+                  logout();
+                  navigate("/");
                 } catch (error) {
                   toast.error("Logout failed!", {
                     className:
                       "bg-red-500 text-white px-4 py-2 rounded-lg shadow",
                   });
+                  console.log("error",error);
+                  
                 }
               }}
               className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
@@ -115,11 +139,13 @@ const DoctorSideBar = () => {
         } fixed top-0 left-0 h-screen bg-white shadow-lg transition-all duration-300 flex flex-col z-50`}
       >
         {/* Toggle Button */}
-        <div className="flex items-center justify-between p-4">
+        <div className="flex items-center justify-between p-4 border-b">
           <h1
-            className={`text-xl font-bold text-gray-700 ${!isOpen && "hidden"}`}
+            className={`text-xl font-bold text-gray-700 transition-all duration-200 ${
+              !isOpen && "hidden"
+            }`}
           >
-            Doctor
+            Doctor Panel
           </h1>
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -129,7 +155,7 @@ const DoctorSideBar = () => {
           </button>
         </div>
 
-        {/* Menu */}
+        {/* Menu Items */}
         <nav className="flex-1 px-2 overflow-y-auto">
           {menuItems.map((item, index) => (
             <Link
@@ -149,7 +175,7 @@ const DoctorSideBar = () => {
           ))}
         </nav>
 
-        {/* Logout Button */}
+        {/* Logout */}
         <div className="p-2 border-t">
           <button
             onClick={handleLogout}
@@ -163,9 +189,9 @@ const DoctorSideBar = () => {
         </div>
       </div>
 
-      {/* Content wrapper with margin to avoid overlap */}
+      {/* Content wrapper */}
       <div className={`${isOpen ? "ml-64" : "ml-20"} flex-1 transition-all`}>
-        {/* Your main content goes here */}
+        {/* Main page content will be rendered here */}
       </div>
     </div>
   );

@@ -7,15 +7,15 @@ const DashboardNav = () => {
   useEffect(() => {
     const storedDoctor = localStorage.getItem("user");
     if (storedDoctor) setDoctor(JSON.parse(storedDoctor));
-    // console.log(storedDoctor); // log inside useEffect
+
   }, []);
 
   const doctorInitials = doctor
     ? doctor.fullName
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
     : "DR";
 
   return (

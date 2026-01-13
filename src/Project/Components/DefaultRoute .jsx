@@ -15,7 +15,7 @@ const GuestRoute = () => {
       case "doctor":
         return <Navigate to="/doctors/doctors-dashboard" replace />;
       case "receptionist":
-        return <Navigate to="/receptionist/receptionist-dashboard" replace />;
+        return <Navigate to="/receptionist/receptionist-appointments" replace />;
       case "patient":
         return <Navigate to="/patient/patient-dashboard" replace />;
       default:

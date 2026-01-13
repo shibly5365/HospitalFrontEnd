@@ -8,7 +8,7 @@ export default function Header({ isVisible }) {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const res = await axios.get("http://localhost:4002/api/patient/dashboard-summary", {
+        const res = await axios.get("http://localhost:4002/api/patient/dashboard  ", {
           withCredentials: true, // important if you're using cookies for auth
         });
         setPatient(res.data);

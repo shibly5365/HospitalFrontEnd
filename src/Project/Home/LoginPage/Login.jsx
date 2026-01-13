@@ -5,7 +5,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-import { notify } from "../../../Units/notification";
+// import { notify } from "../../../Units/notification";
 import { useAuth } from "../../Components/AuthContext";
 
 
@@ -63,7 +63,7 @@ const onSubmit = async (data) => {
           navigate("/doctors/doctors-dashboard", { replace: true });
           break;
         case "receptionist":
-          navigate("/receptionist/receptionist-dashboard", { replace: true });
+          navigate("/receptionist/receptionist-appointments", { replace: true });
           break;
         case "patient":
           navigate("/patient/patient-dashboard", { replace: true });

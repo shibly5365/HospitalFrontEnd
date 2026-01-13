@@ -1,0 +1,37 @@
+import { Calendar } from "lucide-react";
+
+export default function NextAppointmentBadge({ nextAppointment }) {
+  if (!nextAppointment) {
+    return (
+      <div className="absolute -bottom-10 left-6 right-6">
+        <div className="bg-white rounded-2xl shadow-xl p-4 border border-gray-100">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-gray-400 to-gray-500 rounded-xl flex items-center justify-center">
+              <Calendar className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 font-medium">Next Appointment</p>
+              <p className="text-sm font-bold text-gray-600">No upcoming appointment</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="absolute -bottom-10 left-6 right-6">
+      <div className="bg-white rounded-2xl shadow-xl p-4 border border-gray-100">
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+            <Calendar className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 font-medium">Next Appointment</p>
+            <p className="text-sm font-bold text-gray-800">{nextAppointment}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

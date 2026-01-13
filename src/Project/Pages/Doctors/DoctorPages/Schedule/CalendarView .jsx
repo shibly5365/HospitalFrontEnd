@@ -82,7 +82,7 @@ const CalendarLeaveRequest = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:4002/api/doctor/leave",
+        "http://localhost:4002/api/doctor/leave-request",
         payload,
         { withCredentials: true }
       );

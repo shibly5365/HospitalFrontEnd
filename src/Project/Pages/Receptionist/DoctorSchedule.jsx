@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Header from "./pages/schedule/Header.jsx";
+import SearchFilter from "./pages/schedule/SearchFilter";
+import DoctorsGrid from "./pages/schedule/DoctorsGrid";
+import ScheduleDetails from "./pages/schedule/ScheduleDetails";
 
 const DoctorScheduleRece = () => {
   const [doctors, setDoctors] = useState([]);
@@ -8,19 +12,8 @@ const DoctorScheduleRece = () => {
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [availableDates, setAvailableDates] = useState([]);
   const [schedule, setSchedule] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(null); // New: track selected date
-
-  const departmentColors = {
-    Cardiology: "bg-red-100 text-red-600",
-    Neurology: "bg-purple-100 text-purple-600",
-    Orthopedics: "bg-green-100 text-green-600",
-    Pediatrics: "bg-yellow-100 text-yellow-600",
-    Dermatology: "bg-pink-100 text-pink-600",
-    General: "bg-blue-100 text-blue-600",
-    Radiology: "bg-indigo-100 text-indigo-600",
-    Oncology: "bg-orange-100 text-orange-600",
-    "General Gynecology": "bg-teal-100 text-teal-600",
-  };
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [slots, setSlots] = useState([]);
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -29,7 +22,8 @@ const DoctorScheduleRece = () => {
           "http://localhost:4002/api/receptionist/doctors",
           { withCredentials: true }
         );
-        setDoctors(res.data.doctors || []);
+        // console.log("Doctors data:", res.data);
+        setDoctors(res.data.data.doctors || []);
       } catch (err) {
         console.error("Error fetching doctors:", err);
       }
@@ -37,183 +31,109 @@ const DoctorScheduleRece = () => {
     fetchDoctors();
   }, []);
 
-  const departments = ["All", ...new Set(doctors.map((d) => d.specialization))];
-
-  const filteredDoctors = doctors.filter((doc) => {
-    const matchesDepartment =
-      department === "All" || doc.specialization === department;
-    const matchesSearch =
-      doc.name?.toLowerCase().includes(search.toLowerCase()) ||
-      doc.specialization?.toLowerCase().includes(search.toLowerCase());
-    return matchesDepartment && matchesSearch;
-  });
-
   const handleSelectDoctor = async (doctor) => {
     setSelectedDoctor(doctor);
-    setSchedule([]);
     setAvailableDates([]);
     setSelectedDate(null);
+    setSlots([]);
 
     try {
+      // Fetch available dates for the selected doctor
       const res = await axios.get(
-        `http://localhost:4002/api/receptionist/schedules/available-dates/${doctor._id}`,
+        `http://localhost:4002/api/patient/doctor/${doctor._id}/available-dates`,
         { withCredentials: true }
       );
-
-      const doctorSchedules = res.data.schedules || [];
-      const availableDates = res.data.dates || [];
-
-      setSchedule(doctorSchedules);
-      setAvailableDates(
-        availableDates.map((d) => new Date(d).toLocaleDateString())
-      );
+      
+      console.log("Available dates response:", res.data);
+      
+      // Assuming response has dates in an array format
+      const dates = res.data.availableDates || res.data.data || res.data;
+      setAvailableDates(Array.isArray(dates) ? dates : []);
+      
     } catch (err) {
-      console.error("Error fetching doctor schedule:", err);
+      console.error("Error fetching available dates:", err);
+      setAvailableDates([]);
     }
   };
 
-  // Filter schedule by selected date
-  const filteredSchedule = selectedDate
-    ? schedule.filter(
-        (dayObj) =>
-          new Date(dayObj.date).toLocaleDateString() === selectedDate
-      )
-    : [];
+  // Fetch slots when a date is selected
+  const handleDateSelect = async (date) => {
+    setSelectedDate(date);
+    
+    if (!selectedDoctor) return;
+    
+    try {
+      // Format date to YYYY-MM-DD
+      const formattedDate = formatDateForAPI(date);
+      
+      const res = await axios.get(
+        `http://localhost:4002/api/patient/doctor/${selectedDoctor._id}/slots`,
+        {
+          params: { date: formattedDate },
+          withCredentials: true
+        }
+      );
+      
+      console.log("Slots response:", res.data);
+      
+      // Assuming response has slots in an array format
+      const fetchedSlots = res.data.availableSlots || res.data.data || res.data || [];
+      setSlots(Array.isArray(fetchedSlots) ? fetchedSlots : []);
+      
+    } catch (err) {
+      console.error("Error fetching slots:", err);
+      setSlots([]);
+    }
+  };
+
+  // Helper function to format date to YYYY-MM-DD
+  const formatDateForAPI = (dateString) => {
+    if (!dateString) return '';
+    
+    // If dateString is already in the correct format
+    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      return dateString;
+    }
+    
+    // Convert from locale date string to YYYY-MM-DD
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
+  };
 
   return (
-    <div className="p-8">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-center rounded-xl p-6 mb-8 shadow-lg">
-        <h2 className="text-2xl font-semibold">Doctor Schedules</h2>
-        <p className="mt-2">
-          Find doctors, check availability, and book appointments
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+      <div className="max-w-7xl mx-auto">
+        <Header />
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="Search doctor or department..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full sm:w-1/2 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+        <SearchFilter
+          search={search}
+          setSearch={setSearch}
+          department={department}
+          setDepartment={setDepartment}
+          doctors={doctors}
         />
-        <select
-          value={department}
-          onChange={(e) => setDepartment(e.target.value)}
-          className="w-full sm:w-1/3 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-        >
-          {departments.map((dept, idx) => (
-            <option key={idx} value={dept}>
-              {dept}
-            </option>
-          ))}
-        </select>
+
+        <DoctorsGrid
+          doctors={doctors}
+          search={search}
+          department={department}
+          onSelectDoctor={handleSelectDoctor}
+        />
+
+        {selectedDoctor && (
+          <ScheduleDetails
+            selectedDoctor={selectedDoctor}
+            availableDates={availableDates}
+            slots={slots}
+            selectedDate={selectedDate}
+            setSelectedDate={handleDateSelect} 
+          />
+        )}
       </div>
-
-      {/* Available Doctors */}
-      <h3 className="text-lg font-semibold flex items-center gap-2 mb-6">
-        <span className="text-blue-600">🩺</span> Available Doctors
-      </h3>
-
-      {filteredDoctors.length === 0 ? (
-        <p className="text-gray-500 text-center">No doctors found</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredDoctors.map((doctor) => (
-            <div
-              key={doctor._id}
-              className="bg-white rounded-xl shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition cursor-pointer"
-              onClick={() => handleSelectDoctor(doctor)}
-            >
-              {doctor.image ? (
-                <img
-                  src={doctor.image}
-                  alt={doctor.name}
-                  className="w-20 h-20 rounded-full mb-4 object-cover"
-                />
-              ) : (
-                <div className="w-20 h-20 flex items-center justify-center rounded-full bg-gray-200 mb-4">
-                  <span className="text-2xl text-gray-500">👤</span>
-                </div>
-              )}
-              <h4 className="text-lg font-semibold">Dr {doctor.name}</h4>
-              <span
-                className={`text-sm font-medium mt-2 px-3 py-1 rounded-full ${
-                  departmentColors[doctor.specialization] ||
-                  "bg-gray-100 text-gray-600"
-                }`}
-              >
-                {doctor.specialization}
-              </span>
-              <p className="mt-2 text-gray-600 text-sm">{doctor.experience}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Doctor Details */}
-      {selectedDoctor && (
-        <div className="mt-10 bg-gray-50 p-6 rounded-xl shadow-md">
-          <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            {selectedDoctor.name}
-            <span
-              className={`px-3 py-1 text-sm rounded-full ${
-                departmentColors[selectedDoctor.specialization] ||
-                "bg-gray-100 text-gray-600"
-              }`}
-            >
-              {selectedDoctor.specialization}
-            </span>
-          </h3>
-
-          <p className="text-gray-600 mb-4">{selectedDoctor.experience}</p>
-
-          <h4 className="font-medium mb-2">Available Dates:</h4>
-          {availableDates.length > 0 ? (
-            <div className="flex flex-wrap gap-2 mb-4">
-              {availableDates.map((date, idx) => (
-                <button
-                  key={idx}
-                  className={`px-4 py-2 rounded-lg border ${
-                    selectedDate === date
-                      ? "bg-blue-500 text-white"
-                      : "bg-white text-gray-700"
-                  }`}
-                  onClick={() => setSelectedDate(date)}
-                >
-                  {date}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500">No available dates</p>
-          )}
-
-          <h4 className="font-medium mb-2">Time Slots:</h4>
-          {filteredSchedule.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {filteredSchedule[0].slots?.map((slot, sIdx) => (
-                <span
-                  key={sIdx}
-                  className={`px-3 py-1 rounded-full text-sm ${
-                    slot.isBooked
-                      ? "bg-red-100 text-red-700"
-                      : "bg-green-100 text-green-700"
-                  }`}
-                >
-                  {slot.start} - {slot.end}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500">
-              {selectedDate ? "No slots for this date" : "Select a date"}
-            </p>
-          )}
-        </div>
-      )}
     </div>
   );
 };

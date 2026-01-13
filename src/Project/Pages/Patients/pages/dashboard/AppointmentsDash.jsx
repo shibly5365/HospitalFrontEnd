@@ -1,134 +1,373 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-hot-toast";
+import { notify } from "../../../../../Units/notification";
+import RescheduleModal from "./RescheduleModal";
+import VideoCallModal from "./VideoCallModal";
 
 export default function Appointments({ isVisible }) {
   const [appointments, setAppointments] = useState([]);
+  const [todayAppointments, setTodayAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedAppt, setSelectedAppt] = useState(null);
+  const [showVideoCallModal, setShowVideoCallModal] = useState(false);
 
   useEffect(() => {
-    const fetchAppointments = async () => {
+    (async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/patient/dashboard-summary",
+        const { data } = await axios.get(
+          "http://localhost:4002/api/patient/dashboard",
           { withCredentials: true }
         );
 
-        const data = res.data;
-        const upcoming = data.appointments.upcoming ?? [];
+        const upcoming = data?.appointments?.upcoming || [];
 
-        const sortedAppointments = upcoming
-          .sort((a, b) => new Date(a.date) - new Date(b.date))
+        // compute today's date in same format as returned by the backend (MM/DD/YYYY)
+        const pad = (n) => String(n).padStart(2, "0");
+        const now = new Date();
+        const todayStr = `${pad(now.getMonth() + 1)}/${pad(now.getDate())}/${now.getFullYear()}`;
+
+        const todays = upcoming.filter((a) => a.date === todayStr);
+
+        const pending = upcoming
+          .filter(a => a.status?.toLowerCase() === "pending")
           .slice(0, 3);
 
-        setAppointments(sortedAppointments);
-      } catch (err) {
-        console.error("Error fetching appointments:", err);
+        const confirmed = upcoming
+          .filter(a => a.status?.toLowerCase() === "confirmed")
+          .slice(0, 3 - pending.length);
+
+        setAppointments([...pending, ...confirmed]);
+        setTodayAppointments(todays);
+      } catch {
+        notify.error("Failed to fetch appointments");
       } finally {
         setLoading(false);
       }
+    })();
+  }, []);
+
+  // 🔹 check if join allowed
+  const canJoin = (a) => {
+    if (!a.timeSlot?.start || a.status?.toLowerCase() !== "confirmed") return false;
+    const diffMinutes =
+      (new Date(`${a.date}T${a.timeSlot.start}`) - new Date()) / 60000;
+    return diffMinutes >= -30 && diffMinutes <= 30;
+  };
+
+  // 🔹 check online appointment
+  const isOnlineAppointment = (a) =>
+    a?.mode?.toLowerCase() === "online" || a?.consultationType?.toLowerCase() === "online"; // check both fields
+
+  // 🎥 Handle Video Call Button Click
+  const handleVideoCallClick = async (appointment) => {
+    if (!canJoin(appointment)) {
+      notify.error("Video call can only be joined 30 minutes before or after appointment time");
+      return;
+    }
+
+    // Try to get backend status but still allow opening the modal so patient can wait
+    try {
+      const { data } = await axios.get(
+        `http://localhost:4002/api/patient/video-call-status/${appointment._id}`,
+        { withCredentials: true }
+      );
+      const backendRoomId = data?.data?.roomId;
+      setSelectedAppt({ ...appointment, roomId: backendRoomId });
+    } catch (err) {
+      // ignore error — still open modal and poll from there
+      setSelectedAppt(appointment);
+    }
+
+    setShowVideoCallModal(true);
+  };
+
+  // 🎥 Handle Call End
+  const handleCallEnd = () => {
+    setShowVideoCallModal(false);
+    setSelectedAppt(null);
+    // Refresh appointments after call ends
+    setAppointments(prev =>
+      prev.map(a =>
+        a._id === selectedAppt._id ? { ...a, status: "Completed" } : a
+      )
+    );
+  };
+
+  const getStatusDisplay = (a) => {
+    const status = a.status?.toLowerCase();
+
+    const statusConfig = {
+      cancelled: {
+        text: "Cancelled",
+        color: "text-red-600",
+        bg: "bg-red-50",
+        dot: "bg-red-400",
+      },
+      pending: {
+        text: "Pending",
+        color: "text-yellow-600",
+        bg: "bg-yellow-50",
+        dot: "bg-yellow-400",
+      },
+      confirmed: canJoin(a)
+        ? {
+          text: "Join Now",
+          color: "text-green-600",
+          bg: "bg-green-50",
+          dot: "bg-green-400",
+        }
+        : {
+          text: "Confirmed",
+          color: "text-blue-600",
+          bg: "bg-blue-50",
+          dot: "bg-blue-400",
+        },
     };
 
-    fetchAppointments();
-  }, []);
-  // console.log(appointments);
-  
+    return (
+      statusConfig[status] || {
+        text: "Scheduled",
+        color: "text-gray-600",
+        bg: "bg-gray-50",
+        dot: "bg-gray-400",
+      }
+    );
+  };
 
-  const isJoinTime = (appointment) => {
-    if (appointment.status !== "approved") return false;
-    if (!appointment.date || !appointment.time) return false;
+  const confirmCancel = (_id) => {
+    toast.custom(
+      (t) => (
+        <div className="bg-white p-4 rounded-xl shadow-xl border w-80">
+          <p className="text-gray-800 font-medium mb-3">
+            Cancel this appointment?
+          </p>
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300"
+            >
+              No
+            </button>
+            <button
+              onClick={async () => {
+                toast.dismiss(t.id);
+                try {
+                  await axios.put(
+                    `http://localhost:4002/api/patient/cancel/${_id}`,
+                    {},
+                    { withCredentials: true }
+                  );
+                  setAppointments(prev =>
+                    prev.map(a =>
+                      a._id === _id ? { ...a, status: "cancelled" } : a
+                    )
+                  );
+                  notify.success("Appointment cancelled");
+                } catch {
+                  notify.error("Cancel failed");
+                }
+              }}
+              className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600"
+            >
+              Yes
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: Infinity }
+    );
+  };
+
+  const handleReschedule = async (updated) => {
+    if (!updated.date || !updated.time || !updated.slotEnd) {
+      notify.error("Please select date & time");
+      return;
+    }
+
+    const formatDate = (d) =>
+      `${String(d.getMonth() + 1).padStart(2, "0")}/${String(
+        d.getDate()
+      ).padStart(2, "0")}/${d.getFullYear()}`;
+
+    console.log("slecteapp", selectedAppt);
 
     try {
-      const appointmentDateTime = new Date(`${appointment.date}T${appointment.time}`);
-      const now = new Date();
-      const diffMinutes = (appointmentDateTime - now) / (1000 * 60);
-      return diffMinutes <= 30 && diffMinutes >= -30; // 30 min before or after
-    } catch {
-      return false;
+      await axios.put(
+        `http://localhost:4002/api/patient/reschedule/${selectedAppt.id}`,
+        {
+          appointmentDate: formatDate(updated.date),
+          timeSlot: { start: updated.time, end: updated.slotEnd },
+          reason: updated.reason,
+        },
+        { withCredentials: true }
+      );
+
+      setAppointments(prev =>
+        prev.map(a =>
+          a.id === selectedAppt.id
+            ? {
+              ...a,
+              appointmentDate: formatDate(updated.date),
+              timeSlot: { start: updated.time, end: updated.slotEnd },
+              reason: updated.reason,
+              status: "Pending",
+            }
+            : a
+        )
+      );
+
+      notify.success("Appointment updated!");
+      setShowModal(false);
+    } catch (err) {
+      notify.error(err?.response?.data?.message || "Update failed!");
     }
   };
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 text-center text-gray-500">
+      <div className="bg-white rounded-2xl p-6 shadow-lg border text-center text-gray-500">
         Loading appointments...
       </div>
     );
   }
 
   return (
-    <div
-      className={`bg-white rounded-2xl p-6 shadow-lg border border-gray-100 transform transition-all duration-700 delay-400 ${
-        isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-      }`}
-    >
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-          Upcoming Appointments
-        </h2>
-        <button className="bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-xl transition-all duration-300 font-semibold text-sm hover:scale-105">
-          View All
-        </button>
-      </div>
+    <>
+      <RescheduleModal
+        open={showModal}
+        appointment={selectedAppt}
+        onClose={() => setShowModal(false)}
+        onSave={handleReschedule}
+      />
 
-      {appointments.length === 0 ? (
-        <p className="text-gray-500 text-sm text-center py-4">
-          No upcoming appointments.
-        </p>
-      ) : (
-        <div className="space-y-4">
-          {appointments.map((a, i) => {
-            const canJoin = isJoinTime(a);
+      <VideoCallModal
+        open={showVideoCallModal}
+        appointment={selectedAppt}
+        onClose={() => setShowVideoCallModal(false)}
+        onCallEnd={handleCallEnd}
+      />
 
-            return (
+      <div
+        className={`bg-white rounded-2xl p-6 shadow-lg border transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0 translate-y-4"
+          }`}
+      >
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Today's Appointments</h2>
+
+        {todayAppointments.length === 0 ? (
+          <p className="text-gray-500 text-center mb-4">No appointments for today.</p>
+        ) : (
+          <div className="space-y-3 mb-6">
+            {todayAppointments.map((a) => (
               <div
-                key={a.id || i}
-                className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl border border-gray-200 hover:border-blue-300 transition-all duration-300 group hover:shadow-md"
+                key={a._id}
+                className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border"
               >
-                {/* Left: doctor info */}
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center text-white font-bold text-lg group-hover:scale-110 transition-transform duration-300">
-                    {i + 1}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
-                      Dr{" "}
-                      {a?.doctor?.name
-                        ? a.doctor.name.charAt(0).toUpperCase() +
-                          a.doctor.name.slice(1)
-                        : "Unknown Doctor"}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {a.doctor?.department ?? "General Consultation"}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {a.date ?? "N/A"} • {a.time ?? "N/A"}
-                    </p>
-                  </div>
+                <div>
+                  <h3 className="font-semibold">Dr {a?.doctor?.name || "Unknown"}</h3>
+                  <p className="text-sm text-gray-600">{a.date} • {a.timeSlot?.start} - {a.timeSlot?.end}</p>
                 </div>
 
-                {/* Right: dynamic buttons */}
-                <div className="flex items-center space-x-2">
-                  {canJoin ? (
-                    <button className="px-3 py-1 text-xs font-semibold text-white bg-green-600 hover:bg-green-700 rounded-lg transition-all duration-200">
-                      Join
-                    </button>
+                <div className="flex gap-2 items-center">
+                  {isOnlineAppointment(a) ? (
+                    canJoin(a) ? (
+                      <button
+                        onClick={() => handleVideoCallClick(a)}
+                        className="px-3 py-1 text-sm font-semibold text-white bg-purple-600 rounded-lg hover:bg-purple-700"
+                      >
+                        📹 Video Call
+                      </button>
+                    ) : (
+                      <button disabled className="px-3 py-1 text-sm font-semibold text-purple-400 bg-purple-50 rounded-lg border cursor-not-allowed">📹 Video Call</button>
+                    )
                   ) : (
-                    <>
-                      <button className="px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-all duration-200">
-                        Result
-                      </button>
-                      <button className="px-3 py-1 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-all duration-200">
-                        Cancel
-                      </button>
-                    </>
+                    <button disabled className="px-3 py-1 text-sm font-semibold text-gray-400 bg-gray-100 rounded-lg border cursor-not-allowed">📹 Video Call</button>
                   )}
-                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                 </div>
               </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
+            ))}
+          </div>
+        )}
+
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Upcoming Appointments</h2>
+
+        {appointments.length === 0 ? (
+          <p className="text-gray-500 text-center">No upcoming appointments.</p>
+        ) : (
+          <div className="space-y-4">
+            {appointments.map((a, i) => {
+              const status = getStatusDisplay(a);
+              const isCancelled = a.status?.toLowerCase() === "cancelled";
+
+              return (
+                <div
+                  key={a._id}
+                  className="flex justify-between items-center p-4 bg-gray-50 rounded-xl border"
+                >
+                  <div>
+                    <h3 className="font-semibold">
+                      Dr {a?.doctor?.name || "Unknown"}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {a.date} • {a.timeSlot?.start} - {a.timeSlot?.end}
+                    </p>
+                  </div>
+
+                  <div className="flex gap-2 items-center">
+                    {/* 🎥 VIDEO CALL BUTTON */}
+                    {isOnlineAppointment(a) ? (
+                      canJoin(a) ? (
+                        <button
+                          onClick={() => handleVideoCallClick(a)}
+                          className="px-3 py-1 text-sm font-semibold text-white bg-purple-600 rounded-lg hover:bg-purple-700"
+                        >
+                          📹 Video Call
+                        </button>
+                      ) : (
+                        <button
+                          disabled
+                          className="px-3 py-1 text-sm font-semibold text-purple-400 bg-purple-50 rounded-lg border cursor-not-allowed"
+                        >
+                          📹 Video Call
+                        </button>
+                      )
+                    ) : (
+                      <button
+                        disabled
+                        className="px-3 py-1 text-sm font-semibold text-gray-400 bg-gray-100 rounded-lg border cursor-not-allowed"
+                      >
+                        📹 Video Call
+                      </button>
+                    )}
+
+                    {!isCancelled && (
+                      <>
+                        <button
+                          onClick={() => {
+                            setSelectedAppt(a);
+                            setShowModal(true);
+                          }}
+                          className="px-3 py-1 text-sm text-blue-600 bg-blue-50 rounded-lg"
+                        >
+                          Reschedule
+                        </button>
+
+                        <button
+                          onClick={() => confirmCancel(a._id)}
+                          className="px-3 py-1 text-sm text-red-600 bg-red-50 rounded-lg"
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </>
   );
 }

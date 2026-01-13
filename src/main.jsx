@@ -1,10 +1,17 @@
 import { createRoot } from "react-dom/client";
+import { Provider } from "react-redux";
 import "./index.css";
 import App from "./App.jsx";
 import { AuthProvider } from "./Project/Components/AuthContext.jsx";
+import { PatientProvider } from "./context/PatientContext.jsx";
+import { store } from "./store/store.js";
 
 createRoot(document.getElementById("root")).render(
-  <AuthProvider>
-    <App />
-  </AuthProvider>
+  <Provider store={store}>
+    <AuthProvider>
+      <PatientProvider>
+        <App />
+      </PatientProvider>
+    </AuthProvider>
+  </Provider>
 );

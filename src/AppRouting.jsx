@@ -12,6 +12,10 @@ import ResetPassword from "./Project/Home/FrogetPassword/ResetPassword";
 import SuperAdminLayout from "./Project/Pages/SuperAdmin/SuperAdminLayout";
 import SuperAdminDashboard from "./Project/Pages/SuperAdmin/SuperAdminDashboard";
 import CreateAdmin from "./Project/Pages/SuperAdmin/CreateAdmin";
+import AdminDetails from "./Project/Pages/SuperAdmin/AdminDetails";
+import Payments from "./Project/Pages/SuperAdmin/payments";
+import Analytics from "./Project/Pages/SuperAdmin/Analytics";
+import SuperAdminSettings from "./Project/Pages/SuperAdmin/SuperAdminSettings";
 
 // Patient
 import PatientSidebar from "./Project/Pages/Patients/PatientSidebar";
@@ -30,9 +34,8 @@ import AdminAppointments from "./Project/Pages/Admin/AdminAppointments";
 import AdminDepartment from "./Project/Pages/Admin/AdminDepartment";
 import DoctorsLayout from "./Project/Pages/Doctors/DoctorsLayout";
 import ReceptionLayout from "./Project/Pages/Receptionist/ReceptionLayout";
-import ReceptionDashboard from "./Project/Pages/Receptionist/RecepDashboard";
 import RecepAppointmetns from "./Project/Pages/Receptionist/RecepAppointmetns";
-import ReceptionRegistration from "./Project/Pages/Receptionist/Registrection/ReceptionRegistration";
+// import  from "./Project/Pages/Receptionist/Registrection/ReceptionRegistration";
 import DoctorsDashboard from "./Project/Pages/Doctors/DoctorsDashboard";
 import DoctorAppointment from "./Project/Pages/Doctors/DoctorAppointment";
 import DoctoresPatients from "./Project/Pages/Doctors/DoctoresPatients";
@@ -42,7 +45,7 @@ import AppointmentForm from "./Project/Pages/Doctors/DoctorPages/AppointmentForm
 
 import AdminReceptionist from "./Project/Pages/Admin/AdminReceptionist";
 import AddDoctorForm from "./Project/Pages/Admin/pages/AddDoctorForm";
-import Department from "./Project/Pages/Receptionist/Registrection/Department";
+// import Department from "./Project/Pages/Receptionist/Registrection/Department";
 import PatientDetails from "./Project/Pages/Admin/pages/PatientDetails";
 import ReceptionistDetails from "./Project/Pages/Admin/pages/ReceptionistDetails";
 import PatientAppointments from "./Project/Pages/Patients/Appointments";
@@ -60,7 +63,7 @@ import Consultation from "./Project/Pages/Doctors/Consultation";
 import ConsultationList from "./Project/Pages/Doctors/Consuletion";
 import CreateReceptionistForm from "./Project/Pages/Admin/pages/CreateReceptionistForm";
 import DoctorScheduleRece from "./Project/Pages/Receptionist/DoctorSchedule";
-import ReceptionHub from "./Project/Pages/Receptionist/Registrection/ReceptionHub";
+// import ReceptionHub from "./Project/Pages/Receptionist/Registrection/ReceptionHub";
 import GuestRoute from "./Project/Components/DefaultRoute ";
 import PtientsDepartment from "./Project/Pages/Patients/Departments";
 import PatientsDepartmentDetails from "./Project/Pages/Patients/pages/viewDepartments";
@@ -70,6 +73,30 @@ import ConsultationHistory from "./Project/Pages/Patients/ConsultationHistory";
 import MedicalRecord from "./Project/Pages/Patients/MedicalRecord";
 import MedicalRecordDashboard from "./Project/Pages/Patients/MedicalRecord";
 import ChatPagePatient from "./Project/Pages/Patients/ChatPage";
+import PatientSettings from "./Project/Pages/Patients/Settings";
+import Receptinistappointment from "./Project/Pages/Receptionist/RecepAppointmetns";
+import ReceptionRegistration from "./Project/Pages/Receptionist/Registeration";
+import DoctorConsultationDashboard from "./Project/Pages/Doctors/DoctorConsultationDashboard";
+import ChatPageDoctors from "./Project/Pages/Doctors/DoctorPages/doctorChat";
+import DoctorPrescriptionHistory from "./Project/Pages/Doctors/prescriptionHistory";
+import DoctorAnalyticsDashboard from "./Project/Pages/Doctors/DoctorAnalyticsDashboard";
+import PaymentManagementSystem from "./Project/Pages/Doctors/payments";
+import AppointmentBooking from "./Project/Pages/Patients/pages/Appointments/PatientAppointmentForm";
+import BillingManagement from "./Project/Pages/Receptionist/pages/Billing/BillingManagement";
+import DoctorsList from "./Project/Pages/Receptionist/pages/Doctors/DoctorsList";
+import DepartmentsList from "./Project/Pages/Receptionist/pages/Departments/DepartmentsList";
+import ReportsPage from "./Project/Pages/Receptionist/pages/Reports/DailyAppointmentReports";
+import ViewSearchPatients from "./Project/Pages/Receptionist/pages/Patients/ViewSearchPatients";
+import RegisterPatientPage from "./Project/Pages/Receptionist/pages/Patients/RegisterPatientPage";
+import BookAppointment from "./Project/Pages/Receptionist/pages/Patients/BookAppointment";
+import VisitorManagement from "./Project/Pages/Receptionist/pages/Visitors/VisitorManagement";
+import HelpDeskManagement from "./Project/Pages/Receptionist/pages/HelpDesk/HelpDeskManagement";
+import ProfileSettings from "./Project/Pages/Receptionist/pages/Profile/ProfileSettings";
+import RegisterPatient from "./Project/Pages/Receptionist/pages/Patients/RegisterPatient";
+import DailyAppointmentReports from "./Project/Pages/Receptionist/pages/Reports/DailyAppointmentReports";
+import { DailyBillingReports } from "./Project/Pages/Receptionist/pages/Reports/DailyBillingReports";
+import PatientRegistrationReports from "./Project/Pages/Receptionist/pages/Reports/PatientRegistrationReports";
+
 
 
 const AppRoutes = () => {
@@ -113,6 +140,10 @@ const AppRoutes = () => {
           children: [
             { path: "super-admin-dashboard", element: <SuperAdminDashboard /> },
             { path: "admin-management", element: <CreateAdmin /> },
+            { path: "admin-details/:id", element: <AdminDetails /> },
+            { path: "payments", element: <Payments /> },
+            { path: "analytics", element: <Analytics /> },
+            { path: "settings", element: <SuperAdminSettings /> },
           ],
         },
       ],
@@ -162,8 +193,12 @@ const AppRoutes = () => {
             { path: "doctors-dashboard", element: <DoctorsDashboard /> },
             { path: "doctors-appointments", element: <DoctorAppointment /> },
             { path: "doctors-patients", element: <DoctoresPatients /> },
+            { path: "doctors-consuletion", element: <DoctorConsultationDashboard /> },
+            { path: "doctors-prescription", element: <DoctorPrescriptionHistory /> },
+            { path: "doctors-messages", element: <ChatPageDoctors /> },
             { path: "doctors-availability", element: <DoctorSchedule /> },
-            { path: "doctors-consuletion", element: <ConsultationList /> },
+            { path: "doctors-payment", element: <PaymentManagementSystem /> },
+            { path: "doctors-analytics", element: <DoctorAnalyticsDashboard /> },
             { path: "patients-Deteails/:id", element: <PatientDetailCard /> },
             { path: "patients-add", element: <AddPatientForm /> },
             { path: "appointments-add", element: <AppointmentForm /> },
@@ -183,12 +218,8 @@ const AppRoutes = () => {
           element: <ReceptionLayout />,
           children: [
             {
-              path: "receptionist-dashboard",
-              element: <ReceptionDashboard />,
-            },
-            {
               path: "receptionist-appointments",
-              element: <RecepAppointmetns />,
+              element: <Receptinistappointment />,
             },
             {
               path: "receptionist-registretion",
@@ -198,11 +229,41 @@ const AppRoutes = () => {
               path: "receptionist-DoctorSchedule",
               element: <DoctorScheduleRece />,
             },
-            { path: "receptionist-ReceptionHub", element: <ReceptionHub /> },
             { path: "receptionist-patientlists", element: <PatientLists /> },
-            { path: "departments/:id", element: <Department /> },
-            { path: "AddNewAppointments", element: <NewAppointmentForm /> },
+            { path: "AddNewAppointments", element: <RegisterPatient /> },
             { path: "receptionist-details", element: <PatientsLists /> },
+            
+            // Patient Management
+            { path: "patients/register", element: <RegisterPatientPage /> },
+            { path: "patients/book-appointment", element: <BookAppointment /> },
+            { path: "patients/view-search", element: <ViewSearchPatients /> },
+            
+            // Billing & Payments
+            { path: "billing/generate-bill", element: <BillingManagement /> },
+            
+            // Doctors & Departments
+            { path: "doctors", element: <DoctorsList /> },
+            { path: "departments", element: <DepartmentsList /> },
+            
+            // Reports
+            { path: "reports/appointments", element: <DailyAppointmentReports /> },
+            { path: "reports/billing", element: <DailyBillingReports /> },
+            { path: "reports/patient-registrations", element: <PatientRegistrationReports /> },
+            
+            // Visitor Management
+            { path: "visitors/register", element: <VisitorManagement /> },
+            { path: "visitors/pass", element: <VisitorManagement /> },
+            { path: "visitors/history", element: <VisitorManagement /> },
+            
+            // Help Desk
+            { path: "helpdesk/enquiries", element: <HelpDeskManagement /> },
+            { path: "helpdesk/info", element: <HelpDeskManagement /> },
+            { path: "helpdesk/lost-found", element: <HelpDeskManagement /> },
+            { path: "helpdesk/announcements", element: <HelpDeskManagement /> },
+            
+            // Profile & Settings
+            { path: "profile", element: <ProfileSettings /> },
+            { path: "settings", element: <ProfileSettings /> },
           ],
         },
       ],
@@ -232,6 +293,8 @@ const AppRoutes = () => {
             { path: "chatPage", element: <ChatPagePatient /> },
             { path: "records", element: <MedicalRecordDashboard /> },
             { path: "consultation", element: <ConsultationHistory /> },
+            { path: "settings", element: <PatientSettings /> },
+            { path: "book-appointments", element: <AppointmentBooking /> },
           ],
         },
       ],

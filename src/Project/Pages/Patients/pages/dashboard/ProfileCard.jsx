@@ -9,7 +9,7 @@ export default function ProfileCard({ isVisible }) {
     const fetchProfile = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:4002/api/patient/dashboard-summary",
+          "http://localhost:4002/api/patient/dashboard",
           { withCredentials: true }
         );
 

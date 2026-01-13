@@ -23,51 +23,52 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:4002/api/patient/dashboard-summary",
+          "http://localhost:4002/api/patient/dashboard",
           { withCredentials: true }
         );
 
-        const records = res.data.medicalRecords;
-        // console.log("Medical Records:", records);
+        const records = res.data;
+        // console.log("Full Dashboard Data:", records);
 
-        // 🩺 Take latest record, if available
-        const latestRecord = records && records.length > 0 ? records[0] : null;
-        const vitals = latestRecord?.vitals || {};
+        // -------------------------------
+        // 🩺 HEALTH METRICS
+        // -------------------------------
+        const latestRecord = records.medicalRecords;
+        const vitals =
+          latestRecord && latestRecord.length > 0 ? latestRecord[0] : null;
 
         const formattedMetrics = [
           {
             label: "Heart Rate",
-            value: vitals.heartRate ?? "N/A",
+            value: vitals?.vitals.heartRate ?? "N/A",
             unit: "bpm",
             trend: "normal",
             icon: "💓",
           },
           {
             label: "Blood Pressure",
-            value: vitals.bloodPressure ?? "N/A",
+            value: vitals?.vitals.bloodPressure ?? "N/A",
             unit: "mmHg",
             trend: "good",
             icon: "🩺",
           },
           {
             label: "Glucose",
-            value: vitals.glucose ?? "N/A",
+            value: vitals?.vitals.glucose ?? "N/A",
             unit: "mg/dL",
             trend: "excellent",
             icon: "🩸",
           },
           {
             label: "Oxygen",
-            value: vitals.oxygenLevel ?? "N/A",
+            value: vitals?.vitals.oxygenLevel ?? "N/A",
             unit: "%",
             trend: "excellent",
             icon: "🌬️",
           },
-
-
         ];
 
-        setHealthMetrics(formattedMetrics);
+        setHealthMetrics(formattedMetrics)
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
       } finally {
@@ -77,30 +78,6 @@ export default function Dashboard() {
 
     fetchDashboardData();
   }, []);
-
-  const appointments = [
-    {
-      id: 1,
-      doctor: "Dr. Smith",
-      date: "2025-10-10",
-      time: "10:30 AM",
-      type: "Cardiology",
-    },
-    {
-      id: 2,
-      doctor: "Dr. Lee",
-      date: "2025-10-12",
-      time: "2:00 PM",
-      type: "Dermatology",
-    },
-    {
-      id: 3,
-      doctor: "Dr. Patel",
-      date: "2025-10-15",
-      time: "9:00 AM",
-      type: "General",
-    },
-  ];
 
   const activities = [
     { text: "Blood Test results updated", time: "2 hours ago", icon: "🩸" },
@@ -116,16 +93,7 @@ export default function Dashboard() {
     },
   ];
 
-  const doctors = [
-    { id: 1, name: "Dr. Smith", specialization: "Cardiologist", rating: "4.8" },
-    { id: 2, name: "Dr. Lee", specialization: "Dermatologist", rating: "4.6" },
-    {
-      id: 3,
-      name: "Dr. Patel",
-      specialization: "General Physician",
-      rating: "4.9",
-    },
-  ];
+
 
   const files = [
     { id: 1, name: "Blood_Report.pdf", size: "2.4 MB", date: "12 Oct 2024" },
@@ -161,7 +129,9 @@ export default function Dashboard() {
         <div className="lg:col-span-2 space-y-6">
           <HealthMetrics metrics={healthMetrics} isVisible={isVisible} />
           <StatsGrid isVisible={isVisible} />
-          <Appointments appointments={appointments} isVisible={isVisible} />
+
+          <Appointments  isVisible={isVisible} />
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Activities activities={activities} isVisible={isVisible} />
             <Files files={files} isVisible={isVisible} />
@@ -169,9 +139,10 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-6">
-          <ProfileCard isVisible={isVisible} />
+          <ProfileCard   isVisible={isVisible} />
+
           <HealthPlans plans={healthPlans} isVisible={isVisible} />
-          <DoctorsList doctors={doctors} isVisible={isVisible} />
+          <DoctorsList  isVisible={isVisible} />
           <QuickActions isVisible={isVisible} />
         </div>
       </div>

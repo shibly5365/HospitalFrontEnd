@@ -1,255 +1,211 @@
-// ReceptionDashboard.jsx
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Calendar, Clock, Stethoscope } from "lucide-react";
 import Header from "./pages/appoint/Header";
 import StatsCards from "./pages/appoint/StatsCards";
-import Filters from "./pages/appoint/Filters";
-import AppointmentsTable from "./pages/appoint/AppointmentsTable";
-import EditModal from "./pages/appoint/EditModal";
-import ViewModal from "./pages/appoint/ViewModal";
+import { notify } from "../../../Units/notification";
+import TabNavigation from "./pages/appoi/TabNavigation";
+import TabContent from "./pages/appoi/TabContent";
+import Modals from "./pages/appoi/Modals";
+import LoadingSpinner from "./pages/appoi/LoadingSpinner";
+import { useNavigate } from "react-router-dom";
 
-
-export default function Receptinistappointment() {
+export default function ReceptionistAppointment() {
   const [appointments, setAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [editAppointment, setEditAppointment] = useState(null);
-  const [openMenu, setOpenMenu] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [dateFilter, setDateFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("today");
+  const [rescheduleAppointment, setRescheduleAppointment] = useState(null);
+  const [cancelAppointment, setCancelAppointment] = useState(null);
+  const [openMenu, setOpenMenu] = useState(null);
+  const navigate = useNavigate();
 
-  // Mock data for demo purposes
   useEffect(() => {
-    const mockData = [
-      {
-        _id: "1",
-        patientInfo: {
-          patientId: "PT-2024-001",
-          fullName: "Sarah Johnson",
-          profileImage: "",
-          phone: "+1 234-567-8900",
-          email: "sarah.j@email.com"
-        },
-        doctorInfo: {
-          fullName: "Dr. Michael Chen",
-          department: "Cardiology"
-        },
-        appointmentDate: new Date().toISOString(),
-        timeSlot: { start: "09:00 AM", end: "09:30 AM" },
-        status: "Confirmed",
-        reason: "Regular checkup and blood pressure monitoring"
-      },
-      {
-        _id: "2",
-        patientInfo: {
-          patientId: "PT-2024-002",
-          fullName: "James Wilson",
-          profileImage: "",
-          phone: "+1 234-567-8901",
-          email: "james.w@email.com"
-        },
-        doctorInfo: {
-          fullName: "Dr. Emily Rodriguez",
-          department: "Orthopedics"
-        },
-        appointmentDate: new Date().toISOString(),
-        timeSlot: { start: "10:30 AM", end: "11:00 AM" },
-        status: "Pending",
-        reason: "Knee pain assessment"
-      },
-      {
-        _id: "3",
-        patientInfo: {
-          patientId: "PT-2024-003",
-          fullName: "Maria Garcia",
-          profileImage: "",
-          phone: "+1 234-567-8902",
-          email: "maria.g@email.com"
-        },
-        doctorInfo: {
-          fullName: "Dr. Michael Chen",
-          department: "Cardiology"
-        },
-        appointmentDate: new Date().toISOString(),
-        timeSlot: { start: "11:30 AM", end: "12:00 PM" },
-        status: "With-Doctor",
-        reason: "Follow-up consultation"
-      },
-      {
-        _id: "4",
-        patientInfo: {
-          patientId: "PT-2024-004",
-          fullName: "Robert Brown",
-          profileImage: "",
-          phone: "+1 234-567-8903",
-          email: "robert.b@email.com"
-        },
-        doctorInfo: {
-          fullName: "Dr. Sarah Williams",
-          department: "Dermatology"
-        },
-        appointmentDate: new Date(Date.now() + 86400000).toISOString(),
-        timeSlot: { start: "02:00 PM", end: "02:30 PM" },
-        status: "Confirmed",
-        reason: "Skin allergy consultation"
-      },
-      {
-        _id: "5",
-        patientInfo: {
-          patientId: "PT-2024-005",
-          fullName: "Lisa Anderson",
-          profileImage: "",
-          phone: "+1 234-567-8904",
-          email: "lisa.a@email.com"
-        },
-        doctorInfo: {
-          fullName: "Dr. Emily Rodriguez",
-          department: "Orthopedics"
-        },
-        appointmentDate: new Date(Date.now() + 86400000).toISOString(),
-        timeSlot: { start: "03:15 PM", end: "03:45 PM" },
-        status: "Cancelled",
-        reason: "Shoulder pain evaluation"
-      }
-
-    ];
-    setAppointments(mockData);
-    setFilteredAppointments(mockData);
+    fetchAppointments();
   }, []);
 
+  const fetchAppointments = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(
+        "http://localhost:4002/api/receptionist/get",
+        { withCredentials: true }
+      );
+
+      if (res.data.appointments) {
+        const transformed = transformAppointments(res.data.appointments);
+        setAppointments(transformed);
+        setFilteredAppointments(transformed);
+      }
+    } catch (err) {
+      console.error("Error fetching appointments:", err);
+      notify.error("Failed to load appointments");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
+    applyFilters();
+  }, [searchQuery, statusFilter, dateFilter, appointments]);
+
+  const transformAppointments = (appointmentsData) => {
+    return appointmentsData.map((apt) => ({
+      _id: apt._id,
+      doctor: apt.doctor,
+      patient: apt.patient,
+      patientInfo: {
+        patientId: apt.patient?.patientId || apt.patient?._id,
+        fullName: apt.patient?.fullName || "Unknown",
+        profileImage: apt.patient?.profileImage || "",
+        phone: apt.patient?.contact || "",
+        email: apt.patient?.email || "",
+      },
+      doctorInfo: {
+        fullName: apt.doctor?.userId?.fullName 
+          ? `Dr. ${apt.doctor.userId.fullName}` 
+          : "Unknown Doctor",
+        department: apt.doctor?.department?.name || "Unknown",
+      },
+      appointmentDate: apt.appointmentDate,
+      timeSlot: apt.timeSlot || { start: "", end: "" },
+      status: apt.status,
+      reason: apt.reason || "General Consultation",
+      tokenNumber: apt.tokenNumber,
+    }));
+  };
+
+  const applyFilters = () => {
     let filtered = appointments;
 
-    // Search filter
     if (searchQuery) {
-      filtered = filtered.filter(
-        (a) =>
-          a.patientInfo?.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          a.patientInfo?.patientId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          a.doctorInfo?.fullName?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      filtered = applySearchFilter(filtered, searchQuery);
     }
 
-    // Status filter
     if (statusFilter !== "All") {
       filtered = filtered.filter((a) => a.status === statusFilter);
     }
 
-    // Date filter
     if (dateFilter === "today") {
-      const today = new Date().toDateString();
-      filtered = filtered.filter(
-        (a) => new Date(a.appointmentDate).toDateString() === today
-      );
+      filtered = applyTodayFilter(filtered);
     }
 
     setFilteredAppointments(filtered);
-  }, [searchQuery, statusFilter, dateFilter, appointments]);
-
-  const handleSaveEdit = (updatedAppointment) => {
-    setAppointments(
-      appointments.map((a) => (a._id === updatedAppointment._id ? updatedAppointment : a))
-    );
-    setEditAppointment(null);
   };
 
-  const handleCancelAppointment = (appointmentId) => {
-    if (confirm('Are you sure you want to cancel this appointment?')) {
-      const updatedAppointments = appointments.map(a =>
-        a._id === appointmentId
-          ? { ...a, status: 'Cancelled' }
-          : a
+  const applySearchFilter = (appointmentsList, query) => {
+    return appointmentsList.filter(
+      (a) =>
+        a.patientInfo?.fullName?.toLowerCase().includes(query.toLowerCase()) ||
+        a.patientInfo?.patientId?.toLowerCase().includes(query.toLowerCase()) ||
+        a.doctorInfo?.fullName?.toLowerCase().includes(query.toLowerCase())
+    );
+  };
+
+  const applyTodayFilter = (appointmentsList) => {
+    const today = new Date().toDateString();
+    return appointmentsList.filter(
+      (a) => new Date(a.appointmentDate).toDateString() === today
+    );
+  };
+
+  const handleSaveEdit = async (updatedAppointment) => {
+    try {
+      const res = await axios.put(
+        `http://localhost:4002/api/receptionist/udpated/${updatedAppointment._id}`,
+        updatedAppointment,
+        { withCredentials: true }
       );
-      setAppointments(updatedAppointments);
-      setSelectedAppointment(null);
+
+      if (res.data) {
+        notify.success("Appointment updated successfully");
+        await fetchAppointments();
+        setEditAppointment(null);
+      }
+    } catch (err) {
+      console.error("Error updating appointment:", err);
+      notify.error("Failed to update appointment");
     }
   };
 
-  const handleAddAppointment = () => {
-    const newAppointment = {
-      _id: `PT-${Date.now()}`,
-      patientInfo: {
-        patientId: `PT-2024-${String(appointments.length + 1).padStart(3, '0')}`,
-        fullName: "New Patient",
-        profileImage: "",
-        phone: "+1 234-567-8900",
-        email: "new.patient@email.com"
-      },
-      doctorInfo: {
-        fullName: "Dr. New Doctor",
-        department: "General"
-      },
-      appointmentDate: new Date().toISOString(),
-      timeSlot: { start: "09:00 AM", end: "09:30 AM" },
-      status: "Pending",
-      reason: "New appointment"
-    };
-
-    setAppointments([...appointments, newAppointment]);
-    alert('New appointment added!');
+  const handleCancelAppointment = (appointmentId) => {
+    const appointment = appointments.find((apt) => apt._id === appointmentId);
+    if (appointment) {
+      setCancelAppointment(appointment);
+    }
   };
+
+  const handleCancelSuccess = async () => {
+    setCancelAppointment(null);
+    await fetchAppointments();
+  };
+
+  const handleReschedule = (appointment) => {
+    setRescheduleAppointment(appointment);
+  };
+
+  const handleRescheduleSuccess = async () => {
+    setRescheduleAppointment(null);
+    await fetchAppointments();
+  };
+
+  const handleAddAppointment = () => {
+   navigate("/receptionist/AddNewAppointments");
+  };
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <Header onAddAppointment={handleAddAppointment} />
-
+      
       <div className="max-w-7xl mx-auto px-6 py-6">
         <StatsCards appointments={appointments} />
-
-        <Filters
+        
+        <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+        
+        <TabContent
+          activeTab={activeTab}
+          appointments={appointments}
+          filteredAppointments={filteredAppointments}
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          setSearchQuery={setSearchQuery}
           statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
+          setStatusFilter={setStatusFilter}
           dateFilter={dateFilter}
-          onDateFilterChange={setDateFilter}
-        />
-
-        <AppointmentsTable
-          appointments={filteredAppointments}
+          setDateFilter={setDateFilter}
           openMenu={openMenu}
-          onMenuToggle={setOpenMenu}
+          setOpenMenu={setOpenMenu}
           onViewDetails={setSelectedAppointment}
           onEdit={setEditAppointment}
           onCancel={handleCancelAppointment}
         />
       </div>
 
-      {/* Modals */}
-      {editAppointment && (
-        <EditModal
-          appointment={editAppointment}
-          onSave={handleSaveEdit}
-          onClose={() => setEditAppointment(null)}
-        />
-      )}
-
-      {selectedAppointment && (
-        <ViewModal
-          appointment={selectedAppointment}
-          onClose={() => setSelectedAppointment(null)}
-          onEdit={(appt) => {
-            setEditAppointment(appt);
-            setSelectedAppointment(null);
-          }}
-          onCancel={handleCancelAppointment}
-        />
-      )}
-
-      {/* Click outside to close dropdown */}
-      {(openMenu || selectedAppointment || editAppointment) && (
-        <div
-          className="fixed inset-0 z-10"
-          onClick={(e) => {
-            setOpenMenu(null);
-            if (!selectedAppointment && !editAppointment) return;
-            if (e.target === e.currentTarget) {
-              setSelectedAppointment(null);
-              setEditAppointment(null);
-            }
-          }}
-        ></div>
-      )}
+      <Modals
+        editAppointment={editAppointment}
+        selectedAppointment={selectedAppointment}
+        rescheduleAppointment={rescheduleAppointment}
+        cancelAppointment={cancelAppointment}
+        openMenu={openMenu}
+        setEditAppointment={setEditAppointment}
+        setSelectedAppointment={setSelectedAppointment}
+        setRescheduleAppointment={setRescheduleAppointment}
+        setCancelAppointment={setCancelAppointment}
+        setOpenMenu={setOpenMenu}
+        onSaveEdit={handleSaveEdit}
+        onCancelAppointment={handleCancelAppointment}
+        onReschedule={handleReschedule}
+        onCancelSuccess={handleCancelSuccess}
+        onRescheduleSuccess={handleRescheduleSuccess}
+      />
     </div>
   );
 }

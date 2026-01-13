@@ -22,7 +22,6 @@ const PatientSidebar = ({ isOpen, setIsOpen }) => {
     { name: "Messages", sub: "Chat with Doctors", icon: <MessageSquare />, badge: 3, to: "/patient/chatPage", gradient: "from-amber-500 to-orange-500" },
     { name: "Consultation", sub: "Video Calls", icon: <Video />, to: "/patient/consultation", gradient: "from-rose-500 to-pink-500" },
     { name: "Medical Records", sub: "Health History", icon: <FileText />, to: "/patient/records", gradient: "from-indigo-500 to-blue-500" },
-    { name: "Profile", sub: "Personal Information", icon: <User />, to: "/patient/chatPage", gradient: "from-cyan-500 to-sky-500" },
     { name: "Settings", sub: "Preferences", icon: <Settings />, to: "/patient/settings", gradient: "from-gray-600 to-gray-700" },
   ];
 

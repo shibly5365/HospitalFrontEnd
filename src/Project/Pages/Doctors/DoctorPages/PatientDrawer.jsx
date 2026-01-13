@@ -1,171 +1,101 @@
-// PatientDrawer.jsx
-import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
-import { Phone, Mail, MapPin, User } from "lucide-react";
+import React, { useState } from "react";
+import PatientHeader from "./Drawer/PatientHeader";
+import PatientFooter from "./Drawer/PatientFooter";
 
-const tabs = ["Personal", "History", "Notes"];
+// Tabs
+import PatientQuickInfo from "./Drawer/PatientQuickInfo";
+import PatientContactInfo from "./Drawer/PatientContactInfo";
+import PatientMedicalInfo from "./Drawer/PatientMedicalInfo";
+import PatientVitalSigns from "./Drawer/PatientVitalSigns";
+import PatientAppointments from "./Drawer/PatientAppointments";
+import PatientNotes from "./Drawer/PatientNotes";
+import PatientHistory from "./Drawer/PatientHistory";        // ⬅️ add this
+import PatientPrescriptions from "./Drawer/PatientPrescriptions"; // ⬅️ add this
+
+
+// New Components (You can create them later)
+// includes prescription list
 
 const PatientDrawer = ({ isOpen, onClose, patient }) => {
-  const [activeTab, setActiveTab] = useState("Personal");
+  const [activeTab, setActiveTab] = useState("info");
 
+  if (!isOpen || !patient) return null;
+
+  // console.log(patient);
+  
   return (
-    <AnimatePresence>
-      {isOpen && patient && (
-        <motion.div
-          className="fixed inset-0 z-50 flex justify-end"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+    <>
+      {/* Overlay */}
+      <div
+        className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity duration-300 
+          ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        onClick={onClose}
+      />
 
-          {/* Drawer */}
-          <motion.div
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "tween", duration: 0.3 }}
-            className="relative bg-white w-[320px] sm:w-[360px] md:w-[400px] lg:w-[420px] h-full shadow-xl overflow-y-auto"
-          >
-            {/* Close button */}
+      {/* Drawer Panel */}
+      <div
+        className={`fixed top-0 right-0 h-full w-full md:w-[650px] lg:w-[720px] 
+          bg-gradient-to-br from-slate-50 to-blue-50 shadow-2xl z-50 transform 
+          transition-transform duration-300 ease-out overflow-hidden 
+          ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+      >
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-20 bg-gradient-to-r from-slate-50 to-blue-100 shadow-md">
+          <PatientHeader patient={patient} onClose={onClose} />
+        </div>
+
+        {/* 🔹 Tab Navigation */}
+        <div className="flex justify-around border-b border-slate-300 bg-white sticky top-[70px] z-10">
+          {[
+            { id: "info", label: "Patient Info" },
+            { id: "history", label: "History" },
+            { id: "prescriptions", label: "Prescriptions" },
+          ].map((tab) => (
             <button
-              onClick={onClose}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
+              key={tab.id}
+              className={`flex-1 text-sm font-semibold py-3 transition-all duration-200 ${activeTab === tab.id
+                  ? "border-b-2 border-blue-600 text-blue-700 bg-blue-50"
+                  : "text-slate-600 hover:text-blue-600"
+                }`}
+              onClick={() => setActiveTab(tab.id)}
             >
-              ✕
+              {tab.label}
             </button>
+          ))}
+        </div>
 
-            {/* Header */}
-            <div className="p-6 border-b">
-              <div className="flex items-center gap-3">
-                {/* Avatar */}
-                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-xl">
-                  {patient.fullName?.charAt(0)}
-                </div>
-                <div>
-                  <h2 className="text-xl font-semibold">{patient.fullName}</h2>
-                  <p className="text-base text-gray-600">
-                    {patient.age} years • {patient.gender}
-                  </p>
-                  <span className="mt-1 inline-block bg-indigo-100 text-indigo-600 text-xs sm:text-sm px-2 py-1 rounded-md">
-                    Medium Priority
-                  </span>
-                </div>
-              </div>
-            </div>
+        {/* 🔸 Scrollable Content */}
+        <div className="h-[calc(100%-230px)] overflow-y-auto px-6 py-6 space-y-6">
+          {activeTab === "info" && (
+            <>
+              <PatientQuickInfo patient={patient} />
+              <PatientContactInfo patient={patient} />
+              <PatientMedicalInfo patient={patient} />
+              <PatientVitalSigns patient={patient} />
+              <PatientNotes patient={patient} />
+            </>
+          )}
 
-            {/* Tabs */}
-            <div className="flex px-6 border-b space-x-4 mt-2 overflow-x-auto">
-              {tabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`py-3 text-sm sm:text-base font-medium ${
-                    activeTab === tab
-                      ? "text-indigo-600 border-b-2 border-indigo-600"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
+          {activeTab === "history" && (
+            <>
+              <PatientAppointments data={patient} />
+              <PatientHistory doctor={patient} />
+            </>
+          )}
 
-            {/* Tab Content */}
-            <div className="p-6">
-              {activeTab === "Personal" && (
-                <div className="border rounded-xl p-5 shadow-sm bg-white">
-                  {/* Title */}
-                  <div className="flex items-center gap-2 mb-4">
-                    <User size={20} className="text-indigo-600" />
-                    <h3 className="font-semibold text-gray-700 text-lg">
-                      Personal Information
-                    </h3>
-                  </div>
+          {activeTab === "prescriptions" && (
+            <>
+              <PatientPrescriptions patient={patient} />
+            </>
+          )}
+        </div>
 
-                  {/* Info Grid */}
-                  <div className="grid grid-cols-2 gap-y-4 text-base">
-                    <p>
-                      <span className="font-medium">Full Name</span>
-                      <br />
-                      {patient.fullName}
-                    </p>
-                    <p>
-                      <span className="font-medium">Date of Birth</span>
-                      <br />
-                      {patient.dob
-                        ? new Date(patient.dob).toLocaleDateString()
-                        : "N/A"}
-                    </p>
-                    <p>
-                      <span className="font-medium">Gender</span>
-                      <br />
-                      {patient.gender}
-                    </p>
-                    <p>
-                      <span className="font-medium">Blood Type</span>
-                      <br />
-                      {patient.bloodType || "N/A"}
-                    </p>
-                  </div>
-
-                  <hr className="my-5" />
-
-                  {/* Contact Info */}
-                  <h4 className="font-semibold text-gray-700 text-lg mb-3">
-                    Contact Information
-                  </h4>
-                  <div className="text-base space-y-3">
-                    <p className="flex items-center gap-2">
-                      <Phone size={18} className="text-gray-500" />
-                      {typeof patient.phone === "string"
-                        ? patient.phone
-                        : patient.phone?.number || "N/A"}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <Mail size={18} className="text-gray-500" />
-                      {patient.email}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <MapPin size={18} className="text-gray-500" />
-                      {patient.address
-                        ? `${patient.address.street}, ${patient.address.city}, ${patient.address.state} - ${patient.address.zip}`
-                        : "N/A"}
-                    </p>
-                  </div>
-
-                  <hr className="my-5" />
-
-                  {/* Emergency Contact */}
-                  <p className="text-base">
-                    <span className="font-semibold text-gray-700">
-                      Emergency Contact
-                    </span>
-                    <br />
-                    {patient.emergencyContact
-                      ? `${patient.emergencyContact.name || ""} (${
-                          patient.emergencyContact.number || "N/A"
-                        })`
-                      : "N/A"}
-                  </p>
-                </div>
-              )}
-              {activeTab === "History" && (
-                <p className="text-gray-600 text-base">
-                  Patient history goes here...
-                </p>
-              )}
-              {activeTab === "Notes" && (
-                <p className="text-gray-600 text-base">
-                  Doctor notes go here...
-                </p>
-              )}
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        {/* Footer */}
+        <div className="sticky bottom-0 z-20">
+          <PatientFooter />
+        </div>
+      </div>
+    </>
   );
 };
 

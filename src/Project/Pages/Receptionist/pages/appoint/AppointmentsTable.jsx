@@ -3,13 +3,13 @@ import React from 'react';
 import { Calendar } from 'lucide-react';
 import AppointmentRow from './AppointmentRow';
 
-export default function AppointmentsTable({ 
-  appointments, 
-  openMenu, 
-  onMenuToggle, 
-  onViewDetails, 
-  onEdit, 
-  onCancel 
+export default function AppointmentsTable({
+  appointments,
+  openMenu,
+  onMenuToggle,
+  onViewDetails,
+  onEdit,
+  onCancel
 }) {
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">

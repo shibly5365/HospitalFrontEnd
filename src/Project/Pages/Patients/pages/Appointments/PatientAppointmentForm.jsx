@@ -1,170 +1,231 @@
-import React, { useState, useEffect } from "react";
+// AppointmentBooking.jsx
+import React, { useState } from "react";
+import { ChevronRight, ChevronLeft, Home } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { HomeIcon } from "lucide-react";
-import PatientInfo from "./AppointmensForm/PatientDetailsForm";
-import DepartmentDoctor from "./AppointmensForm/DepartmentDoctor";
-import Schedule from "./AppointmensForm/ScheduleForm";
-import ContactConsultation from "./AppointmensForm/ContactConsultation";
-import PaymentSection from "./AppointmensForm/PaymentSection";
+
+import AppointmentDetails from './AppointmensForm/AppointmentDetails';
+import PatientInformation from './AppointmensForm/PatientInformation';
+import ReviewAndPayment from './AppointmensForm/ReviewAndPayment';
+import StepIndicator from './AppointmensForm/StepIndicator';
 import { notify } from "../../../../../Units/notification";
 
+const AppointmentBooking = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const incoming = location.state || {}; // { doctor, selectedDate, selectedSlot }
 
-const BookAppointment = () => {
+  // Keep doctor object for display
+  const [selectedDoctorObj] = useState(incoming.doctor || null);
+  const [step, setStep] = useState(1);
+
+
+  const formatLocalDate = (date) => {
+  if (!(date instanceof Date)) return date;
+
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+
+  return `${y}-${m}-${d}`;
+};
   const [formData, setFormData] = useState({
-    firstName: "",
+    doctorId: incoming.doctor?.id || "",
+    doctorName: incoming.doctor?.name || "",
+    department: incoming.doctor?.department || "",
+    appointmentDate: formatLocalDate(incoming.selectedDate),
+    timeSlot:
+      typeof incoming.selectedSlot === "object"
+        ? incoming.selectedSlot
+        : { start: incoming.selectedSlot || "", end: "" },
+    consultationType: "",
+    reason: "",
+    consultationFee: incoming.doctor?.rate || 0,
+    patientName: "",
     dob: "",
     gender: "",
-    department: "",
-    doctor: "",
-    appointmentDate: "",
-    timeSlot: "",
     email: "",
-    contact: "",
-    problems: "",
-    consultationType: "",
+    phone: "",
+    address: "",
+    emergencyContact: "",
+    insurance: "",
+    paymentMethod: "upi",
   });
 
-  const [departments, setDepartments] = useState([]);
-  const [doctors, setDoctors] = useState([]);
-  const [availableDates, setAvailableDates] = useState([]);
-  const [slots, setSlots] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const handleInputChange = (field, value) => {
+    setFormData(prev => {
+      const updated = { ...prev, [field]: value };
 
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const res = await axios.get(
-          "http://localhost:4002/api/patient/getdepartmenst",
-          { withCredentials: true }
-        );
-        if (res.data.success) setDepartments(res.data.data || []);
-      } catch (err) {
-        console.log(err);
-        notify.error("Failed to fetch departments");
+      // If doctor changes, also update name & fee
+      if (field === "doctor" && incoming.doctor) {
+        updated.consultationFee = incoming.doctor.rate;
+        updated.doctorName = incoming.doctor.name;
       }
-    };
-    fetchDepartments();
-  }, []);
 
-  const resetForm = () => {
-    setFormData({
-      firstName: "",
-      dob: "",
-      gender: "",
-      department: "",
-      doctor: "",
-      appointmentDate: "",
-      timeSlot: "",
-      email: "",
-      contact: "",
-      problems: "",
-      consultationType: "",
+      return updated;
     });
-    setDoctors([]);
-    setAvailableDates([]);
-    setSlots([]);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const calculateAge = (dob) => {
+    if (!dob) return '';
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
+    return age;
+  };
 
-    if (!formData.consultationType) {
-      notify.error("Please select consultation type!");
-      return;
+  const canProceedToNextStep = () => {
+    if (step === 1) {
+      return formData.doctorId &&
+             formData.appointmentDate &&
+             formData.timeSlot?.start &&
+             formData.timeSlot?.end &&
+             formData.reason &&
+             formData.department &&
+             formData.consultationType;
     }
-    if (!formData.timeSlot) {
-      notify.error("Please select a time slot!");
-      return;
+    if (step === 2) {
+      return formData.patientName && formData.dob && formData.gender && formData.email && formData.phone;
     }
+    return true;
+  };
 
-    setLoading(true);
+const handleSubmitAppointment = async () => {
+  // -------- Full Validation --------
+  if (!formData.doctorId) return notify.error("Doctor not selected!");
+  if (!formData.appointmentDate) return notify.error("Select appointment date!");
+  
+  // Validate timeSlot properly
+  if (!formData.timeSlot?.start || !formData.timeSlot?.end) {
+    return notify.error("Select a valid time slot!");
+  }
 
-    const payload = {
-      doctorId: formData.doctor,
-      appointmentDate: formData.appointmentDate,
-      timeSlot: formData.timeSlot.start,
-      consultationType: formData.consultationType,
-      reason: formData.problems,
-      patientName: formData.firstName,
-      dob: formData.dob,
-      gender: formData.gender,
-      email: formData.email,
-      department: formData.department,
-      contactNumber: formData.contact,
-    };
+  if (!formData.consultationType)
+    return notify.error("Select consultation type!");
 
-    try {
-      const res = await axios.post(
-        "http://localhost:4002/api/patient/appointments",
-        payload,
-        { withCredentials: true }
-      );
-      if (res.data.appointment) {
-        notify.success("Appointment booked successfully!");
-        navigate("/patient/patient-appointments");
-        resetForm();
-      } else {
-        notify.error(res.data.message || "Failed to book appointment");
-      }
-    } catch (err) {
-      console.error(err);
-      notify.error("Error booking appointment");
-    } finally {
-      setLoading(false);
+  if (!formData.reason) return notify.error("Please enter your reason!");
+
+  // Patient details validation
+  if (!formData.patientName) return notify.error("Enter patient name!");
+  if (!formData.dob || isNaN(new Date(formData.dob).getTime()))
+    return notify.error("Enter a valid date of birth!");
+  if (!formData.gender) return notify.error("Select gender!");
+
+  if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email))
+    return notify.error("Enter a valid email!");
+
+  if (!formData.phone || !/^\d{10,15}$/.test(formData.phone))
+    return notify.error("Enter a valid phone number!");
+
+  // Payment validation
+  if (!formData.paymentMethod)
+    return notify.error("Select payment method!");
+
+  try {
+    await axios.post(
+      "http://localhost:4002/api/patient/create",
+      formData,
+      { withCredentials: true }
+    );
+    notify.success("Appointment booked successfully!");
+    navigate("/patient/patient-appointments");
+  } catch (err) {
+    console.error("Backend error:", err?.response?.data || err);
+    notify.error("Failed to book appointment. Try again.");
+  }
+};
+
+
+
+  const renderCurrentStep = () => {
+    switch (step) {
+      case 1:
+        return (
+          <AppointmentDetails
+            formData={formData}
+            onInputChange={handleInputChange}
+            incomingDoctor={selectedDoctorObj} // for display
+          />
+        );
+      case 2:
+        return (
+          <PatientInformation
+            formData={formData}
+            onInputChange={handleInputChange}
+            calculateAge={calculateAge}
+          />
+        );
+      case 3:
+        return (
+          <ReviewAndPayment
+            formData={formData}
+            onInputChange={handleInputChange}
+            selectedDoctorObj={selectedDoctorObj}
+          />
+        );
+      default:
+        return null;
     }
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen flex justify-center">
-      <div className="w-full max-w-4xl bg-white p-8 rounded-2xl shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+      <div className="max-w-3xl mx-auto mb-4">
         <button
-          onClick={() => navigate("/patient/patient-dashboard")}
-          className="absolute top-4 right-4 flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition"
+          onClick={() => navigate("/patient/patient-appointments")}
+          className="flex items-center gap-2 px-5 py-2 bg-white shadow-md rounded-xl text-gray-700 hover:bg-gray-100 border border-gray-200"
         >
-          <HomeIcon size={20} />
+          <Home className="w-5 h-5" />
           Home
         </button>
+      </div>
 
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">Book Appointment</h2>
-        <p className="text-sm text-gray-500 mb-6">
-          Home / Appointment / <span className="text-blue-600">Book Appointment</span>
-        </p>
-
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <PatientInfo formData={formData} setFormData={setFormData} />
-          <DepartmentDoctor
-            formData={formData}
-            setFormData={setFormData}
-            departments={departments}
-            doctors={doctors}
-            setDoctors={setDoctors}
-            setAvailableDates={setAvailableDates}
-            setSlots={setSlots}
-          />
-          <Schedule
-            formData={formData}
-            setFormData={setFormData}
-            availableDates={availableDates}
-            slots={slots}
-            setSlots={setSlots}
-          />
-          <ContactConsultation formData={formData} setFormData={setFormData} />
-          <PaymentSection formData={formData} setFormData={setFormData} />
-          <div className="col-span-2 flex gap-4 justify-end mt-4">
-            <button type="reset" onClick={resetForm} className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
-              Cancel
-            </button>
-            <button type="submit" disabled={loading} className={`px-6 py-2 rounded-lg text-white ${loading ? "bg-gray-400" : "bg-green-500 hover:bg-green-600"}`}>
-              {loading ? "Booking..." : "Book Appointment"}
-            </button>
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-800">Book Your Appointment</h1>
+            <p className="text-gray-600 mt-2">Complete the form to schedule your visit</p>
           </div>
-        </form>
+
+          <StepIndicator step={step} />
+          <div className="mt-8">{renderCurrentStep()}</div>
+
+          <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
+            {step > 1 && (
+              <button
+                onClick={() => setStep(step - 1)}
+                className="flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+              >
+                <ChevronLeft className="w-5 h-5" />
+                Back
+              </button>
+            )}
+
+            {step < 3 ? (
+              <button
+                onClick={() => setStep(step + 1)}
+                disabled={!canProceedToNextStep()}
+                className={`flex items-center gap-2 px-6 py-3 rounded-lg transition ml-auto ${canProceedToNextStep() ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
+              >
+                Next
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmitAppointment}
+                className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition ml-auto font-semibold"
+              >
+                Confirm Appointment
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default BookAppointment;
+export default AppointmentBooking;

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Phone, Calendar, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 // Single Patient Card
 const PatientCard = ({ patient, onClick, isSelected }) => (
@@ -71,7 +72,24 @@ const PatientCard = ({ patient, onClick, isSelected }) => (
 
 // Right-side Patient Details
 // Right-side Patient Details (Redesigned)
-const PatientDetails = ({ patient, onClose }) => {
+const PatientDetails = ({
+  patient,
+  onClose,
+  loading = false,
+  onBookAppointment,
+  onViewFullProfile,
+}) => {
+  if (loading) {
+    return (
+      <div className="h-full bg-gray-50 shadow-lg border-l w-[35%] min-w-[320px] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading patient details...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full bg-gray-50 shadow-lg border-l w-[35%] min-w-[320px] overflow-y-auto flex flex-col">
       {/* Close Button */}
@@ -212,19 +230,39 @@ const PatientDetails = ({ patient, onClose }) => {
 
       {/* Action Buttons */}
       <div className="mt-auto p-6 space-y-3">
-        <button className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition">
-          View Full Profile
-        </button>
-        <button className="w-full bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 transition">
-          Book New Appointment
-        </button>
+        {onViewFullProfile && (
+          <button
+            onClick={onViewFullProfile}
+            className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+          >
+            View Full Profile
+          </button>
+        )}
+        {onBookAppointment && (
+          <button
+            onClick={onBookAppointment}
+            className="w-full bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 transition"
+          >
+            Book New Appointment
+          </button>
+        )}
         <div className="flex gap-3">
-          <button className="flex-1 border py-2 rounded-lg text-gray-600 hover:bg-gray-100">
-            Call
-          </button>
-          <button className="flex-1 border py-2 rounded-lg text-gray-600 hover:bg-gray-100">
-            Email
-          </button>
+          {patient?.contact && (
+            <a
+              href={`tel:${patient.contact}`}
+              className="flex-1 border py-2 rounded-lg text-gray-600 hover:bg-gray-100 text-center"
+            >
+              Call
+            </a>
+          )}
+          {patient?.email && (
+            <a
+              href={`mailto:${patient.email}`}
+              className="flex-1 border py-2 rounded-lg text-gray-600 hover:bg-gray-100 text-center"
+            >
+              Email
+            </a>
+          )}
         </div>
       </div>
     </div>
@@ -232,23 +270,27 @@ const PatientDetails = ({ patient, onClose }) => {
 };
 
 export default function PatientLists() {
+  const navigate = useNavigate();
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [patientDetails, setPatientDetails] = useState(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
   useEffect(() => {
     const fetchPatients = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:4002/api/receptionist/getAll-patients",
+          "http://localhost:4002/api/receptionist/patients",
           {
             withCredentials: true,
           }
         );
-        console.log("res", res.data);
 
-        setPatients(res.data || []);
+        if (res.data.success && res.data.data) {
+          setPatients(res.data.data.patients || []);
+        }
       } catch (err) {
         console.error("Error fetching patients:", err);
       } finally {
@@ -257,6 +299,68 @@ export default function PatientLists() {
     };
     fetchPatients();
   }, []);
+
+  const fetchPatientCompleteDetails = async (patientId) => {
+    try {
+      setLoadingDetails(true);
+      const res = await axios.get(
+        `http://localhost:4002/api/receptionist/patient/${patientId}/details`,
+        { withCredentials: true }
+      );
+
+      if (res.data.success && res.data.data) {
+        const data = res.data.data;
+
+        // Transform data to match the expected format
+        const upcomingAppointment = data.appointments?.find(
+          (apt) =>
+            new Date(apt.appointmentDate) >= new Date() &&
+            !["Cancelled", "Completed", "Missed"].includes(apt.status)
+        );
+
+        // Get recent visits (last 5 completed appointments)
+        const recentVisits =
+          data.appointments
+            ?.filter((apt) => apt.status === "Completed")
+            .slice(0, 5)
+            .map((apt) => ({
+              doctorName: apt.doctor?.userId?.fullName || "Unknown",
+              department: apt.doctor?.department?.name || "Unknown",
+              reason: apt.reason || "General Consultation",
+              date: apt.appointmentDate,
+            })) || [];
+
+        // Transform patient data with summary
+        const transformedPatient = {
+          ...data.patient,
+          summary: {
+            upcomingAppointment: upcomingAppointment || null,
+            recentVisits,
+            totalAppointments: data.summary?.totalAppointments || 0,
+            completedAppointments: data.summary?.completedAppointments || 0,
+            totalSpent: data.summary?.totalSpent || 0,
+          },
+          appointments: data.appointments || [],
+        };
+
+        setPatientDetails(transformedPatient);
+      }
+    } catch (err) {
+      console.error("Error fetching patient details:", err);
+      // If detailed fetch fails, use basic patient data
+      setPatientDetails(selectedPatient);
+    } finally {
+      setLoadingDetails(false);
+    }
+  };
+
+  // Fetch complete patient details when selected
+  useEffect(() => {
+    if (selectedPatient?._id) {
+      fetchPatientCompleteDetails(selectedPatient._id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPatient?._id]);
 
   const filteredPatients = patients.filter((p) =>
     [p.fullName, p._id, p.contact, p.email]
@@ -275,7 +379,10 @@ export default function PatientLists() {
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-xl font-bold text-gray-800">Patients</h1>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+          <button
+            onClick={() => navigate("/receptionist/patients/register")}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+          >
             Add Patient
           </button>
         </div>
@@ -311,8 +418,26 @@ export default function PatientLists() {
       {/* Details Panel */}
       {selectedPatient && (
         <PatientDetails
-          patient={selectedPatient}
-          onClose={() => setSelectedPatient(null)}
+          patient={patientDetails || selectedPatient}
+          onClose={() => {
+            setSelectedPatient(null);
+            setPatientDetails(null);
+          }}
+          loading={loadingDetails}
+          onBookAppointment={() => {
+            if (selectedPatient?._id) {
+              navigate(`/receptionist/patients/book-appointment`, {
+                state: { patientId: selectedPatient._id },
+              });
+            }
+          }}
+          onViewFullProfile={() => {
+            if (selectedPatient?._id) {
+              navigate(`/receptionist/patients/view-search`, {
+                state: { patientId: selectedPatient._id },
+              });
+            }
+          }}
         />
       )}
     </div>

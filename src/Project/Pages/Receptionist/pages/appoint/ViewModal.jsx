@@ -1,6 +1,6 @@
 // components/ViewModal.jsx
 import React from 'react';
-import { X, User, Calendar, FileText, Phone, Mail } from 'lucide-react';
+import { X, User, Calendar, FileText, Phone, Mail, RotateCcw } from 'lucide-react';
 
 const statusColors = {
   Confirmed: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -16,7 +16,7 @@ const statusDots = {
   Cancelled: "bg-rose-500",
 };
 
-export default function ViewModal({ appointment, onClose, onEdit, onCancel }) {
+export default function ViewModal({ appointment, onClose, onEdit, onCancel, onReschedule }) {
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden animate-in">
@@ -134,19 +134,32 @@ export default function ViewModal({ appointment, onClose, onEdit, onCancel }) {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
-            <button
-              onClick={() => onEdit(appointment)}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all font-medium shadow-lg shadow-blue-500/30 text-center"
-            >
-              Edit Appointment
-            </button>
-            <button
-              onClick={() => onCancel(appointment._id)}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-rose-600 to-pink-600 text-white rounded-xl hover:from-rose-700 hover:to-pink-700 transition-all font-medium shadow-lg shadow-rose-500/30 text-center"
-            >
-              Cancel Appointment
-            </button>
+          <div className="flex gap-3 pt-4 flex-wrap">
+            {onReschedule && appointment.status !== "Completed" && appointment.status !== "Cancelled" && (
+              <button
+                onClick={() => onReschedule(appointment)}
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all font-medium shadow-lg shadow-purple-500/30 text-center flex items-center justify-center gap-2"
+              >
+                <RotateCcw size={18} />
+                Reschedule
+              </button>
+            )}
+            {onEdit && appointment.status !== "Completed" && appointment.status !== "Cancelled" && (
+              <button
+                onClick={() => onEdit(appointment)}
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all font-medium shadow-lg shadow-blue-500/30 text-center"
+              >
+                Edit Appointment
+              </button>
+            )}
+            {onCancel && appointment.status !== "Completed" && appointment.status !== "Cancelled" && (
+              <button
+                onClick={() => onCancel(appointment._id)}
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-rose-600 to-pink-600 text-white rounded-xl hover:from-rose-700 hover:to-pink-700 transition-all font-medium shadow-lg shadow-rose-500/30 text-center"
+              >
+                Cancel Appointment
+              </button>
+            )}
           </div>
         </div>
       </div>

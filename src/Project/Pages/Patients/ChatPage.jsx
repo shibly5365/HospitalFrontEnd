@@ -1,141 +1,240 @@
-import React, { useState } from "react";
-import { Search, Plus } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { io } from "socket.io-client";
+import { Search, Plus, Send, Paperclip, MoreVertical, ArrowLeft, Phone, Video, Menu, X } from "lucide-react";
 
 const ChatPagePatient = () => {
   const [selectedChat, setSelectedChat] = useState(null);
+  const [message, setMessage] = useState("");
+  const [messagesList, setMessagesList] = useState([]);
+  const socketRef = useRef(null);
+  const pcRef = useRef(null);
+  const localStreamRef = useRef(null);
+  const remoteVideoRef = useRef(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("All");
 
   const conversations = [
     {
-      id: 1,
-      name: "Dr. Smith",
-      role: "Doctor",
-      message: "Patient in room 203 needs immediate attention. Please check the vitals.",
-      time: "2 mins ago",
-      unread: 2,
-      statusColor: "text-blue-500",
-      avatar: "https://via.placeholder.com/40",
+      id: 1, name: "Dr. Smith", role: "Cardiologist", message: "Your test results look good. Let's schedule a follow-up next week.", time: "2m", unread: 2, online: true,
+      avatar: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=100&h=100&fit=crop",
+      messages: [
+        { id: 1, text: "Hello! How are you feeling today?", sender: "them", time: "10:30 AM" },
+        { id: 2, text: "I'm doing better, thank you!", sender: "me", time: "10:32 AM" },
+        { id: 3, text: "Your test results look good. Let's schedule a follow-up next week.", sender: "them", time: "10:35 AM" },
+      ]
     },
     {
-      id: 2,
-      name: "Sarah Johnson",
-      role: "Patient",
-      message: "Thank you for the appointment confirmation. See you tomorrow at 9 AM.",
-      time: "15 mins ago",
-      unread: 0,
-      statusColor: "text-green-500",
-      avatar: "",
+      id: 2, name: "Sarah Johnson", role: "Patient Support", message: "Thank you for the appointment confirmation. See you tomorrow!", time: "15m", unread: 0, online: true,
+      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+      messages: [
+        { id: 1, text: "Hi! I confirmed your appointment.", sender: "them", time: "9:15 AM" },
+        { id: 2, text: "Thank you! See you tomorrow!", sender: "them", time: "9:20 AM" },
+      ]
     },
-    {
-      id: 3,
-      name: "Nurse Mary",
-      role: "Staff",
-      message: "Emergency patient arriving in 5 minutes. Bed 7 is ready.",
-      time: "25 mins ago",
-      unread: 1,
-      statusColor: "text-pink-500",
-      avatar: "https://via.placeholder.com/40",
-    },
+    { id: 3, name: "Nurse Mary", role: "Nurse Practitioner", message: "Take your medication twice daily.", time: "25m", unread: 1, online: false, avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=100&h=100&fit=crop", messages: [{ id: 1, text: "Take your medication twice daily.", sender: "them", time: "8:45 AM" }] },
+    { id: 4, name: "Dr. Rodriguez", role: "Neurologist", message: "MRI scans look normal.", time: "1h", unread: 0, online: false, avatar: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=100&h=100&fit=crop", messages: [] },
   ];
 
+  const filtered = conversations.filter(c => activeFilter === "All" || (activeFilter === "doctor" && c.role.includes("Dr.")) || (activeFilter === "Patients" && c.role.includes("Patient")) || (activeFilter === "Staff" && (c.role.includes("Nurse") || c.role.includes("Staff"))));
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:4002');
+    socketRef.current = socket;
+    if (user?._id) socket.emit('register', user._id);
+
+    socket.on('newMessage', (msg) => {
+      setMessagesList((s) => [...s, msg]);
+    });
+
+    socket.on('messageSent', (msg) => {
+      setMessagesList((s) => [...s, msg]);
+    });
+
+    socket.on('messageError', (err) => {
+      console.warn('message error', err);
+    });
+
+    socket.on('incoming-call', async ({ from, offer }) => {
+      // answer incoming call automatically (very basic)
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        localStreamRef.current = stream;
+        const pc = new RTCPeerConnection();
+        pcRef.current = pc;
+        stream.getTracks().forEach((t) => pc.addTrack(t, stream));
+        pc.ontrack = (ev) => {
+          if (remoteVideoRef.current) remoteVideoRef.current.srcObject = ev.streams[0];
+        };
+        pc.onicecandidate = (e) => {
+          if (e.candidate) socket.emit('ice-candidate', { to: from, candidate: e.candidate });
+        };
+        await pc.setRemoteDescription(offer);
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        socket.emit('answer-call', { to: from, answer });
+      } catch (e) {
+        console.error('failed to answer', e);
+      }
+    });
+
+    socket.on('call-answered', async ({ answer }) => {
+      if (pcRef.current) await pcRef.current.setRemoteDescription(answer);
+    });
+
+    socket.on('ice-candidate', async ({ candidate }) => {
+      try {
+        if (pcRef.current) await pcRef.current.addIceCandidate(candidate);
+      } catch (e) { console.warn(e); }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  const handleSend = () => {
+    if (!message.trim() || !selectedChat) return;
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const payload = { sender: user._id, receiver: selectedChat.userId || selectedChat.id, text: message };
+    // emit via socket
+    if (socketRef.current) socketRef.current.emit('sendMessage', payload);
+    // optimistic update
+    setMessagesList((s) => [...s, { ...payload, createdAt: new Date().toISOString(), sender: user._id }]);
+    setMessage("");
+  };
+
+  // start a call (basic WebRTC flow)
+  const startCall = async () => {
+    if (!selectedChat) return;
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    // get media
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      localStreamRef.current = stream;
+      // show local preview (optional)
+      const pc = new RTCPeerConnection();
+      pcRef.current = pc;
+      stream.getTracks().forEach((t) => pc.addTrack(t, stream));
+      pc.ontrack = (ev) => {
+        if (remoteVideoRef.current) remoteVideoRef.current.srcObject = ev.streams[0];
+      };
+      pc.onicecandidate = (e) => {
+        if (e.candidate && socketRef.current) {
+          socketRef.current.emit('ice-candidate', { to: selectedChat.userId || selectedChat.id, candidate: e.candidate });
+        }
+      };
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      // send offer via socket
+      socketRef.current.emit('call-user', { to: selectedChat.userId || selectedChat.id, offer, from: user._id });
+    } catch (e) {
+      console.error('call failed', e);
+    }
+  };
+
+  const ChatBubble = ({ msg }) => (
+    <div className={`flex ${msg.sender === "me" ? "justify-end" : "justify-start"}`}>
+      <div className={`max-w-xs md:max-w-md lg:max-w-lg ${msg.sender === "me" ? "order-2" : ""}`}>
+        <div className={`px-4 py-3 rounded-2xl shadow-md ${msg.sender === "me" ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-br-sm" : "bg-white text-gray-800 rounded-bl-sm"}`}>
+          {msg.text}
+        </div>
+        <p className={`text-xs text-gray-500 mt-1 ${msg.sender === "me" ? "text-right" : "text-left"}`}>{msg.time}</p>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <div className="flex justify-between items-center p-4 bg-white shadow">
-        <h2 className="text-xl font-semibold">Messages</h2>
-        <button className="flex items-center bg-pink-500 text-white px-3 py-1.5 rounded-lg hover:bg-pink-600 transition">
-          <Plus size={18} className="mr-1" /> New Message
-        </button>
+      <div className="flex justify-between items-center p-4 md:p-6 bg-white/80 backdrop-blur-lg shadow-sm border-b border-gray-200">
+        <div className="flex items-center gap-3">
+          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition"><Menu size={24} /></button>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Messages</h2>
+        </div>
+        <button className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200"><Plus size={18} /><span className="hidden sm:inline">New Message</span></button>
       </div>
 
       {/* Body */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left Sidebar */}
-        <div className="w-80 border-r bg-white flex flex-col">
+      <div className="flex flex-1 overflow-hidden relative">
+        {isSidebarOpen && <div className="lg:hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-40" onClick={() => setIsSidebarOpen(false)} />}
+
+        {/* Sidebar */}
+        <div className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:relative z-50 lg:z-0 w-full sm:w-96 lg:w-96 h-full border-r bg-white/90 backdrop-blur-lg flex flex-col transition-transform duration-300 ease-in-out shadow-xl lg:shadow-none`}>
+          <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition z-10"><X size={24} /></button>
+
           {/* Search */}
-          <div className="p-3">
-            <div className="flex items-center bg-gray-100 rounded-lg px-2">
+          <div className="p-4">
+            <div className="flex items-center bg-gray-100 rounded-xl px-4 py-3 shadow-sm border border-gray-200">
               <Search size={18} className="text-gray-500" />
-              <input
-                type="text"
-                placeholder="Search conversations..."
-                className="ml-2 bg-transparent outline-none text-sm flex-1 py-2"
-              />
+              <input type="text" placeholder="Search..." className="ml-3 bg-transparent outline-none text-sm flex-1" />
             </div>
           </div>
 
-          {/* Filter Tabs */}
-          <div className="flex justify-around text-sm px-3 mb-2">
-            {["All", "Doctors", "Patients", "Staff"].map((tab) => (
-              <button
-                key={tab}
-                className="px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 transition"
-              >
-                {tab}
-              </button>
+          {/* Filters */}
+          <div className="flex gap-2 px-4 mb-3 overflow-x-auto">
+            {["All", "Doctors", "Patients", "Staff"].map(tab => (
+              <button key={tab} onClick={() => setActiveFilter(tab)} className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${activeFilter === tab ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>{tab}</button>
             ))}
           </div>
 
-          {/* Conversation List */}
+          {/* Conversations */}
           <div className="flex-1 overflow-y-auto">
-            {conversations.map((chat) => (
-              <div
-                key={chat.id}
-                onClick={() => setSelectedChat(chat)}
-                className="flex items-start p-3 hover:bg-gray-100 cursor-pointer border-b"
-              >
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                  {chat.avatar ? (
-                    <img src={chat.avatar} alt={chat.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-gray-700 font-semibold">
-                      {chat.name.split(" ").map((n) => n[0]).join("")}
-                    </span>
-                  )}
-                </div>
-                <div className="ml-3 flex-1">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-semibold text-gray-800">{chat.name}</h4>
-                    <span className="text-xs text-gray-500">{chat.time}</span>
+            {filtered.map(c => (
+              <div key={c.id} onClick={() => { setSelectedChat(c); setIsSidebarOpen(false) }} className={`flex items-start p-4 cursor-pointer border-b border-gray-100 transition-all duration-200 ${selectedChat?.id === c.id ? "bg-gradient-to-r from-blue-50 to-purple-50 border-l-4 border-l-blue-500" : "hover:bg-gray-50"}`}>
+                <div className="relative">
+                  <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-white shadow-md">
+                    <img src={c.avatar} alt={c.name} className="w-full h-full object-cover" />
                   </div>
-                  <p className="text-xs text-gray-600 truncate">{chat.message}</p>
-                  <span className={`text-xs font-medium ${chat.statusColor}`}>{chat.role}</span>
+                  {c.online && <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></span>}
                 </div>
-                {chat.unread > 0 && (
-                  <span className="ml-2 bg-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                    {chat.unread}
-                  </span>
-                )}
+                <div className="ml-3 flex-1 min-w-0">
+                  <div className="flex justify-between items-center mb-1"><h4 className="font-semibold text-gray-800 truncate">{c.name}</h4><span className="text-xs text-gray-500 ml-2">{c.time}</span></div>
+                  <p className="text-sm text-gray-600 truncate mb-1">{c.message}</p>
+                  <span className="text-xs font-medium bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{c.role}</span>
+                </div>
+                {c.unread > 0 && <span className="ml-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md">{c.unread}</span>}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Right Chat Window */}
-        <div className="flex-1 flex flex-col bg-gray-50 items-center justify-center">
+        {/* Chat Window */}
+        <div className="flex-1 flex flex-col bg-gradient-to-br from-gray-50 to-white">
           {!selectedChat ? (
-            <div className="text-center text-gray-500">
-              <div className="text-5xl mb-3">💬</div>
-              <p className="font-medium">Select a Conversation</p>
-              <p className="text-sm">Choose a conversation from the list to start messaging</p>
+            <div className="flex-1 flex items-center justify-center text-center p-6">
+              <div>
+                <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-blue-400 to-purple-400 rounded-3xl flex items-center justify-center shadow-2xl"><span className="text-6xl">💬</span></div>
+                <p className="text-xl font-semibold text-gray-800 mb-2">Select a Conversation</p>
+                <p className="text-sm text-gray-500 max-w-sm">Choose a conversation from the list to start messaging.</p>
+              </div>
             </div>
           ) : (
             <div className="flex flex-col w-full h-full">
-              {/* Chat Header */}
-              <div className="flex items-center p-4 bg-white border-b shadow-sm">
-                <img
-                  src={selectedChat.avatar || "https://via.placeholder.com/40"}
-                  alt={selectedChat.name}
-                  className="w-10 h-10 rounded-full"
-                />
-                <div className="ml-3">
-                  <h2 className="text-lg font-semibold">{selectedChat.name}</h2>
-                  <p className="text-xs text-gray-500">{selectedChat.role}</p>
+              <div className="flex items-center justify-between p-4 md:p-5 bg-white/90 backdrop-blur-lg border-b border-gray-200 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <button onClick={() => setSelectedChat(null)} className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition"><ArrowLeft size={20} /></button>
+                  <div className="relative"><img src={selectedChat.avatar} alt={selectedChat.name} className="w-11 h-11 rounded-full object-cover ring-2 ring-white shadow-md" />{selectedChat.online && <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>}</div>
+                  <div><h2 className="text-lg font-semibold text-gray-800">{selectedChat.name}</h2><p className="text-xs text-gray-500">{selectedChat.role}</p></div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {[Phone, Video].map((Icon, i) => <button key={i} className="p-2 hover:bg-gray-100 rounded-xl transition hidden sm:block"><Icon size={20} className="text-gray-600" /></button>)}
+                  <button onClick={startCall} title="Start Video Call" className="p-2 hover:bg-gray-100 rounded-xl transition bg-green-50 text-green-700"><Video size={18} /></button>
+                  <button className="p-2 hover:bg-gray-100 rounded-xl transition"><MoreVertical size={20} className="text-gray-600" /></button>
                 </div>
               </div>
 
-              {/* Empty State (for now) */}
-              <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">
-                Chat with {selectedChat.name} will appear here.
+              <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
+                {selectedChat.messages.length > 0 ? selectedChat.messages.map(msg => <ChatBubble key={msg.id} msg={msg} />) : <div className="flex items-center justify-center h-full text-gray-400 text-sm">Start your conversation with {selectedChat.name}</div>}
+              </div>
+
+              <div className="p-4 md:p-5 bg-white/90 backdrop-blur-lg border-t border-gray-200">
+                <div className="flex items-center gap-2 md:gap-3 bg-gray-50 rounded-2xl px-4 py-3 shadow-sm border border-gray-200">
+                  <button className="p-2 hover:bg-gray-200 rounded-lg transition"><Paperclip size={20} className="text-gray-500" /></button>
+                  <input type="text" placeholder="Type your message..." value={message} onChange={e => setMessage(e.target.value)} onKeyPress={e => e.key === "Enter" && handleSend()} className="flex-1 bg-transparent outline-none text-sm md:text-base" />
+                  <button onClick={handleSend} className="p-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-105"><Send size={20} /></button>
+                </div>
               </div>
             </div>
           )}
@@ -146,3 +245,213 @@ const ChatPagePatient = () => {
 };
 
 export default ChatPagePatient;
+
+
+// import React, { useState, useEffect, useRef } from "react";
+// import axios from "axios";
+// import { io } from "socket.io-client";
+// import {
+//   Search,
+//   Plus,
+//   Send,
+//   Paperclip,
+//   MoreVertical,
+//   ArrowLeft,
+//   Video,
+//   Menu,
+//   X,
+// } from "lucide-react";
+
+// const API_URL = "http://localhost:4002";
+
+// // const ChatPagePatient = () => {
+// //   const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+// //   const [conversations, setConversations] = useState([]);
+// //   const [selectedChat, setSelectedChat] = useState(null);
+// //   const [messagesList, setMessagesList] = useState([]);
+// //   const [message, setMessage] = useState("");
+// //   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+// //   const socketRef = useRef(null);
+
+// //   /* ---------------- SOCKET CONNECTION ---------------- */
+// //   useEffect(() => {
+// //     const socket = io(API_URL);
+// //     socketRef.current = socket;
+
+// //     if (user?._id) {
+// //       socket.emit("register", user._id);
+// //     }
+
+// //     socket.on("newMessage", (msg) => {
+// //       if (
+// //         msg.sender === selectedChat?._id ||
+// //         msg.receiver === selectedChat?._id
+// //       ) {
+// //         setMessagesList((prev) => [...prev, msg]);
+// //       }
+// //     });
+
+// //     return () => socket.disconnect();
+// //   }, [selectedChat, user?._id]);
+
+// //   /* ---------------- LOAD CONVERSATIONS ---------------- */
+// //   useEffect(() => {
+// //     const loadConversations = async () => {
+// //       try {
+// //         const res = await axios.get(
+// //           `${API_URL}/api/patient/conversation/${user._id}`
+// //         );
+// //         setConversations(res.data || []);
+// //       } catch (err) {
+// //         console.error("Conversation load error", err);
+// //       }
+// //     };
+
+// //     if (user?._id) loadConversations();
+// //   }, [user?._id]);
+
+// //   /* ---------------- LOAD MESSAGES ---------------- */
+// //   const openChat = async (chat) => {
+// //     setSelectedChat(chat);
+// //     setIsSidebarOpen(false);
+
+// //     try {
+// //       const res = await axios.get(
+// //         `${API_URL}/api/patient/conversation/${chat._id}`
+// //       );
+// //       setMessagesList(res.data.messages || []);
+// //     } catch (err) {
+// //       console.error("Message load error", err);
+// //     }
+// //   };
+
+// //   /* ---------------- SEND MESSAGE ---------------- */
+// //   const handleSend = async () => {
+// //     if (!message.trim() || !selectedChat) return;
+
+// //     const payload = {
+// //       sender: user._id,
+// //       receiver: selectedChat._id,
+// //       text: message,
+// //     };
+
+// //     try {
+// //       const res = await axios.post(
+// //         `${API_URL}/api/patient/sendMessage`,
+// //         payload
+// //       );
+
+// //       setMessagesList((prev) => [...prev, res.data]);
+// //       socketRef.current.emit("sendMessage", res.data);
+// //       setMessage("");
+// //     } catch (err) {
+// //       console.error("Send message error", err);
+// //     }
+// //   };
+
+// //   /* ---------------- MESSAGE BUBBLE ---------------- */
+// //   const ChatBubble = ({ msg }) => {
+// //     const isMe = msg.sender === user._id;
+
+// //     return (
+// //       <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+// //         <div
+// //           className={`px-4 py-2 rounded-2xl max-w-xs ${
+// //             isMe
+// //               ? "bg-blue-500 text-white rounded-br-sm"
+// //               : "bg-white text-gray-800 rounded-bl-sm"
+// //           }`}
+// //         >
+// //           {msg.text}
+// //           <div className="text-[10px] text-right opacity-70 mt-1">
+// //             {new Date(msg.createdAt).toLocaleTimeString()}
+// //           </div>
+// //         </div>
+// //       </div>
+// //     );
+// //   };
+
+// //   /* ---------------- UI ---------------- */
+// //   return (
+// //     <div className="h-screen flex bg-gray-100">
+// //       {/* SIDEBAR */}
+// //       <div
+// //         className={`w-80 bg-white border-r ${
+// //           isSidebarOpen ? "block" : "hidden"
+// //         } lg:block`}
+// //       >
+// //         <div className="p-4 font-bold text-xl border-b">Messages</div>
+
+// //         <div className="overflow-y-auto">
+// //           {conversations.map((c) => (
+// //             <div
+// //               key={c._id}
+// //               onClick={() => openChat(c)}
+// //               className={`p-4 cursor-pointer border-b hover:bg-gray-100 ${
+// //                 selectedChat?._id === c._id ? "bg-gray-200" : ""
+// //               }`}
+// //             >
+// //               <p className="font-semibold">{c.name}</p>
+// //               <p className="text-sm text-gray-500 truncate">
+// //                 {c.lastMessage?.text}
+// //               </p>
+// //             </div>
+// //           ))}
+// //         </div>
+// //       </div>
+
+// //       {/* CHAT WINDOW */}
+// //       <div className="flex-1 flex flex-col">
+// //         {!selectedChat ? (
+// //           <div className="flex-1 flex items-center justify-center text-gray-400">
+// //             Select a conversation
+// //           </div>
+// //         ) : (
+// //           <>
+// //             {/* HEADER */}
+// //             <div className="p-4 bg-white border-b flex justify-between items-center">
+// //               <div className="flex items-center gap-2">
+// //                 <button
+// //                   className="lg:hidden"
+// //                   onClick={() => setIsSidebarOpen(true)}
+// //                 >
+// //                   <Menu />
+// //                 </button>
+// //                 <h2 className="font-semibold">{selectedChat.name}</h2>
+// //               </div>
+// //               <Video className="text-green-600 cursor-pointer" />
+// //             </div>
+
+// //             {/* MESSAGES */}
+// //             <div className="flex-1 overflow-y-auto p-4 space-y-3">
+// //               {messagesList.map((msg) => (
+// //                 <ChatBubble key={msg._id} msg={msg} />
+// //               ))}
+// //             </div>
+
+// //             {/* INPUT */}
+// //             <div className="p-4 bg-white border-t flex gap-2">
+// //               <input
+// //                 value={message}
+// //                 onChange={(e) => setMessage(e.target.value)}
+// //                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
+// //                 placeholder="Type message..."
+// //                 className="flex-1 border rounded-xl px-4 py-2"
+// //               />
+// //               <button
+// //                 onClick={handleSend}
+// //                 className="bg-blue-500 text-white px-4 rounded-xl"
+// //               >
+// //                 <Send />
+// //               </button>
+// //             </div>
+// //           </>
+// //         )}
+// //       </div>
+// //     </div>
+// //   );
+// // };
+
+// // export default ChatPagePatient;

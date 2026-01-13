@@ -142,7 +142,7 @@ const PatientsDepartmentDetails = () => {
             <button
               onClick={() => {
               
-                navigate(`/patient/doctoresList/${department._id}`);
+                navigate(`/patient/patient-appointments/${department._id}`);
               }}
               className="text-sm text-blue-500 hover:text-blue-600 underline transition"
             >

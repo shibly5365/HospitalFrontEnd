@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import CalendarView from "./DoctorPages/Schedule/CalendarView ";
+import CalenxdarView from "./DoctorPages/Schedule/CalendarView ";
 import Schedule from "./DoctorPages/Schedule/Schedule";
 import WorkingDays from "./DoctorPages/Schedule/WorkingDays ";
 import Payments from "./DoctorPages/Schedule/Payments ";
+import CalendarLeaveRequest from "./DoctorPages/Schedule/CalendarView ";
 
 const DoctorSchedule = () => {
   const [view, setView] = useState("calendar"); // calendar, schedule, leave, workingDays, payments
@@ -43,7 +44,7 @@ const DoctorSchedule = () => {
 
       {/* Render selected view */}
       <div className="mt-4">
-        {view === "calendar" && <CalendarView />}
+        {view === "calendar" && <CalendarLeaveRequest />}
         {view === "schedule" && <Schedule />}
         {view === "workingDays" && <WorkingDays />}
         {view === "payments" && <Payments />}

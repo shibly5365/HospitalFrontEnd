@@ -16,7 +16,7 @@ export default function Activities({ isVisible }) {
     const fetchActivities = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:4002/api/patient/dashboard-summary",
+          "http://localhost:4002/api/patient/dashboard",
           { withCredentials: true }
         );
 

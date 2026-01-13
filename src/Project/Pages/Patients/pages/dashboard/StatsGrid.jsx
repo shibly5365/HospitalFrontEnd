@@ -11,7 +11,7 @@ export default function StatsGrid({ isVisible }) {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get("http://localhost:4002/api/patient/dashboard-summary", {
+        const res = await axios.get("http://localhost:4002/api/patient/dashboard", {
           withCredentials: true,
         });
 

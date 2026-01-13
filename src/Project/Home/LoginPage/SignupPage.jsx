@@ -7,7 +7,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { notify } from "../../../Units/notification";
 
-// ✅ Yup validation schema
+// Yup validation (no patientType)
 const signupSchema = Yup.object().shape({
   fullName: Yup.string().required("Full name is required"),
   email: Yup.string().email("Invalid email format").required("Email is required"),
@@ -22,27 +22,29 @@ const signupSchema = Yup.object().shape({
     .min(1, "Age must be at least 1")
     .max(120, "Please enter a valid age")
     .required("Age is required"),
-  gender: Yup.string().oneOf(["Male", "Female", "Other"], "Select a valid gender").required("Gender is required"),
+  gender: Yup.string()
+    .oneOf(["Male", "Female", "Other"], "Select a valid gender")
+    .required("Gender is required"),
 });
 
 const SignupPage = () => {
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
 
-  // ✅ React Hook Form setup
   const {
     register,
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
   } = useForm({
     resolver: yupResolver(signupSchema),
-    mode: "onChange", // ✅ live validation
+    mode: "onChange",
   });
 
   const onSubmit = async (data) => {
     setMessage("");
     try {
-      const res = await axios.post("http://localhost:4002/api/patient/signup", data);
+      // send data without patientType
+      const res = await axios.post("http://localhost:4002/api/patient/signup", data,{withCredentials:true});
       setMessage(res.data.message);
       if (res.data.success) {
         notify.success(res.data.message || "Signup successful 🎉");
