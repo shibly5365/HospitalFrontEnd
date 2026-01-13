@@ -58,12 +58,12 @@ function SuperAdminSidebar() {
           text="Admin Management"
         />
         <MenuItem
-          to="/payments"
+          to="/super-admin/payments"
           icon={<CreditCard size={18} />}
           text="Payments"
         />
         <MenuItem
-          to="/analytics"
+          to="/super-admin/analytics"
           icon={<BarChart2Icon size={18} />}
           text="Analytics"
         />
@@ -73,7 +73,7 @@ function SuperAdminSidebar() {
           text="Activity Logs"
         />
         <MenuItem
-          to="/settings"
+          to="/super-admin/settings"
           icon={<Settings size={18} />}
           text="Settings / Profile"
         />
