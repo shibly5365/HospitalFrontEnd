@@ -1,71 +1,31 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const CTASection = () => {
+  const navigate = useNavigate();
+
   return (
-    <section className="py-20 bg-gradient-to-r from-green-500 to-emerald-600">
-      <div className="max-w-4xl mx-auto text-center px-6">
-        <h2 className="text-4xl font-bold text-white mb-4">
-          Start taking care of your health now
+    <section className="px-4 py-20 sm:px-6">
+      <div className="mx-auto max-w-5xl rounded-3xl bg-gradient-to-r from-[var(--brand)] to-[#0f6d8f] px-6 py-14 text-center text-white sm:px-10">
+        <h2 className="mb-4 text-3xl font-bold md:text-4xl">
+          Ready to improve your healthcare experience?
         </h2>
-        <p className="text-xl text-white/90 mb-8">
-          Join thousands of patients who trust WellNest for their healthcare
-          journey
+        <p className="mx-auto mb-8 max-w-2xl text-lg text-white/90">
+          Create your account and start booking smarter appointments in minutes.
         </p>
-
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-          <button className="px-8 py-6 text-lg bg-white text-green-600 hover:bg-gray-100 rounded-lg font-medium">
-            Join Our Community
+        <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <button
+            onClick={() => navigate("/signup")}
+            className="rounded-xl bg-white px-8 py-4 font-semibold text-[var(--brand)] transition hover:bg-slate-100"
+          >
+            Join Now
           </button>
-        </div>
-
-        <div className="flex justify-center items-center gap-6">
-          {/* App Store */}
-          <div className="flex items-center gap-2">
-            <div className="bg-black rounded-lg p-2 flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-6 h-6 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 4v16h16V4H4z"
-                />
-              </svg>
-            </div>
-            <div className="text-left">
-              <p className="text-white text-sm">Download on the</p>
-              <p className="text-white font-semibold">App Store</p>
-            </div>
-          </div>
-
-          {/* Google Play */}
-          <div className="flex items-center gap-2">
-            <div className="bg-black rounded-lg p-2 flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-6 h-6 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 4v16h16V4H4z"
-                />
-              </svg>
-            </div>
-            <div className="text-left">
-              <p className="text-white text-sm">Get it on</p>
-              <p className="text-white font-semibold">Google Play</p>
-            </div>
-          </div>
+          <button
+            onClick={() => navigate("/login")}
+            className="rounded-xl border border-white/50 px-8 py-4 font-semibold text-white transition hover:bg-white/10"
+          >
+            Already Have an Account
+          </button>
         </div>
       </div>
     </section>

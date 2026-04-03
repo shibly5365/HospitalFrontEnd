@@ -10,13 +10,13 @@ import Footer from './LangingPage/Footer'
 
 function HomePage() {
   return (
-    <div>
+    <div className="min-h-screen">
         <Navbar/>
         <HeroSection />
         <Statistics/>
-        <FeaturesSection id="features"/>
-        <CommunitySection id="community"/>
-        <InsightsSection id="insights"/>
+        <FeaturesSection />
+        <CommunitySection />
+        <InsightsSection />
         <CTASection/>
         <Footer/>
       

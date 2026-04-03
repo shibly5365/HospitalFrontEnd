@@ -7,7 +7,7 @@ const ProtectedRoute = ({ roleRequired }) => {
   if (loading) return <div>Loading...</div>; // 🟢 Wait until auth is checked
 
   if (!auth.isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   if (roleRequired && auth.user?.role !== roleRequired) {

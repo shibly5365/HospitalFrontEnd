@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUser, FaEnvelope, FaPhone, FaLock, FaBirthdayCake, FaVenusMars } from "react-icons/fa";
+import {
+  FaUser,
+  FaEnvelope,
+  FaPhone,
+  FaLock,
+  FaBirthdayCake,
+  FaVenusMars,
+} from "react-icons/fa";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -10,7 +17,9 @@ import { notify } from "../../../Units/notification";
 // Yup validation (no patientType)
 const signupSchema = Yup.object().shape({
   fullName: Yup.string().required("Full name is required"),
-  email: Yup.string().email("Invalid email format").required("Email is required"),
+  email: Yup.string()
+    .email("Invalid email format")
+    .required("Email is required"),
   contact: Yup.string()
     .matches(/^[0-9]{10}$/, "Contact must be 10 digits")
     .required("Contact is required"),
@@ -44,7 +53,11 @@ const SignupPage = () => {
     setMessage("");
     try {
       // send data without patientType
-      const res = await axios.post("http://localhost:4002/api/patient/signup", data,{withCredentials:true});
+      const res = await axios.post(
+        "http://localhost:4002/api/patient/signup",
+        data,
+        { withCredentials: true },
+      );
       setMessage(res.data.message);
       if (res.data.success) {
         notify.success(res.data.message || "Signup successful 🎉");
@@ -115,7 +128,9 @@ const SignupPage = () => {
                   />
                 </div>
                 {errors.fullName && (
-                  <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.fullName.message}
+                  </p>
                 )}
               </div>
 
@@ -131,7 +146,9 @@ const SignupPage = () => {
                   />
                 </div>
                 {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.email.message}
+                  </p>
                 )}
               </div>
 
@@ -147,7 +164,9 @@ const SignupPage = () => {
                   />
                 </div>
                 {errors.contact && (
-                  <p className="text-red-500 text-sm mt-1">{errors.contact.message}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.contact.message}
+                  </p>
                 )}
               </div>
 
@@ -163,7 +182,9 @@ const SignupPage = () => {
                   />
                 </div>
                 {errors.age && (
-                  <p className="text-red-500 text-sm mt-1">{errors.age.message}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.age.message}
+                  </p>
                 )}
               </div>
 
@@ -182,7 +203,9 @@ const SignupPage = () => {
                   </select>
                 </div>
                 {errors.gender && (
-                  <p className="text-red-500 text-sm mt-1">{errors.gender.message}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.gender.message}
+                  </p>
                 )}
               </div>
 
@@ -198,7 +221,9 @@ const SignupPage = () => {
                   />
                 </div>
                 {errors.password && (
-                  <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.password.message}
+                  </p>
                 )}
               </div>
 
@@ -206,14 +231,18 @@ const SignupPage = () => {
                 type="submit"
                 disabled={!isValid || isSubmitting}
                 className={`w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold shadow-md ${
-                  !isValid || isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                  !isValid || isSubmitting
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
                 }`}
               >
                 {isSubmitting ? "Signing up..." : "Sign Up"}
               </button>
 
               {message && (
-                <p className="text-center mt-2 text-sm text-red-500">{message}</p>
+                <p className="text-center mt-2 text-sm text-red-500">
+                  {message}
+                </p>
               )}
             </form>
           </div>
