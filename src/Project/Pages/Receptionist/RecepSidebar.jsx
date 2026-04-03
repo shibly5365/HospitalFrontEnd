@@ -72,7 +72,7 @@ const RecepSidebar = () => {
               } catch (error) {
                 console.error("Logout error:", error);
                 logout();
-                navigate("/login");
+                navigate("/");
               }
             }}
           >

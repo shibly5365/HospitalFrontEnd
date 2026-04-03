@@ -62,6 +62,8 @@ const PatientsDepartmentDetails = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
+  console.log("departments", department);
+
   return (
     <div className="w-full px-4 sm:px-6 lg:px-20 py-6">
       {/* Header */}
@@ -141,8 +143,8 @@ const PatientsDepartmentDetails = () => {
             <h2 className="text-xl font-semibold text-gray-700">Our Team</h2>
             <button
               onClick={() => {
-              
-                navigate(`/patient/patient-appointments/${department._id}`);
+
+                navigate(`patient-departments/${department._id}`);
               }}
               className="text-sm text-blue-500 hover:text-blue-600 underline transition"
             >

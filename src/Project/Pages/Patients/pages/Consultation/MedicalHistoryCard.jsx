@@ -2,6 +2,8 @@ import { FileText, Clock, CreditCard, ChevronLeft, ChevronRight } from "lucide-r
 
 export default function MedicalHistoryCard({ doctor, historyIndex, nextHistory, prevHistory }) {
   const record = doctor.medicalHistory[historyIndex];
+  console.log("dfasdfsD",record);
+  
 
   return (
     <div className="px-6 pb-6 space-y-4 animate-fadeIn">

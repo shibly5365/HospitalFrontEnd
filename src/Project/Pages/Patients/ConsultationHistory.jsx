@@ -10,6 +10,8 @@ function ConsultationHistory() {
   // Use Redux/Context instead of local state
   const { consultations: consultationsData } = usePatient();
   const { doctors, summary, loading, loadConsultations } = consultationsData;
+  console.log("dfhsdjkfkasdhafk",doctors);
+  
 
   // Fetch consultations on component mount
   useEffect(() => {

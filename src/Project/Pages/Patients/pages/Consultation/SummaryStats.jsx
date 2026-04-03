@@ -1,6 +1,8 @@
 import { TrendingUp, FileText, Calendar } from "lucide-react";
 
 export default function SummaryStats({ doctors }) {
+  console.log("supedoctor",doctors);
+  
   return (
     <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 shadow-lg border border-white/50">

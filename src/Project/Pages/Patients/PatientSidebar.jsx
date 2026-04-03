@@ -7,6 +7,7 @@ import {
 import toast from "react-hot-toast";
 import { notify } from "../../../Units/notification";
 import { useAuth } from "../../Components/AuthContext";
+import axios from "axios";
 
 const PatientSidebar = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
@@ -52,14 +53,30 @@ const PatientSidebar = ({ isOpen, setIsOpen }) => {
         <div className="flex gap-2 justify-end mt-2">
           <button onClick={() => { toast.dismiss(t.id); notify.info("Logout cancelled"); }}
             className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Cancel</button>
-          <button onClick={() => {
-            toast.dismiss(t.id);
-            localStorage.clear();
-            notify.success("You have been logged out successfully!");
-            logout();
-            navigate("/");
-          }}
-            className="px-4 py-2 text-sm text-white bg-gradient-to-r from-red-500 to-red-600 rounded-lg">Yes, Logout</button>
+          <button
+            onClick={async () => {
+              toast.dismiss(t.id);
+              try {
+                await axios.post(
+                  "http://localhost:4002/api/auth/logout",
+                  {},
+                  { withCredentials: true } // IMPORTANT if using cookies
+                );
+
+                localStorage.clear();
+                logout();
+                notify.success("You have been logged out successfully!");
+                navigate("/");
+              } catch (error) {
+                console.error(error);
+                notify.error("Logout failed. Please try again.");
+              }
+            }}
+            className="px-4 py-2 text-sm text-white bg-gradient-to-r from-red-500 to-red-600 rounded-lg"
+          >
+            Yes, Logout
+          </button>
+
         </div>
       </div>
     ), { duration: 6000 });
@@ -108,10 +125,9 @@ const PatientSidebar = ({ isOpen, setIsOpen }) => {
               <NavLink key={item.name} to={item.to}
                 onClick={() => { setActive(item.name); if (window.innerWidth < 768) setIsOpen(false); }}
                 className={({ isActive: linkActive }) =>
-                  `group flex items-center justify-between p-3 rounded-2xl transition-all duration-300 ${
-                    linkActive
-                      ? `bg-gradient-to-r ${item.gradient} text-white shadow-lg`
-                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                  `group flex items-center justify-between p-3 rounded-2xl transition-all duration-300 ${linkActive
+                    ? `bg-gradient-to-r ${item.gradient} text-white shadow-lg`
+                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50"
                   }`
                 }>
                 <div className="flex items-center gap-3">

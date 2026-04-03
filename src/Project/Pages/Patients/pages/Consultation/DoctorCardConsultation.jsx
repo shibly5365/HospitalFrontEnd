@@ -3,6 +3,8 @@ import NextAppointmentBadge from "./NextAppointmentBadge";
 import MedicalHistoryCard from "./MedicalHistoryCard";
 
 export default function DoctorCard({ doctor, activeDoctor, setActiveDoctor, historyIndex, setHistoryIndex }) {
+  console.log("doctoavater",doctor);
+  
   const toggleView = () => {
     setActiveDoctor(activeDoctor === doctor.id ? null : doctor.id);
     setHistoryIndex(0);

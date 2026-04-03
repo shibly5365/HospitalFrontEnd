@@ -19,15 +19,19 @@ const ModernDoctorAppointments = () => {
   const [showForm, setShowForm] = useState(false);
 
   const [appointments, setAppointments] = useState([]);
-
   const [currentPage, setCurrentPage] = useState(1);
 
+  /* --------------------------------------------------
+     FETCH APPOINTMENTS
+  -------------------------------------------------- */
   const fetchAppointments = async () => {
     try {
       const res = await axios.get(
         "http://localhost:4002/api/doctor/allAppointment",
         { withCredentials: true }
       );
+      console.log("res",res.data);
+      
 
       const formatted = res.data.appointments.map((a) => ({
         _id: a._id,
@@ -38,15 +42,15 @@ const ModernDoctorAppointments = () => {
           phone: a.patient?.contact,
           avatar: a.patient?.fullName
             ? a.patient.fullName
-                .split(" ")
-                .map((w) => w[0])
-                .join("")
+              .split(" ")
+              .map((w) => w[0])
+              .join("")
             : "P",
         },
         reason: a.reason,
         timeSlot: a.timeSlot,
         status: a.status,
-        type: a.consultationType,
+        consultationType: a.consultationType,
         date: a.appointmentDate,
         notes: a.notes || "",
         isUrgent: false,
@@ -66,12 +70,19 @@ const ModernDoctorAppointments = () => {
     setCurrentPage(1);
   }, [searchTerm, statusFilter, dateFilter]);
 
+  /* --------------------------------------------------
+     STATS
+  -------------------------------------------------- */
   const stats = {
     total: appointments.length,
     confirmed: appointments.filter((a) => a.status === "Confirmed").length,
     pending: appointments.filter((a) => a.status === "Pending").length,
     completed: appointments.filter((a) => a.status === "Completed").length,
   };
+
+  /* --------------------------------------------------
+     UPDATE STATUS
+  -------------------------------------------------- */
   const handleUpdateStatus = async (appointmentId, newStatus) => {
     try {
       await axios.put(
@@ -93,9 +104,9 @@ const ModernDoctorAppointments = () => {
     }
   };
 
-  // --------------------------------------------------
-  // 🔥 FILTER + PAGINATION
-  // --------------------------------------------------
+  /* --------------------------------------------------
+     FILTER
+  -------------------------------------------------- */
   const filteredAppointments = appointments.filter((appt) => {
     const matchesSearch =
       appt.patient.fullName
@@ -109,16 +120,30 @@ const ModernDoctorAppointments = () => {
     return matchesSearch && matchesStatus;
   });
 
+  /* --------------------------------------------------
+     🔥 SORT: ONLY Pending first (NO time-based sorting)
+  -------------------------------------------------- */
+  const sortedAppointments = [...filteredAppointments].sort((a, b) => {
+    if (a.status === "Pending" && b.status !== "Pending") return -1;
+    if (a.status !== "Pending" && b.status === "Pending") return 1;
+    return 0; // keep original order
+  });
+
+  /* --------------------------------------------------
+     PAGINATION
+  -------------------------------------------------- */
   const totalPages = Math.ceil(
-    filteredAppointments.length / ITEMS_PER_PAGE
+    sortedAppointments.length / ITEMS_PER_PAGE
   );
 
-  const paginatedAppointments = filteredAppointments.slice(
+  const paginatedAppointments = sortedAppointments.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
 
-  // --------------------------------------------------
+  /* --------------------------------------------------
+     UI
+  -------------------------------------------------- */
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Header onNewAppointment={() => setShowForm(true)} />
@@ -142,7 +167,7 @@ const ModernDoctorAppointments = () => {
         <ViewToggle
           view={view}
           onViewChange={setView}
-          appointmentCount={filteredAppointments.length}
+          appointmentCount={sortedAppointments.length}
         />
 
         {view === "list" && (
@@ -170,19 +195,16 @@ const ModernDoctorAppointments = () => {
               </div>
             )}
 
-            {/* 🔥 PAGINATION UI */}
+            {/* PAGINATION */}
             {totalPages > 1 && (
               <div className="flex justify-center mt-8 gap-2">
                 <button
                   disabled={currentPage === 1}
-                  onClick={() =>
-                    setCurrentPage((p) => p - 1)
-                  }
-                  className={`px-4 py-2 rounded-lg border ${
-                    currentPage === 1
+                  onClick={() => setCurrentPage((p) => p - 1)}
+                  className={`px-4 py-2 rounded-lg border ${currentPage === 1
                       ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                       : "bg-white hover:bg-blue-50"
-                  }`}
+                    }`}
                 >
                   Prev
                 </button>
@@ -191,11 +213,10 @@ const ModernDoctorAppointments = () => {
                   <button
                     key={i}
                     onClick={() => setCurrentPage(i + 1)}
-                    className={`px-4 py-2 rounded-lg border ${
-                      currentPage === i + 1
+                    className={`px-4 py-2 rounded-lg border ${currentPage === i + 1
                         ? "bg-blue-600 text-white"
                         : "bg-white hover:bg-blue-50"
-                    }`}
+                      }`}
                   >
                     {i + 1}
                   </button>
@@ -203,14 +224,11 @@ const ModernDoctorAppointments = () => {
 
                 <button
                   disabled={currentPage === totalPages}
-                  onClick={() =>
-                    setCurrentPage((p) => p + 1)
-                  }
-                  className={`px-4 py-2 rounded-lg border ${
-                    currentPage === totalPages
+                  onClick={() => setCurrentPage((p) => p + 1)}
+                  className={`px-4 py-2 rounded-lg border ${currentPage === totalPages
                       ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                       : "bg-white hover:bg-blue-50"
-                  }`}
+                    }`}
                 >
                   Next
                 </button>
@@ -228,9 +246,7 @@ const ModernDoctorAppointments = () => {
             <h3 className="text-2xl font-bold text-gray-700 mb-2">
               Calendar View
             </h3>
-            <p className="text-gray-500">
-              Coming soon
-            </p>
+            <p className="text-gray-500">Coming soon</p>
           </div>
         )}
       </div>

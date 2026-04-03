@@ -59,6 +59,8 @@ export default function Appointments({ isVisible }) {
   // 🔹 check online appointment
   const isOnlineAppointment = (a) =>
     a?.mode?.toLowerCase() === "online" || a?.consultationType?.toLowerCase() === "online"; // check both fields
+  const canShowVideoCallButton = (a) =>
+    a?.status?.toLowerCase() === "confirmed" && isOnlineAppointment(a);
 
   // 🎥 Handle Video Call Button Click
   const handleVideoCallClick = async (appointment) => {
@@ -67,19 +69,7 @@ export default function Appointments({ isVisible }) {
       return;
     }
 
-    // Try to get backend status but still allow opening the modal so patient can wait
-    try {
-      const { data } = await axios.get(
-        `http://localhost:4002/api/patient/video-call-status/${appointment._id}`,
-        { withCredentials: true }
-      );
-      const backendRoomId = data?.data?.roomId;
-      setSelectedAppt({ ...appointment, roomId: backendRoomId });
-    } catch (err) {
-      // ignore error — still open modal and poll from there
-      setSelectedAppt(appointment);
-    }
-
+    setSelectedAppt(appointment);
     setShowVideoCallModal(true);
   };
 
@@ -136,7 +126,9 @@ export default function Appointments({ isVisible }) {
     );
   };
 
-  const confirmCancel = (_id) => {
+  const confirmCancel = (id) => {
+    console.log('cancleId',id);
+    
     toast.custom(
       (t) => (
         <div className="bg-white p-4 rounded-xl shadow-xl border w-80">
@@ -155,13 +147,13 @@ export default function Appointments({ isVisible }) {
                 toast.dismiss(t.id);
                 try {
                   await axios.put(
-                    `http://localhost:4002/api/patient/cancel/${_id}`,
+                    `http://localhost:4002/api/patient/cancel/${id}`,
                     {},
                     { withCredentials: true }
                   );
                   setAppointments(prev =>
                     prev.map(a =>
-                      a._id === _id ? { ...a, status: "cancelled" } : a
+                      a._id === id ? { ...a, status: "cancelled" } : a
                     )
                   );
                   notify.success("Appointment cancelled");
@@ -270,7 +262,7 @@ export default function Appointments({ isVisible }) {
                 </div>
 
                 <div className="flex gap-2 items-center">
-                  {isOnlineAppointment(a) ? (
+                  {canShowVideoCallButton(a) ? (
                     canJoin(a) ? (
                       <button
                         onClick={() => handleVideoCallClick(a)}
@@ -316,7 +308,7 @@ export default function Appointments({ isVisible }) {
 
                   <div className="flex gap-2 items-center">
                     {/* 🎥 VIDEO CALL BUTTON */}
-                    {isOnlineAppointment(a) ? (
+                    {canShowVideoCallButton(a) ? (
                       canJoin(a) ? (
                         <button
                           onClick={() => handleVideoCallClick(a)}
@@ -354,7 +346,7 @@ export default function Appointments({ isVisible }) {
                         </button>
 
                         <button
-                          onClick={() => confirmCancel(a._id)}
+                          onClick={() => confirmCancel(a.id)}
                           className="px-3 py-1 text-sm text-red-600 bg-red-50 rounded-lg"
                         >
                           Cancel
