@@ -19,7 +19,7 @@ const PatientHeader = ({ patient, onClose }) => {
           </div>
           <div>
             <h2 className="text-2xl font-bold text-white mb-1">
-              {patient.fullName || "Unknown Patient"}
+              {patient.patient.fullName || "Unknown Patiednt"}
             </h2>
             <div className="flex items-center gap-2">
               <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-semibold text-white border border-white/30">

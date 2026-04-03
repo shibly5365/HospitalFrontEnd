@@ -116,4 +116,4 @@ const ConsultationModal = ({ consultation, onClose }) => {
   );
 };
 
-export default ConsultationModal;
+export default ConsultationModal; 

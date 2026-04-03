@@ -1,22 +1,32 @@
 import React, { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
+import axios from "axios";
 import { Search, Plus, Send, Paperclip, MoreVertical, ArrowLeft, Phone, Video, Menu, X } from "lucide-react";
 
 const ChatPageDoctors = () => {
     const [selectedChat, setSelectedChat] = useState(null);
     const [message, setMessage] = useState("");
+    const [messagesList, setMessagesList] = useState([]);
+    const [conversations, setConversations] = useState([]);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [activeFilter, setActiveFilter] = useState("All");
     const socketRef = useRef(null);
+    const bottomRef = useRef(null);
     const pcRef = useRef(null);
     const localStreamRef = useRef(null);
     const remoteVideoRef = useRef(null);
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const token = localStorage.getItem('token');
+    const API = "http://localhost:4002/api/doctor";
 
     useEffect(() => {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
         const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:4002');
         socketRef.current = socket;
         if (user?._id) socket.emit('register', user._id);
+
+        socket.on("newMessage", (msg) => {
+            setMessagesList((prev) => [...prev, msg]);
+        });
 
         socket.on('incoming-call', async ({ from, offer }) => {
             try {
@@ -36,45 +46,85 @@ const ChatPageDoctors = () => {
 
         socket.on('ice-candidate', async ({ candidate }) => { try { if (pcRef.current) await pcRef.current.addIceCandidate(candidate); } catch (e) { console.warn(e); } });
 
+        // Load patients
+        const loadPatients = async () => {
+            try {
+                const res = await axios.get(`${API}/getallPatients`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.data.success && res.data.patients) {
+                    const mapped = res.data.patients.map(p => ({
+                        id: p.id,
+                        userId: p.id, // the actual user _id of the patient
+                        name: p.fullName,
+                        role: "Patient",
+                        avatar: p.profileImage || "https://i.pravatar.cc/100",
+                        online: false
+                    }));
+                    setConversations(mapped);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        loadPatients();
+
         return () => { socket.disconnect(); };
     }, []);
 
-    const conversations = [
-        {
-            id: 1, name: "Dr. Smith", role: "Cardiologist", message: "Your test results look good. Let's schedule a follow-up next week.", time: "2m", unread: 2, online: true,
-            avatar: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=100&h=100&fit=crop",
-            messages: [
-                { id: 1, text: "Hello! How are you feeling today?", sender: "them", time: "10:30 AM" },
-                { id: 2, text: "I'm doing better, thank you!", sender: "me", time: "10:32 AM" },
-                { id: 3, text: "Your test results look good. Let's schedule a follow-up next week.", sender: "them", time: "10:35 AM" },
-            ]
-        },
-        {
-            id: 2, name: "Sarah Johnson", role: "Patient Support", message: "Thank you for the appointment confirmation. See you tomorrow!", time: "15m", unread: 0, online: true,
-            avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
-            messages: [
-                { id: 1, text: "Hi! I confirmed your appointment.", sender: "them", time: "9:15 AM" },
-                { id: 2, text: "Thank you! See you tomorrow!", sender: "them", time: "9:20 AM" },
-            ]
-        },
-        { id: 3, name: "Nurse Mary", role: "Nurse Practitioner", message: "Take your medication twice daily.", time: "25m", unread: 1, online: false, avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=100&h=100&fit=crop", messages: [{ id: 1, text: "Take your medication twice daily.", sender: "them", time: "8:45 AM" }] },
-        { id: 4, name: "Dr. Rodriguez", role: "Neurologist", message: "MRI scans look normal.", time: "1h", unread: 0, online: false, avatar: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=100&h=100&fit=crop", messages: [] },
-    ];
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messagesList]);
 
-    const filtered = conversations.filter(c => activeFilter === "All" || (activeFilter === "doctor" && c.role.includes("Dr.")) || (activeFilter === "Patients" && c.role.includes("Patient")) || (activeFilter === "Staff" && (c.role.includes("Nurse") || c.role.includes("Staff"))));
+    const loadMessages = async (userId) => {
+        try {
+            const res = await axios.get(`${API}/getMessage/${userId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setMessagesList(res.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
-    const handleSend = () => message.trim() && setMessage("");
+    const filtered = conversations.filter(c => activeFilter === "All" || activeFilter === "Patients");
 
-    const ChatBubble = ({ msg }) => (
-        <div className={`flex ${msg.sender === "me" ? "justify-end" : "justify-start"}`}>
-            <div className={`max-w-xs md:max-w-md lg:max-w-lg ${msg.sender === "me" ? "order-2" : ""}`}>
-                <div className={`px-4 py-3 rounded-2xl shadow-md ${msg.sender === "me" ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-br-sm" : "bg-white text-gray-800 rounded-bl-sm"}`}>
-                    {msg.text}
+    const handleSend = async () => {
+        if (!message.trim() || !selectedChat) return;
+        try {
+            await axios.post(`${API}/sendMessage`, {
+                receiverId: selectedChat.userId,
+                text: message,
+                receiverType: "users" // for doctor sending to patient, patient is a user
+            }, { headers: { Authorization: `Bearer ${token}` } });
+            
+            socketRef.current.emit("sendMessage", {
+                sender: user._id, 
+                receiver: selectedChat.userId, 
+                text: message 
+            });
+            setMessage("");
+        } catch(err) {
+            console.error(err);
+        }
+    };
+
+
+    const ChatBubble = ({ msg }) => {
+        const isMe = msg.sender === user._id;
+        return (
+            <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-xs md:max-w-md lg:max-w-lg ${isMe ? "order-2" : ""}`}>
+                    <div className={`px-4 py-3 rounded-2xl shadow-md flex-wrap break-words ${isMe ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-br-sm" : "bg-white text-gray-800 rounded-bl-sm"}`}>
+                        {msg.text}
+                    </div>
+                    <p className={`text-xs text-gray-500 mt-1 ${isMe ? "text-right" : "text-left"}`}>
+                        {new Date(msg.createdAt).toLocaleTimeString()}
+                    </p>
                 </div>
-                <p className={`text-xs text-gray-500 mt-1 ${msg.sender === "me" ? "text-right" : "text-left"}`}>{msg.time}</p>
             </div>
-        </div>
-    );
+        );
+    };
 
     return (
         <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -113,7 +163,7 @@ const ChatPageDoctors = () => {
                     {/* Conversations */}
                     <div className="flex-1 overflow-y-auto">
                         {filtered.map(c => (
-                            <div key={c.id} onClick={() => { setSelectedChat(c); setIsSidebarOpen(false) }} className={`flex items-start p-4 cursor-pointer border-b border-gray-100 transition-all duration-200 ${selectedChat?.id === c.id ? "bg-gradient-to-r from-blue-50 to-purple-50 border-l-4 border-l-blue-500" : "hover:bg-gray-50"}`}>
+                            <div key={c.id} onClick={() => { setSelectedChat(c); setIsSidebarOpen(false); loadMessages(c.userId); }} className={`flex items-start p-4 cursor-pointer border-b border-gray-100 transition-all duration-200 ${selectedChat?.id === c.id ? "bg-gradient-to-r from-blue-50 to-purple-50 border-l-4 border-l-blue-500" : "hover:bg-gray-50"}`}>
                                 <div className="relative">
                                     <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-white shadow-md">
                                         <img src={c.avatar} alt={c.name} className="w-full h-full object-cover" />
@@ -156,7 +206,8 @@ const ChatPageDoctors = () => {
                             </div>
 
                             <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
-                                {selectedChat.messages.length > 0 ? selectedChat.messages.map(msg => <ChatBubble key={msg.id} msg={msg} />) : <div className="flex items-center justify-center h-full text-gray-400 text-sm">Start your conversation with {selectedChat.name}</div>}
+                                {messagesList.length > 0 ? messagesList.map((msg, idx) => <ChatBubble key={idx} msg={msg} />) : <div className="flex items-center justify-center h-full text-gray-400 text-sm">Start your conversation with {selectedChat.name}</div>}
+                                <div ref={bottomRef}></div>
                             </div>
 
                             <div className="p-4 md:p-5 bg-white/90 backdrop-blur-lg border-t border-gray-200">
