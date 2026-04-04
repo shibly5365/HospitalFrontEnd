@@ -1,44 +1,21 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  FaUser,
-  FaEnvelope,
-  FaPhone,
-  FaLock,
-  FaBirthdayCake,
-  FaVenusMars,
-} from "react-icons/fa";
-import axios from "axios";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as Yup from "yup";
+import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
 import { notify } from "../../../Units/notification";
 
-// Yup validation (no patientType)
-const signupSchema = Yup.object().shape({
-  fullName: Yup.string().required("Full name is required"),
-  email: Yup.string()
-    .email("Invalid email format")
-    .required("Email is required"),
-  contact: Yup.string()
-    .matches(/^[0-9]{10}$/, "Contact must be 10 digits")
-    .required("Contact is required"),
-  password: Yup.string()
-    .min(6, "Password must be at least 6 characters")
-    .required("Password is required"),
-  age: Yup.number()
-    .typeError("Age must be a number")
-    .min(1, "Age must be at least 1")
-    .max(120, "Please enter a valid age")
-    .required("Age is required"),
-  gender: Yup.string()
-    .oneOf(["Male", "Female", "Other"], "Select a valid gender")
-    .required("Gender is required"),
-});
+import { signupSchema } from "./validations/signupSchema";
+import { InputField } from "./InputField";
+import { SelectField } from "./SelectField";
+import { ProfileUpload } from "./ProfileUpload";
+import { LeftSection } from "./LeftSection";
 
 const SignupPage = () => {
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
+  const [preview, setPreview] = useState(null);
 
   const {
     register,
@@ -51,17 +28,39 @@ const SignupPage = () => {
 
   const onSubmit = async (data) => {
     setMessage("");
+
     try {
-      // send data without patientType
+      const formData = new FormData();
+
+      formData.append("fullName", data.fullName);
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+      formData.append("contact", data.contact);
+      formData.append("age", data.age);
+      formData.append("gender", data.gender);
+
+      // 🔥 FIX THIS (MAIN FIX)
+      if (data.profileImage && data.profileImage[0]) {
+        formData.append("profileImage", data.profileImage[0]);
+      }
+
       const res = await axios.post(
         "http://localhost:4002/api/patient/signup",
-        data,
-        { withCredentials: true },
+        formData,
+        {
+          withCredentials: true,
+        },
       );
+
       setMessage(res.data.message);
+
       if (res.data.success) {
         notify.success(res.data.message || "Signup successful 🎉");
-        setTimeout(() => navigate("/login"), 1500);
+        setTimeout(() => {
+          navigate("/verify-otp", {
+            state: { email: data.email },
+          });
+        }, 1000);
       } else {
         notify.error(res.data.message || "Signup failed ❌");
       }
@@ -70,182 +69,269 @@ const SignupPage = () => {
     }
   };
 
+  const formFields = [
+    {
+      name: "fullName",
+      type: "text",
+      placeholder: "John Doe",
+      label: "Full Name",
+      icon: "user",
+    },
+    {
+      name: "email",
+      type: "email",
+      placeholder: "john@example.com",
+      label: "Email Address",
+      icon: "email",
+    },
+    {
+      name: "contact",
+      type: "tel",
+      placeholder: "1234567890",
+      label: "Phone Number",
+      icon: "phone",
+    },
+    {
+      name: "age",
+      type: "number",
+      placeholder: "25",
+      label: "Age",
+      icon: "birthday",
+    },
+
+    // ✅ ADD THIS (important for your backend)
+    {
+      name: "gender",
+      type: "text",
+      placeholder: "Male / Female / Other",
+      label: "Gender",
+      icon: "user",
+    },
+
+    {
+      name: "password",
+      type: "password",
+      placeholder: "••••••••",
+      label: "Password",
+      icon: "lock",
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-r from-green-50 to-green-100 flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between px-8 py-4">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center">
-            <span className="text-white font-bold">♥</span>
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-green-700">MediCare Pro</h1>
-            <p className="text-xs text-gray-500">Patient Registration</p>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-emerald-50 to-cyan-50 flex flex-col overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex flex-1 justify-center items-center px-6 lg:px-20">
-        <div className="w-full max-w-6xl grid md:grid-cols-2 gap-0">
-          {/* Left Section */}
-          <div className="flex flex-col justify-center items-center text-center px-10">
-            <img
-              src="https://i.pinimg.com/originals/32/7b/c7/327bc78b01717d92cb62c09e2f8fbb7f.jpg"
-              alt="Nurse"
-              className="rounded-xl shadow-md mb-6 w-80"
-            />
-            <h2 className="text-xl font-bold text-green-700">
-              Join Our Healthcare Community
-            </h2>
-            <p className="text-gray-600 mt-2">
-              Get access to personalized healthcare services, book appointments
-              with top doctors, and manage your health journey all in one place.
-            </p>
-          </div>
-
-          {/* Right Section */}
-          <div className="flex flex-col justify-center px-8">
-            <div className="bg-green-600 text-white px-6 py-3 rounded-lg mb-6">
-              <h2 className="font-semibold">Create Your Account</h2>
-              <p className="text-sm">Start your healthcare journey with us</p>
+      {/* Header */}
+      <motion.div
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 100 }}
+        className="relative z-10 backdrop-blur-xl bg-white/80 border-b border-white/20 shadow-lg"
+      >
+        <div className="flex items-center justify-between px-8 py-4 max-w-7xl mx-auto">
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            className="flex items-center gap-3 cursor-pointer"
+            onClick={() => navigate("/")}
+          >
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-xl">♥</span>
             </div>
+            <div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+                MediCare Pro
+              </h1>
+              <p className="text-xs text-gray-500">Patient Registration</p>
+            </div>
+          </motion.div>
 
-            {/* Form */}
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="space-y-4 bg-white p-6 rounded-xl shadow-md"
-            >
-              {/* Full Name */}
-              <div className="flex flex-col">
-                <div className="flex items-center border rounded-lg px-3 py-2">
-                  <FaUser className="text-gray-400 mr-2" />
-                  <input
-                    type="text"
-                    placeholder="Enter your full name"
-                    {...register("fullName")}
-                    className="w-full outline-none"
-                  />
-                </div>
-                {errors.fullName && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.fullName.message}
-                  </p>
-                )}
-              </div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate("/login")}
+            className="px-4 py-2 text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors"
+          >
+            Already have an account?{" "}
+            <span className="font-semibold">Sign In</span>
+          </motion.button>
+        </div>
+      </motion.div>
 
-              {/* Email */}
-              <div className="flex flex-col">
-                <div className="flex items-center border rounded-lg px-3 py-2">
-                  <FaEnvelope className="text-gray-400 mr-2" />
-                  <input
-                    type="email"
-                    placeholder="Enter your email address"
-                    {...register("email")}
-                    className="w-full outline-none"
-                  />
-                </div>
-                {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
+      {/* Main Content */}
+      <div className="relative z-10 flex-1 flex items-center justify-center px-4 py-8 lg:py-12">
+        <div className="w-full max-w-7xl grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          {/* Left Section - Animated */}
+          <LeftSection />
 
-              {/* Contact */}
-              <div className="flex flex-col">
-                <div className="flex items-center border rounded-lg px-3 py-2">
-                  <FaPhone className="text-gray-400 mr-2" />
-                  <input
-                    type="tel"
-                    placeholder="Enter your phone number"
-                    {...register("contact")}
-                    className="w-full outline-none"
-                  />
-                </div>
-                {errors.contact && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.contact.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Age */}
-              <div className="flex flex-col">
-                <div className="flex items-center border rounded-lg px-3 py-2">
-                  <FaBirthdayCake className="text-gray-400 mr-2" />
-                  <input
-                    type="number"
-                    placeholder="Enter your age"
-                    {...register("age")}
-                    className="w-full outline-none"
-                  />
-                </div>
-                {errors.age && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.age.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Gender */}
-              <div className="flex flex-col">
-                <div className="flex items-center border rounded-lg px-3 py-2">
-                  <FaVenusMars className="text-gray-400 mr-2" />
-                  <select
-                    {...register("gender")}
-                    className="w-full outline-none bg-transparent"
+          {/* Right Section - Form */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="w-full"
+          >
+            <div className="backdrop-blur-xl bg-white/90 rounded-2xl shadow-2xl border border-white/20 p-6 md:p-8">
+              {/* Header */}
+              <div className="text-center mb-8">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200, delay: 0.3 }}
+                  className="inline-block p-3 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white mb-4"
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-                {errors.gender && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.gender.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Password */}
-              <div className="flex flex-col">
-                <div className="flex items-center border rounded-lg px-3 py-2">
-                  <FaLock className="text-gray-400 mr-2" />
-                  <input
-                    type="password"
-                    placeholder="Create a secure password"
-                    {...register("password")}
-                    className="w-full outline-none"
-                  />
-                </div>
-                {errors.password && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                disabled={!isValid || isSubmitting}
-                className={`w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold shadow-md ${
-                  !isValid || isSubmitting
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                }`}
-              >
-                {isSubmitting ? "Signing up..." : "Sign Up"}
-              </button>
-
-              {message && (
-                <p className="text-center mt-2 text-sm text-red-500">
-                  {message}
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+                    />
+                  </svg>
+                </motion.div>
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent mb-2">
+                  Create Account
+                </h2>
+                <p className="text-gray-500">
+                  Join our healthcare community today
                 </p>
-              )}
-            </form>
-          </div>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                {/* Profile Upload */}
+                <ProfileUpload
+                  preview={preview}
+                  setPreview={setPreview}
+                  register={register}
+                />
+
+                {/* Form Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {formFields.map((field, index) => (
+                    <motion.div
+                      key={field.name}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className={
+                        field.name === "password" ? "md:col-span-2" : ""
+                      }
+                    >
+                      <InputField
+                        {...field}
+                        register={register}
+                        error={errors[field.name]}
+                      />
+                    </motion.div>
+                  ))}
+
+                  {/* Gender Select */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="md:col-span-2"
+                  >
+                    <SelectField
+                      name="gender"
+                      label="Gender"
+                      register={register}
+                      error={errors.gender}
+                      options={[
+                        { value: "Male", label: "Male" },
+                        { value: "Female", label: "Female" },
+                        { value: "Other", label: "Other" },
+                      ]}
+                    />
+                  </motion.div>
+                </div>
+
+                {/* Submit Button */}
+                <motion.button
+                  type="submit"
+                  disabled={!isValid || isSubmitting}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`w-full relative overflow-hidden group bg-gradient-to-r from-teal-500 to-emerald-600 text-white py-3 rounded-xl font-semibold shadow-lg transition-all duration-300 ${
+                    !isValid || isSubmitting
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:shadow-xl"
+                  }`}
+                >
+                  <span className="relative z-10">
+                    {isSubmitting ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg
+                          className="animate-spin h-5 w-5"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            fill="none"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                        Creating account...
+                      </span>
+                    ) : (
+                      "Create Account"
+                    )}
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-teal-600 to-emerald-700 transform translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
+                </motion.button>
+
+                <AnimatePresence>
+                  {message && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="text-center text-sm text-red-500"
+                    >
+                      {message}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+
+                {/* Terms */}
+                <p className="text-center text-xs text-gray-400 mt-4">
+                  By signing up, you agree to our{" "}
+                  <a
+                    href="#"
+                    className="text-teal-600 hover:text-teal-700 font-medium"
+                  >
+                    Terms of Service
+                  </a>{" "}
+                  and{" "}
+                  <a
+                    href="#"
+                    className="text-teal-600 hover:text-teal-700 font-medium"
+                  >
+                    Privacy Policy
+                  </a>
+                </p>
+              </form>
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>

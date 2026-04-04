@@ -1,5 +1,7 @@
 // src/routes/AppRoutes.js
 import { useRoutes } from "react-router-dom";
+import React, { lazy, Suspense } from "react";
+
 
 // Public pages
 import HomePage from "./Project/Home/Home";
@@ -10,7 +12,9 @@ import ResetPassword from "./Project/Home/FrogetPassword/ResetPassword";
 
 // Super Admin
 import SuperAdminLayout from "./Project/Pages/SuperAdmin/SuperAdminLayout";
-import SuperAdminDashboard from "./Project/Pages/SuperAdmin/SuperAdminDashboard";
+const SuperAdminDashboard = lazy(() =>
+  import("./Project/Pages/SuperAdmin/SuperAdminDashboard")
+);
 import CreateAdmin from "./Project/Pages/SuperAdmin/CreateAdmin";
 import AdminDetails from "./Project/Pages/SuperAdmin/AdminDetails";
 import Payments from "./Project/Pages/SuperAdmin/payments";
@@ -18,8 +22,9 @@ import Analytics from "./Project/Pages/SuperAdmin/Analytics";
 import SuperAdminSettings from "./Project/Pages/SuperAdmin/SuperAdminSettings";
 
 // Patient
-import PatientSidebar from "./Project/Pages/Patients/PatientSidebar";
-import Dashboard from "./Project/Pages/Patients/Dashboard";
+const Dashboard = lazy(() =>
+  import("./Project/Pages/Patients/Dashboard")
+);
 
 // Route protection
 import ProtectedRoute from "./Project/Components/ProtectedRoute";
@@ -27,16 +32,18 @@ import PatientLayout from "./Project/Pages/Patients/PatientLayout";
 
 // admin
 import AdminLayout from "./Project/Pages/Admin/AdminLayout";
-import AdminDashboard from "./Project/Pages/Admin/AdminDashboard";
+const AdminDashboard = lazy(() =>
+  import("./Project/Pages/Admin/AdminDashboard")
+);
 import DoctorTable from "./Project/Pages/Admin/DoctorTable";
 import AdminPatients from "./Project/Pages/Admin/AdminPatients";
 import AdminAppointments from "./Project/Pages/Admin/AdminAppointments";
 import AdminDepartment from "./Project/Pages/Admin/AdminDepartment";
 import DoctorsLayout from "./Project/Pages/Doctors/DoctorsLayout";
 import ReceptionLayout from "./Project/Pages/Receptionist/ReceptionLayout";
-import RecepAppointmetns from "./Project/Pages/Receptionist/RecepAppointmetns";
-// import  from "./Project/Pages/Receptionist/Registrection/ReceptionRegistration";
-import DoctorsDashboard from "./Project/Pages/Doctors/DoctorsDashboard";
+const DoctorsDashboard = lazy(() =>
+  import("./Project/Pages/Doctors/DoctorsDashboard")
+);
 import DoctorAppointment from "./Project/Pages/Doctors/DoctorAppointment";
 import DoctoresPatients from "./Project/Pages/Doctors/DoctoresPatients";
 import PatientDetailCard from "./Project/Pages/Doctors/DoctorPages/PatientDrawer";
@@ -58,9 +65,6 @@ import PatientsLists from "./Project/Pages/Receptionist/pages/Add/PatientsLists"
 import ReSchedulingAppointments from "./Project/Pages/Patients/pages/ReScheduling";
 import ErrorPage from "./Units/ErrorPage";
 import DoctorSearch from "./Project/Pages/Patients/pages/DoctorSearch";
-import NewAppointmentForm from "./Project/Pages/Receptionist/pages/NewAppointmentForm";
-import Consultation from "./Project/Pages/Doctors/Consultation";
-import ConsultationList from "./Project/Pages/Doctors/Consuletion";
 import CreateReceptionistForm from "./Project/Pages/Admin/pages/CreateReceptionistForm";
 import DoctorScheduleRece from "./Project/Pages/Receptionist/DoctorSchedule";
 // import ReceptionHub from "./Project/Pages/Receptionist/Registrection/ReceptionHub";
@@ -96,8 +100,9 @@ import RegisterPatient from "./Project/Pages/Receptionist/pages/Patients/Registe
 import DailyAppointmentReports from "./Project/Pages/Receptionist/pages/Reports/DailyAppointmentReports";
 import { DailyBillingReports } from "./Project/Pages/Receptionist/pages/Reports/DailyBillingReports";
 import PatientRegistrationReports from "./Project/Pages/Receptionist/pages/Reports/PatientRegistrationReports";
-
-
+import DoctorWritePrescription from "./Project/Pages/Doctors/DoctorPages/DoctorWritePrescription";
+import DoctorPrescriptionPage from "./Project/Pages/Doctors/DoctorPages/DoctorPrescriptionPage";
+import VerifyOtp from "./Project/Home/LoginPage/VerifyOtp";
 
 const AppRoutes = () => {
   const routes = [
@@ -109,14 +114,19 @@ const AppRoutes = () => {
     },
 
     {
-      path: "/login",
-      element: <GuestRoute guestRedirect={true} />,
-      children: [{ path: "", element: <Login /> }],
-    },
-    {
       path: "/signup",
       element: <GuestRoute guestRedirect={true} />,
       children: [{ path: "", element: <SignupPage /> }],
+    },
+    {
+      path: "/verify-otp",
+      element: <GuestRoute guestRedirect={true} />,
+      children: [{ path: "", element: <VerifyOtp /> }],
+    },
+    {
+      path: "/login",
+      element: <GuestRoute guestRedirect={true} />,
+      children: [{ path: "", element: <Login /> }],
     },
     {
       path: "/forgot-password",
@@ -125,7 +135,7 @@ const AppRoutes = () => {
     },
     {
       path: "/reset-password/:token",
-      element: <GuestRoute  guestRedirect={true} />,
+      element: <GuestRoute guestRedirect={true} />,
       children: [{ path: "", element: <ResetPassword /> }],
     },
 
@@ -193,12 +203,25 @@ const AppRoutes = () => {
             { path: "doctors-dashboard", element: <DoctorsDashboard /> },
             { path: "doctors-appointments", element: <DoctorAppointment /> },
             { path: "doctors-patients", element: <DoctoresPatients /> },
-            { path: "doctors-consuletion", element: <DoctorConsultationDashboard /> },
-            { path: "doctors-prescription", element: <DoctorPrescriptionHistory /> },
+            {
+              path: "doctors-consuletion",
+              element: <DoctorConsultationDashboard />,
+            },
+            {
+              path: "doctors-prescription",
+              element: <DoctorPrescriptionHistory />,
+            },
             { path: "doctors-messages", element: <ChatPageDoctors /> },
+            {
+              path: "doctors-prescription/:appointmentId",
+              element: <DoctorPrescriptionPage />,
+            },
             { path: "doctors-availability", element: <DoctorSchedule /> },
             { path: "doctors-payment", element: <PaymentManagementSystem /> },
-            { path: "doctors-analytics", element: <DoctorAnalyticsDashboard /> },
+            {
+              path: "doctors-analytics",
+              element: <DoctorAnalyticsDashboard />,
+            },
             { path: "patients-Deteails/:id", element: <PatientDetailCard /> },
             { path: "patients-add", element: <AddPatientForm /> },
             { path: "appointments-add", element: <AppointmentForm /> },
@@ -232,35 +255,41 @@ const AppRoutes = () => {
             { path: "receptionist-patientlists", element: <PatientLists /> },
             { path: "AddNewAppointments", element: <RegisterPatient /> },
             { path: "receptionist-details", element: <PatientsLists /> },
-            
+
             // Patient Management
             { path: "patients/register", element: <RegisterPatientPage /> },
             { path: "patients/book-appointment", element: <BookAppointment /> },
             { path: "patients/view-search", element: <ViewSearchPatients /> },
-            
+
             // Billing & Payments
             { path: "billing/generate-bill", element: <BillingManagement /> },
-            
+
             // Doctors & Departments
             { path: "doctors", element: <DoctorsList /> },
             { path: "departments", element: <DepartmentsList /> },
-            
+
             // Reports
-            { path: "reports/appointments", element: <DailyAppointmentReports /> },
+            {
+              path: "reports/appointments",
+              element: <DailyAppointmentReports />,
+            },
             { path: "reports/billing", element: <DailyBillingReports /> },
-            { path: "reports/patient-registrations", element: <PatientRegistrationReports /> },
-            
+            {
+              path: "reports/patient-registrations",
+              element: <PatientRegistrationReports />,
+            },
+
             // Visitor Management
             { path: "visitors/register", element: <VisitorManagement /> },
             { path: "visitors/pass", element: <VisitorManagement /> },
             { path: "visitors/history", element: <VisitorManagement /> },
-            
+
             // Help Desk
             { path: "helpdesk/enquiries", element: <HelpDeskManagement /> },
             { path: "helpdesk/info", element: <HelpDeskManagement /> },
             { path: "helpdesk/lost-found", element: <HelpDeskManagement /> },
             { path: "helpdesk/announcements", element: <HelpDeskManagement /> },
-            
+
             // Profile & Settings
             { path: "profile", element: <ProfileSettings /> },
             { path: "settings", element: <ProfileSettings /> },
@@ -289,7 +318,10 @@ const AppRoutes = () => {
             },
             { path: "doctors-search", element: <DoctorSearch /> },
             { path: "appointmentsHistory", element: <History /> },
-            { path: "patient-departments/:id", element: <PatientsDepartmentDetails /> },
+            {
+              path: "patient-departments/:id",
+              element: <PatientsDepartmentDetails />,
+            },
             { path: "chatPage", element: <ChatPagePatient /> },
             { path: "records", element: <MedicalRecordDashboard /> },
             { path: "consultation", element: <ConsultationHistory /> },
@@ -313,7 +345,19 @@ const AppRoutes = () => {
     },
   ];
 
-  return useRoutes(routes);
+ const element = useRoutes(routes);
+
+return (
+  <Suspense
+    fallback={
+      <div className="flex items-center justify-center h-screen">
+        Loading...
+      </div>
+    }
+  >
+    {element}
+  </Suspense>
+);
 };
 
 export default AppRoutes;

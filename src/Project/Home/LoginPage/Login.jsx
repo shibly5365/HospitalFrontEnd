@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { MdLocalHospital } from "react-icons/md";
 import axios from "axios";
 import { useForm } from "react-hook-form";
@@ -7,7 +7,6 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 // import { notify } from "../../../Units/notification";
 import { useAuth } from "../../Components/AuthContext";
-
 
 // ✅ Yup validation schema
 const loginSchema = Yup.object().shape({
@@ -25,7 +24,6 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
-
   // ✅ react-hook-form setup
   const {
     register,
@@ -35,51 +33,50 @@ const Login = () => {
     resolver: yupResolver(loginSchema),
   });
 
-const onSubmit = async (data) => {
-  setLoading(true); // optional: show loading
-  try {
-    const res = await axios.post(
-      "http://localhost:4002/api/auth/login",
-      data,
-      { withCredentials: true }
-    );
-    console.log("res",res.data);
-    
+  const onSubmit = async (data) => {
+    setLoading(true); // optional: show loading
+    try {
+      const res = await axios.post(
+        "http://localhost:4002/api/auth/login",
+        data,
+        { withCredentials: true },
+      );
+      console.log("ressdfasd", res.data);
 
-    if (res.data.success) {
-      const { user, jwtToken } = res.data;
+      if (res.data.success) {
+        const { user, jwtToken } = res.data;
 
-      login(user, jwtToken); // ✅ fixed
+        login(user, jwtToken); // ✅ fixed
 
-      // Redirect to dashboard based on role
-      switch (user.role) {
-        case "superadmin":
-          navigate("/super-admin/super-admin-dashboard", { replace: true });
-          break;
-        case "admin":
-          navigate("/admin/admin-dashboard", { replace: true });
-          break;
-        case "doctor":
-          navigate("/doctors/doctors-dashboard", { replace: true });
-          break;
-        case "receptionist":
-          navigate("/receptionist/receptionist-appointments", { replace: true });
-          break;
-        case "patient":
-          navigate("/patient/patient-dashboard", { replace: true });
-          break;
-        default:
-          navigate("/", { replace: true });
+        // Redirect to dashboard based on role
+        switch (user.role) {
+          case "superadmin":
+            navigate("/super-admin/super-admin-dashboard", { replace: true });
+            break;
+          case "admin":
+            navigate("/admin/admin-dashboard", { replace: true });
+            break;
+          case "doctor":
+            navigate("/doctors/doctors-dashboard", { replace: true });
+            break;
+          case "receptionist":
+            navigate("/receptionist/receptionist-appointments", {
+              replace: true,
+            });
+            break;
+          case "patient":
+            navigate("/patient/patient-dashboard", { replace: true });
+            break;
+          default:
+            navigate("/", { replace: true });
+        }
       }
+    } catch (err) {
+      setError(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    setError(err.response?.data?.message || "Something went wrong");
-  } finally {
-    setLoading(false);
-  }
-};
-
-
+  };
 
   return (
     <div className="min-h-screen flex">
@@ -129,7 +126,9 @@ const onSubmit = async (data) => {
                 } shadow-sm focus:border-blue-500 focus:ring-blue-500`}
               />
               {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
@@ -146,7 +145,9 @@ const onSubmit = async (data) => {
                 } shadow-sm focus:border-blue-500 focus:ring-blue-500`}
               />
               {errors.password && (
-                <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
@@ -192,9 +193,15 @@ const onSubmit = async (data) => {
 
           <p className="mt-6 text-center text-sm">
             Don’t have an account?{" "}
-            <a href="/signUp" className="text-blue-600 hover:underline">
+            <Link
+              to="/signUp"
+              className="text-blue-600 hover:underline"
+              onMouseEnter={() => {
+                import("./SignupPage"); // adjust path
+              }}
+            >
               Sign Up
-            </a>
+            </Link>
           </p>
         </div>
       </div>

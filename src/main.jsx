@@ -10,7 +10,7 @@ createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <AuthProvider>
       <PatientProvider>
-        <App />
+        <App /> {/* ✅ ONLY APP */}
       </PatientProvider>
     </AuthProvider>
   </Provider>

@@ -1,78 +1,98 @@
 // DoctorAnalyticsDashboard.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 import {
-    consultationData,
-    earningsData,
-    patientStats,
-    workingDays,
-    consultationInsights,
-    chatAnalytics,
-    prescriptionData,
-    appointmentInsights,
-    diseasesData
-} from './DoctorPages/sampleData';
-import Header from './DoctorPages/analytics/Header';
-import KeyMetrics from './DoctorPages/analytics/KeyMetrics';
-import EarningsChart from './DoctorPages/analytics/EarningsChart';
-import PatientDemographics from './DoctorPages/analytics/PatientDemographics';
-import WorkingDays from './DoctorPages/analytics/WorkingDays';
-import CommonDiseases from './DoctorPages/analytics/CommonDiseases';
-import CommunicationAnalytics from './DoctorPages/analytics/CommunicationAnalytics';
-import PrescriptionAnalytics from './DoctorPages/analytics/PrescriptionAnalytics';
-import AppointmentTrends from './DoctorPages/analytics/AppointmentTrends';
+  consultationData,
+  earningsData,
+  patientStats,
+  workingDays,
+  consultationInsights,
+  chatAnalytics,
+  prescriptionData,
+  appointmentInsights,
+  diseasesData,
+} from "./DoctorPages/sampleData";
+import Header from "./DoctorPages/analytics/Header";
+import KeyMetrics from "./DoctorPages/analytics/KeyMetrics";
+import EarningsChart from "./DoctorPages/analytics/EarningsChart";
+import PatientDemographics from "./DoctorPages/analytics/PatientDemographics";
+import WorkingDays from "./DoctorPages/analytics/WorkingDays";
+import CommonDiseases from "./DoctorPages/analytics/CommonDiseases";
+import CommunicationAnalytics from "./DoctorPages/analytics/CommunicationAnalytics";
+import PrescriptionAnalytics from "./DoctorPages/analytics/PrescriptionAnalytics";
+import AppointmentTrends from "./DoctorPages/analytics/AppointmentTrends";
+import axios from "axios";
 
 const DoctorAnalyticsDashboard = () => {
-    const [timeframe, setTimeframe] = useState('monthly');
+  const [timeframe, setTimeframe] = useState("monthly");
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-            <div className="max-w-7xl mx-auto">
-                <Header timeframe={timeframe} setTimeframe={setTimeframe} />
+    useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:4002/api/doctor/doctorDashbaord",
+          { withCredentials: true }
+        );
 
-                <KeyMetrics
-                    timeframe={timeframe}
-                    consultationData={consultationData}
-                    earningsData={earningsData}
-                    patientStats={patientStats}
-                    consultationInsights={consultationInsights}
-                />
+        setDashboardData(res.data);
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <EarningsChart timeframe={timeframe} earningsData={earningsData} />
-                    <PatientDemographics timeframe={timeframe} patientStats={patientStats} />
-                </div>
+    fetchDashboard();
+  }, []);
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                    <WorkingDays workingDays={workingDays} />
-                    <CommonDiseases
-                        timeframe={timeframe}
-                        consultationInsights={consultationInsights}
-                        diseasesData={diseasesData}
-                    />
-                </div>
+  if (loading) return <div>Loading dashboard...</div>;
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <div className="max-w-7xl mx-auto">
+        <Header timeframe={timeframe} setTimeframe={setTimeframe} />
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <CommunicationAnalytics
-                        timeframe={timeframe}
-                        chatAnalytics={chatAnalytics}
-                        appointmentInsights={appointmentInsights}
-                    />
-                    <PrescriptionAnalytics
-                        timeframe={timeframe}
-                        prescriptionData={prescriptionData}
-                    />
-                </div>
+        <KeyMetrics timeframe={timeframe} dashboardData={dashboardData} />
 
-                <AppointmentTrends
-                    timeframe={timeframe}
-                    appointmentInsights={appointmentInsights}
-                    patientStats={patientStats}
-                    prescriptionData={prescriptionData}
-                />
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <EarningsChart timeframe={timeframe} earningsData={earningsData} />
+          <PatientDemographics
+            timeframe={timeframe}
+            patientStats={patientStats}
+          />
         </div>
-    );
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <WorkingDays workingDays={workingDays} />
+          <CommonDiseases
+            timeframe={timeframe}
+            consultationInsights={consultationInsights}
+            diseasesData={diseasesData}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <CommunicationAnalytics
+            timeframe={timeframe}
+            chatAnalytics={chatAnalytics}
+            appointmentInsights={appointmentInsights}
+          />
+          <PrescriptionAnalytics
+            timeframe={timeframe}
+            prescriptionData={prescriptionData}
+          />
+        </div>
+
+        <AppointmentTrends
+          timeframe={timeframe}
+          appointmentInsights={appointmentInsights}
+          patientStats={patientStats}
+          prescriptionData={prescriptionData}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default DoctorAnalyticsDashboard;

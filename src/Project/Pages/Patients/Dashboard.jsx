@@ -15,6 +15,7 @@ import QuickActions from "./pages/dashboard/QuickActions";
 export default function Dashboard() {
   const [isVisible, setIsVisible] = useState(false);
   const [healthMetrics, setHealthMetrics] = useState([]);
+  const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,15 +25,12 @@ export default function Dashboard() {
       try {
         const res = await axios.get(
           "http://localhost:4002/api/patient/dashboard",
-          { withCredentials: true }
+          { withCredentials: true },
         );
 
         const records = res.data;
-        // console.log("Full Dashboard Data:", records);
 
-        // -------------------------------
-        // 🩺 HEALTH METRICS
-        // -------------------------------
+        // ✅ Medical Records
         const latestRecord = records.medicalRecords;
         const vitals =
           latestRecord && latestRecord.length > 0 ? latestRecord[0] : null;
@@ -40,35 +38,38 @@ export default function Dashboard() {
         const formattedMetrics = [
           {
             label: "Heart Rate",
-            value: vitals?.vitals.heartRate ?? "N/A",
+            value: vitals?.vitals?.heartRate ?? "N/A",
             unit: "bpm",
             trend: "normal",
             icon: "💓",
           },
           {
             label: "Blood Pressure",
-            value: vitals?.vitals.bloodPressure ?? "N/A",
+            value: vitals?.vitals?.bloodPressure ?? "N/A",
             unit: "mmHg",
             trend: "good",
             icon: "🩺",
           },
           {
             label: "Glucose",
-            value: vitals?.vitals.glucose ?? "N/A",
+            value: vitals?.vitals?.glucose ?? "N/A",
             unit: "mg/dL",
             trend: "excellent",
             icon: "🩸",
           },
           {
             label: "Oxygen",
-            value: vitals?.vitals.oxygenLevel ?? "N/A",
+            value: vitals?.vitals?.oxygenLevel ?? "N/A",
             unit: "%",
             trend: "excellent",
             icon: "🌬️",
           },
         ];
 
-        setHealthMetrics(formattedMetrics)
+        setHealthMetrics(formattedMetrics);
+
+        // ✅ Appointments (NEW)
+        setAppointments(records.appointments || []);
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
       } finally {
@@ -78,7 +79,6 @@ export default function Dashboard() {
 
     fetchDashboardData();
   }, []);
-
   const activities = [
     { text: "Blood Test results updated", time: "2 hours ago", icon: "🩸" },
     {
@@ -92,8 +92,6 @@ export default function Dashboard() {
       icon: "📅",
     },
   ];
-
-
 
   const files = [
     { id: 1, name: "Blood_Report.pdf", size: "2.4 MB", date: "12 Oct 2024" },
@@ -113,24 +111,35 @@ export default function Dashboard() {
     { task: "Regular blood pressure monitoring", completed: false },
   ];
 
+  // 🔄 Loading
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen text-lg text-gray-600">
+      <div
+        className="flex justify-center items-center h-screen text-lg"
+        style={{ color: "var(--muted)" }}
+      >
         Loading dashboard...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-6 font-sans">
+    <div
+      className="min-h-screen p-4 md:p-6 font-sans"
+      style={{
+        background: "var(--bg)",
+        color: "var(--text)",
+      }}
+    >
       <Header isVisible={isVisible} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <HealthMetrics metrics={healthMetrics} isVisible={isVisible} />
           <StatsGrid isVisible={isVisible} />
-
-          <Appointments  isVisible={isVisible} />
+          {appointments?.length > 0 && (
+            <Appointments isVisible={isVisible} appointments={appointments} />
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Activities activities={activities} isVisible={isVisible} />
@@ -139,10 +148,9 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-6">
-          <ProfileCard   isVisible={isVisible} />
-
+          <ProfileCard isVisible={isVisible} />
           <HealthPlans plans={healthPlans} isVisible={isVisible} />
-          <DoctorsList  isVisible={isVisible} />
+          <DoctorsList isVisible={isVisible} />
           <QuickActions isVisible={isVisible} />
         </div>
       </div>

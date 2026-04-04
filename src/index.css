@@ -1,4 +1,78 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap");
 @import "tailwindcss";
+
+:root {
+  --bg: #f6fbf9;
+  --surface: #ffffff;
+  --surface-soft: #ebf7f2;
+  --text: #092a25;
+  --muted: #44645f;
+  --brand: #129a68;
+  --brand-dark: #0b7d54;
+  --line: #d9ebe5;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: "Manrope", sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: "Sora", sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.glass-surface {
+  background: color-mix(in srgb, #ffffff 82%, #eaf8f2 18%);
+  backdrop-filter: blur(10px);
+  border: 1px solid color-mix(in srgb, var(--line) 75%, #ffffff 25%);
+}
+
+.soft-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 50px rgba(16, 95, 67, 0.08);
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.65s ease-out both;
+}
+
+.stagger-1 {
+  animation-delay: 0.1s;
+}
+
+.stagger-2 {
+  animation-delay: 0.2s;
+}
+
+.stagger-3 {
+  animation-delay: 0.3s;
+}
+
+.stagger-4 {
+  animation-delay: 0.4s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 /* Custom Scrollbar Styles */
 .custom-scrollbar::-webkit-scrollbar {
@@ -17,4 +91,42 @@
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+/* 🌞 LIGHT (default already in :root) */
+
+/* 🌙 DARK */
+.dark {
+  --bg: #0f172a;        /* full background */
+  --surface: #111827;  
+  --surface-soft: #1f2937;
+  --text: #ffffff;
+  --muted: #9ca3af;
+  --brand: #22c55e;
+  --brand-dark: #16a34a;
+  --line: #374151;
+}
+
+/* 🔵 BLUE */
+.blue {
+  --bg: #0ea5e9;
+  --surface: #0284c7;
+  --surface-soft: #0369a1;
+  --text: #ffffff;
+  --muted: #e0f2fe;
+  --brand: #38bdf8;
+  --brand-dark: #0284c7;
+  --line: #7dd3fc;
+}
+
+/* 🟢 GREEN */
+.green {
+  --bg: #10b981;
+  --surface: #059669;
+  --surface-soft: #047857;
+  --text: #ffffff;
+  --muted: #d1fae5;
+  --brand: #34d399;
+  --brand-dark: #059669;
+  --line: #6ee7b7;
 }

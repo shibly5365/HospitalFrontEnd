@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import axios from "axios";
 
 const AuthContext = createContext();
 
@@ -7,60 +8,72 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: false,
     user: null,
   });
-  const [loading, setLoading] = useState(true); // 🟢 Add loading flag
 
-  const setCookie = (name, value, days = 7) => {
-    const expires = new Date(Date.now() + days * 864e5).toUTCString();
-    document.cookie = `${name}=${encodeURIComponent(
-      value
-    )}; expires=${expires}; path=/; SameSite=Lax`;
-  };
+  const [loading, setLoading] = useState(true);
 
-  const getCookie = (name) => {
-    const match = document.cookie.match(
-      new RegExp("(^| )" + name + "=([^;]+)")
-    );
-    return match ? decodeURIComponent(match[2]) : null;
-  };
+  // 🔥 UNIVERSAL USER FETCH
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get("http://localhost:4002/api/auth/me", {
+        withCredentials: true,
+      });
 
-  const deleteCookie = (name) => {
-    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax`;
+      setAuth({
+        isAuthenticated: true,
+        user: res.data.user,
+      });
+    } catch (error) {
+      setAuth({
+        isAuthenticated: false,
+        user: null,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    const token = getCookie("authToken");
-    const userStr = getCookie("user");
-
-    if (token && userStr) {
-      try {
-        setAuth({
-          isAuthenticated: true,
-          user: JSON.parse(userStr),
-        });
-      } catch {
-        setAuth({ isAuthenticated: false, user: null });
-      }
+    // ✅ ONLY CHECK AUTH ON PROTECTED ROUTES
+    if (
+      location.pathname.startsWith("/patient") ||
+      location.pathname.startsWith("/admin") ||
+      location.pathname.startsWith("/doctor") ||
+      location.pathname.startsWith("/receptionist")
+    ) {
+      fetchUser();
+    } else {
+      setLoading(false);
     }
-    setLoading(false); // 🟢 Mark done loading after check
-  }, []);
+  }, [location.pathname]);
 
-  const login = (user, jwtToken) => {
-    setCookie("authToken", jwtToken);
-    setCookie("user", JSON.stringify(user));
-    localStorage.setItem("user", JSON.stringify(user));
+  // ✅ LOGIN
+  const login = (user) => {
     setAuth({ isAuthenticated: true, user });
   };
 
-  const logout = () => {
-    deleteCookie("authToken");
-    deleteCookie("user");
-    localStorage.clear();
-    sessionStorage.clear();
+  // ✅ LOGOUT
+  const logout = async () => {
+    await axios.post(
+      "http://localhost:4002/api/auth/logout",
+      {},
+      { withCredentials: true },
+    );
+
     setAuth({ isAuthenticated: false, user: null });
   };
 
+  // ✅ 🔥 GLOBAL UPDATE (VERY IMPORTANT)
+  const updateUser = (updatedUser) => {
+    setAuth((prev) => ({
+      ...prev,
+      user: updatedUser,
+    }));
+  };
+
   return (
-    <AuthContext.Provider value={{ auth, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{ auth, login, logout, loading, updateUser, fetchUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

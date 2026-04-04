@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import CalenxdarView from "./DoctorPages/Schedule/CalendarView ";
 import Schedule from "./DoctorPages/Schedule/Schedule";
-import WorkingDays from "./DoctorPages/Schedule/WorkingDays ";
 import Payments from "./DoctorPages/Schedule/Payments ";
 import CalendarLeaveRequest from "./DoctorPages/Schedule/CalendarView ";
 
@@ -27,12 +26,7 @@ const DoctorSchedule = () => {
             Set Schedule
           </button>
 
-          <button
-            onClick={() => setView("workingDays")}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-          >
-            Working Days
-          </button>
+
           <button
             onClick={() => setView("payments")}
             className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition"
@@ -46,7 +40,6 @@ const DoctorSchedule = () => {
       <div className="mt-4">
         {view === "calendar" && <CalendarLeaveRequest />}
         {view === "schedule" && <Schedule />}
-        {view === "workingDays" && <WorkingDays />}
         {view === "payments" && <Payments />}
       </div>
     </div>

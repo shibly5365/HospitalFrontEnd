@@ -8,9 +8,14 @@ export default function Header({ isVisible }) {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const res = await axios.get("http://localhost:4002/api/patient/dashboard  ", {
-          withCredentials: true, // important if you're using cookies for auth
-        });
+        const res = await axios.get(
+          "http://localhost:4002/api/patient/dashboard  ",
+          {
+            withCredentials: true, // important if you're using cookies for auth
+          },
+        );
+        console.log(res.data);
+
         setPatient(res.data);
       } catch (error) {
         console.error("Failed to load dashboard summary:", error);
@@ -22,8 +27,8 @@ export default function Header({ isVisible }) {
     fetchDashboardData();
   }, []);
 
-  // console.log(patient);
-  
+  console.log(patient);
+
   if (loading) {
     return (
       <div className="animate-pulse p-4 text-gray-400">
@@ -33,11 +38,7 @@ export default function Header({ isVisible }) {
   }
 
   if (!patient) {
-    return (
-      <div className="p-4 text-red-500">
-        Failed to load patient info.
-      </div>
-    );
+    return <div className="p-4 text-red-500">Failed to load patient info.</div>;
   }
 
   return (
@@ -57,13 +58,13 @@ export default function Header({ isVisible }) {
             />
           ) : (
             <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold">
-              {patient.patientInfo.fullName ? patient.patientInfo.fullName[0].toUpperCase() : "?"}
+              {patient.patientInfo.fullName}
             </div>
           )}
 
           <div>
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-              Welcome {patient.patientInfo.fullName?.split(" ")[0] || "Patient"}! 👋
+              Welcome {patient.patientInfo.fullName || "Patient"}! 👋
             </h1>
             <p className="text-gray-600 text-lg">
               Here's your health overview for today
@@ -71,11 +72,24 @@ export default function Header({ isVisible }) {
           </div>
         </div>
 
-        <div className="mt-4 md:mt-0">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-sm border border-white/20">
+        <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-sm border border-white/20">
+          {/* Profile Image */}
+          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-teal-400">
+            <img
+              src={
+                patient.patientInfo.profileImage ||
+                "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+              }
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          {/* Patient ID */}
+          <div>
             <p className="text-sm text-gray-500">Patient ID</p>
             <p className="font-semibold text-gray-800">
-              #{patient._id?.slice(-6).toUpperCase() || "N/A"}
+              #{patient?._id?.slice(-6).toUpperCase() || "N/A"}
             </p>
           </div>
         </div>

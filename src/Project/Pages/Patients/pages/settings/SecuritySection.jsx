@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Lock, Eye, EyeOff, Shield } from "lucide-react";
+import axios from "axios";
+import { notify } from "../../../../../Units/notification";
 
 export default function SecuritySection() {
   const [data, setData] = useState({ current: "", new: "", confirm: "" });
@@ -7,10 +9,34 @@ export default function SecuritySection() {
 
   const handleChange = (e) => setData({ ...data, [e.target.name]: e.target.value });
 
-  const handleSubmit = () => {
-    if (data.new !== data.confirm) return alert("Passwords do not match!");
-    alert("Password updated successfully!");
-  };
+const handleSubmit = async () => {
+  if (!data.current || !data.new || !data.confirm) {
+    return notify.error("All fields are required");
+  }
+
+  if (data.new !== data.confirm) {
+    return notify.error("Passwords do not match");
+  }
+
+  try {
+    const res = await axios.put(
+      "http://localhost:4002/api/patient/change-password",
+      {
+        currentPassword: data.current,
+        newPassword: data.new,
+      },
+      { withCredentials: true }
+    );
+
+    notify.success(res.data.message || "Password updated successfully!");
+
+    // clear fields
+    setData({ current: "", new: "", confirm: "" });
+
+  } catch (error) {
+    notify.error(error.response?.data?.message || "Something went wrong");
+  }
+};
 
   return (
     <div className="space-y-8">
