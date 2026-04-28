@@ -14,7 +14,7 @@ export default function Header({ isVisible }) {
             withCredentials: true, // important if you're using cookies for auth
           },
         );
-        console.log(res.data);
+    
 
         setPatient(res.data);
       } catch (error) {
@@ -27,7 +27,6 @@ export default function Header({ isVisible }) {
     fetchDashboardData();
   }, []);
 
-  console.log(patient);
 
   if (loading) {
     return (

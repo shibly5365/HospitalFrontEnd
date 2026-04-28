@@ -27,6 +27,7 @@ export default function Dashboard() {
           "http://localhost:4002/api/patient/dashboard",
           { withCredentials: true },
         );
+        console.log("faaa", res.data);
 
         const records = res.data;
 
@@ -122,6 +123,7 @@ export default function Dashboard() {
       </div>
     );
   }
+  console.log("appointments".appointments);
 
   return (
     <div
@@ -137,7 +139,7 @@ export default function Dashboard() {
         <div className="lg:col-span-2 space-y-6">
           <HealthMetrics metrics={healthMetrics} isVisible={isVisible} />
           <StatsGrid isVisible={isVisible} />
-          {appointments?.length > 0 && (
+          {appointments?.total > 0 && (
             <Appointments isVisible={isVisible} appointments={appointments} />
           )}
 
