@@ -14,7 +14,7 @@ const SchedulesSidebar = ({ schedules, loading, onScheduleDelete }) => {
     
     if (!window.confirm("Are you sure you want to delete this schedule?")) return;
     try {
-      await axios.delete(`http://localhost:4002/api/doctor/schedule/deleteSchedule/${scheduleId}`, {
+      await axios.delete(`http://localhost:4002/api/doctor/deleteSchedule/${scheduleId}`, {
         withCredentials: true,
       });
       notify.success("Schedule deleted successfully!");

@@ -14,37 +14,83 @@ const CalendarLeaveRequest = () => {
     duration: "Full Day",
   });
 
-  // Fetch doctor's availability & approved leaves
+  // ================= FETCH DATA =================
   const fetchAvailability = async () => {
     try {
-      const today = new Date();
-      const month = today.getMonth() + 1;
-      const year = today.getFullYear();
-
       const res = await axios.get(
-        `http://localhost:4002/api/doctor/availability?month=${month}&year=${year}`,
-        { withCredentials: true }
+        `http://localhost:4002/api/doctor/availability`,
+        { withCredentials: true },
       );
 
-      console.log("Full response:", res.data);
+      console.log("API DATA:", res.data);
 
-      // Ensure availableDays exists and is an array
-      const availableDays = Array.isArray(res.data.availableDays)
-        ? res.data.availableDays
-        : [];
+      const availableDays = res.data.availableDays || [];
+      const leaveDays = res.data.leaveDays || [];
 
-      const calendarEvents = availableDays.map((date, index) => ({
-        id: index + 1,
-        title: "Available",
-        start: date,
-        end: date,
-        color: "green",
-      }));
+      // ================= FILTER (CURRENT + NEXT MONTH) =================
+      const today = new Date();
+      const currentMonth = today.getMonth() + 1;
+      const currentYear = today.getFullYear();
 
-      setEvents(calendarEvents);
+      const nextMonthDate = new Date(currentYear, currentMonth, 1);
+      const nextMonth = nextMonthDate.getMonth() + 1;
+      const nextYear = nextMonthDate.getFullYear();
+
+      // ================= AVAILABLE =================
+      const availableEvents = availableDays
+        .map((date) => {
+          const d = new Date(date); // ✅ convert UTC → local
+
+          return {
+            original: date,
+            year: d.getFullYear(),
+            month: d.getMonth() + 1,
+            formatted: d.toISOString().split("T")[0],
+          };
+        })
+        .filter((d) => {
+          return (
+            (d.month === currentMonth && d.year === currentYear) ||
+            (d.month === nextMonth && d.year === nextYear)
+          );
+        })
+        .map((d, index) => ({
+          id: "avail-" + index,
+          title: "Available",
+          start: d.formatted,
+          end: d.formatted,
+          color: "green",
+        }));
+
+      // ================= LEAVES =================
+      const leaveEvents = leaveDays
+        .filter((l) => {
+          const [year, month] = l.date.split("-").map(Number);
+
+          return (
+            (month === currentMonth && year === currentYear) ||
+            (month === nextMonth && year === nextYear)
+          );
+        })
+        .map((l, index) => ({
+          id: "leave-" + index,
+          title: l.status === "pending" ? "Pending Leave" : "Approved Leave",
+          start: l.date,
+          end: l.date,
+          color: l.status === "pending" ? "orange" : "red",
+        }));
+
+      // ================= MERGE =================
+      // 🔥 REMOVE available days that have leave
+      const filteredAvailable = availableEvents.filter(
+        (avail) => !leaveEvents.some((leave) => leave.start === avail.start),
+      );
+
+      // 🔥 MERGE
+      setEvents([...filteredAvailable, ...leaveEvents]);
     } catch (err) {
-      console.error("Error fetching availability:", err);
-      setEvents([]); // fallback: empty calendar
+      console.error("Error fetching data:", err);
+      setEvents([]);
     }
   };
 
@@ -52,6 +98,7 @@ const CalendarLeaveRequest = () => {
     fetchAvailability();
   }, []);
 
+  // ================= CLICK =================
   const handleDateClick = (info) => {
     setSelectedDate(info.dateStr);
     setShowModal(true);
@@ -62,13 +109,27 @@ const CalendarLeaveRequest = () => {
     setLeaveForm({ ...leaveForm, [name]: value });
   };
 
+  // ================= SUBMIT =================
   const handleSubmitLeave = async () => {
     if (!selectedDate) {
       alert("Please select a date");
       return;
     }
+
     if (!leaveForm.description.trim()) {
       alert("Please add a description");
+      return;
+    }
+
+    // ❌ BLOCK DUPLICATE
+    const alreadyExists = events.some(
+      (e) =>
+        (e.title === "Pending Leave" || e.title === "Approved Leave") &&
+        e.start === selectedDate,
+    );
+
+    if (alreadyExists) {
+      alert("Leave already requested for this date");
       return;
     }
 
@@ -81,29 +142,18 @@ const CalendarLeaveRequest = () => {
     };
 
     try {
-      const res = await axios.post(
+      await axios.post(
         "http://localhost:4002/api/doctor/leave-request",
         payload,
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
-      // Optimistic update: show pending leave immediately
-      setEvents((prevEvents) => [
-        ...prevEvents,
-        {
-          id: prevEvents.length + 1,
-          title: "Pending Leave",
-          start: selectedDate,
-          end: selectedDate,
-          color: "orange",
-        },
-      ]);
+      // ✅ refresh data
+      await fetchAvailability();
 
       setLeaveForm({ type: "sick", description: "", duration: "Full Day" });
       setSelectedDate(null);
       setShowModal(false);
-
-      console.log("Leave submitted:", res.data.leave);
     } catch (err) {
       console.error("Error submitting leave:", err);
       alert(err.response?.data?.message || "Error submitting leave");
@@ -121,6 +171,8 @@ const CalendarLeaveRequest = () => {
         initialView="dayGridMonth"
         events={events}
         dateClick={handleDateClick}
+        showNonCurrentDates={false}
+        fixedWeekCount={false}
         eventClick={(info) => alert(`Event: ${info.event.title}`)}
       />
 

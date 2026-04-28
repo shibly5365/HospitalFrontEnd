@@ -28,24 +28,26 @@ const DoctorAnalyticsDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const res = await axios.get(
-          "http://localhost:4002/api/doctor/doctorDashbaord",
-          { withCredentials: true }
-        );
+useEffect(() => {
+  const fetchDashboard = async () => {
+    try {
+      setLoading(true);
 
-        setDashboardData(res.data);
-      } catch (err) {
-        console.error("Dashboard fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const res = await axios.get(
+        `http://localhost:4002/api/doctor/analytics?filter=${timeframe}`,
+        { withCredentials: true }
+      );
 
-    fetchDashboard();
-  }, []);
+      setDashboardData(res.data.data);
+    } catch (err) {
+      console.error("Dashboard fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchDashboard();
+}, [timeframe]); // 🔥 VERY IMPORTANT
 
   if (loading) return <div>Loading dashboard...</div>;
   return (

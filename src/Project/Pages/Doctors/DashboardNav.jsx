@@ -10,13 +10,13 @@ const DashboardNav = () => {
 
   }, []);
 
-  const doctorInitials = doctor
-    ? doctor.fullName
+const doctorInitials = doctor?.fullName
+  ? doctor.fullName
       .split(" ")
       .map((n) => n[0])
       .join("")
       .toUpperCase()
-    : "DR";
+  : "DR";
 
   return (
     <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md px-6 py-4 w-full shadow-sm border-b border-gray-200">

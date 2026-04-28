@@ -73,7 +73,7 @@ const DoctorSideBar = () => {
     {
       name: "Settings",
       icon: <Settings size={20} />,
-      path: "/doctors/settings",
+      path: "/doctors/appointments-settings",
     },
   ];
 
