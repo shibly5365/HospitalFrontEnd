@@ -38,6 +38,7 @@ export const AuthProvider = ({ children }) => {
       location.pathname.startsWith("/patient") ||
       location.pathname.startsWith("/admin") ||
       location.pathname.startsWith("/doctor") ||
+      location.pathname.startsWith("/superadmin") ||
       location.pathname.startsWith("/receptionist")
     ) {
       fetchUser();

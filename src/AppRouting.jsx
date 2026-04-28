@@ -63,7 +63,6 @@ import DoctorSchedule from "./Project/Pages/Doctors/DoctorSchedule";
 import AddDepartment from "./Project/Pages/Admin/pages/AddDepartment";
 import PatientsLists from "./Project/Pages/Receptionist/pages/Add/PatientsLists";
 import ReSchedulingAppointments from "./Project/Pages/Patients/pages/ReScheduling";
-import ErrorPage from "./Units/ErrorPage";
 import DoctorSearch from "./Project/Pages/Patients/pages/DoctorSearch";
 import CreateReceptionistForm from "./Project/Pages/Admin/pages/CreateReceptionistForm";
 import DoctorScheduleRece from "./Project/Pages/Receptionist/DoctorSchedule";
@@ -103,6 +102,8 @@ import PatientRegistrationReports from "./Project/Pages/Receptionist/pages/Repor
 import DoctorWritePrescription from "./Project/Pages/Doctors/DoctorPages/DoctorWritePrescription";
 import DoctorPrescriptionPage from "./Project/Pages/Doctors/DoctorPages/DoctorPrescriptionPage";
 import VerifyOtp from "./Project/Home/LoginPage/VerifyOtp";
+import DoctorProfileSettings from "./Project/Pages/Doctors/DoctorProfileSettings";
+import  ErrorPage  from "../src/units/ErrorPage";
 
 const AppRoutes = () => {
   const routes = [
@@ -225,6 +226,7 @@ const AppRoutes = () => {
             { path: "patients-Deteails/:id", element: <PatientDetailCard /> },
             { path: "patients-add", element: <AddPatientForm /> },
             { path: "appointments-add", element: <AppointmentForm /> },
+            { path: "appointments-settings", element: <DoctorProfileSettings /> },
           ],
         },
       ],
