@@ -1,385 +1,196 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 
-const NewAppointmentForm = ({ isOpen, onClose, onSubmit, initialData }) => {
-  const [formData, setFormData] = useState({
-    patient: "",
-    department: "",
-    doctor: "",
-    consultationMode: "",
+const RescheduleAppointment = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  initialData,
+  availableSlots = [],
+}) => {
+  const [form, setForm] = useState({
+    patientName: "",
     date: "",
-    startTime: "",
-    endTime: "",
+    time: "",
     reason: "",
-    notes: "",
-    paymentMode: "",
+    mode: "Online",
   });
 
-  const [patients, setPatients] = useState([]);
-  const [departments, setDepartments] = useState([]);
-  const [doctors, setDoctors] = useState([]);
-  const [availableDates, setAvailableDates] = useState([]);
-  const [slots, setSlots] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // Populate form when editing
   useEffect(() => {
-    if (initialData) setFormData(initialData);
+    if (initialData) {
+      setForm({
+        patientName: initialData.patientName || "",
+        date: initialData.appointmentDate
+          ? new Date(initialData.appointmentDate).toISOString().split("T")[0]
+          : "",
+        time: "",
+        reason: "",
+        mode: initialData.mode || "Online",
+      });
+    }
   }, [initialData]);
-
-  // Fetch patients
-  useEffect(() => {
-    const fetchPatients = async () => {
-      try {
-        const res = await axios.get(
-          "http://localhost:4002/api/admin/getAll-patients",
-          {
-            withCredentials: true,
-          }
-        );
-        setPatients(res.data);
-      } catch (err) {
-        console.error("Error fetching patients:", err);
-      }
-    };
-    fetchPatients();
-  }, []);
-
-  // Fetch departments
-  useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const res = await axios.get(
-          "http://localhost:4002/api/admin/getdepartmenst",
-          {
-            withCredentials: true,
-          }
-        );
-        setDepartments(res.data.data);
-      } catch (err) {
-        console.error("Error fetching departments:", err);
-      }
-    };
-    fetchDepartments();
-  }, []);
-
-  // Fetch doctors when department changes
-  useEffect(() => {
-    if (!formData.department) {
-      setDoctors([]);
-      return;
-    }
-
-    const fetchDoctors = async () => {
-      try {
-        const res = await axios.get(
-          `http://localhost:4002/api/admin/getalldoctorDepartments/${formData.department}`,
-          { withCredentials: true }
-        );
-        setDoctors(res.data.doctors);
-      } catch (err) {
-        console.error("Error fetching doctors:", err);
-      }
-    };
-    fetchDoctors();
-
-    // Reset dependent fields
-    setFormData((prev) => ({
-      ...prev,
-      doctor: "",
-      date: "",
-      startTime: "",
-      endTime: "",
-    }));
-    setAvailableDates([]);
-    setSlots([]);
-  }, [formData.department]);
-
-  // Fetch available dates when doctor changes
-  useEffect(() => {
-    if (!formData.doctor) {
-      setAvailableDates([]);
-      return;
-   
-    }
-
-    const fetchAvailableDates = async () => {
-      try {
-        const res = await axios.get(
-          `http://localhost:4002/api/admin/schedules/available-dates/${formData.doctor}`,
-          { withCredentials: true }
-        );
-        setAvailableDates(res.data.dates || []);
-      } catch (err) {
-        console.error("Error fetching available dates:", err);
-      }
-    };
-    fetchAvailableDates();
-
-    // Reset dependent fields
-    setFormData((prev) => ({ ...prev, date: "", startTime: "", endTime: "" }));
-    setSlots([]);
-  }, [formData.doctor]);
-
-  // Fetch available slots when date changes
-  useEffect(() => {
-    if (!formData.doctor || !formData.date) {
-      setSlots([]);
-      return;
-    }
-
-    const fetchSlots = async () => {
-      try {
-        const res = await axios.get(
-          `http://localhost:4002/api/admin/schedules/available-dates/${formData.doctor}?date=${formData.date}`,
-          { withCredentials: true }
-        );
-        console.log("resslot", res.data.schedules);
-
-        setSlots(res.data.schedules || []);
-      } catch (err) {
-        console.error("Error fetching slots:", err);
-      }
-    };
-    fetchSlots();
-  }, [formData.doctor, formData.date]);
 
   if (!isOpen) return null;
 
-  const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(formData);
-    onClose();
+    setLoading(true);
+    try {
+      await onSubmit?.({ ...form, id: initialData?._id });
+      onClose();
+    } finally {
+      setLoading(false);
+    }
   };
-
-  console.log("pati", patients);
-  console.log("depat", departments);
-  console.log("doc", doctors);
-  console.log("date", availableDates);
-  console.log("slot", slots);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-      <div className="bg-white rounded-lg shadow-lg w-[800px] p-6 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">New Appointment</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md p-4">
+      <div className="w-full max-w-3xl bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.2)] overflow-hidden">
+        {/* 🔥 Gradient Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white flex justify-between items-center">
+          <h2 className="text-xl md:text-2xl font-semibold">
+            Reschedule Appointment
+          </h2>
           <button
             onClick={onClose}
-            className="text-amber-400 hover:text-black text-lg"
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition"
           >
             ✕
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Patient */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Patient Name
-            </label>
-            <select
-              name="patient"
-              value={formData.patient}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-            >
-              <option value="">Select Patient</option>
-              {patients.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.fullName}
-                </option>
-              ))}
-            </select>
+        <div className="p-6 md:p-8 space-y-6 max-h-[85vh] overflow-y-auto">
+          {/* Info Cards */}
+          <div className="grid md:grid-cols-2 gap-4">
+            {/* Patient */}
+            <div className="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-md transition">
+              <p className="text-xs text-gray-400 mb-1">PATIENT</p>
+              <h3 className="font-semibold text-lg">
+                {initialData?.patientName}
+              </h3>
+              <p className="text-sm text-gray-500">{initialData?.email}</p>
+              <p className="text-sm text-gray-500">{initialData?.phone}</p>
+            </div>
+
+            {/* Doctor */}
+            <div className="bg-white border rounded-2xl p-4 shadow-sm hover:shadow-md transition">
+              <p className="text-xs text-gray-400 mb-1">DOCTOR</p>
+              <h3 className="font-semibold text-lg">
+                {initialData?.doctorName}
+              </h3>
+              <p className="text-sm text-gray-500">
+                {initialData?.departmentName}
+              </p>
+            </div>
           </div>
 
-          {/* Department & Doctor */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Date */}
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Department
+              <label className="text-sm font-medium text-gray-600">
+                Select Date
               </label>
-              <select
-                name="department"
-                value={formData.department}
-                onChange={handleChange}
-                className="w-full border rounded px-3 py-2"
-              >
-                <option value="">Select Department</option>
-                {departments.map((dept) => (
-                  <option key={dept._id} value={dept._id}>
-                    {dept.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Doctor</label>
-              <select
-                name="doctor"
-                value={formData.doctor}
-                onChange={handleChange}
-                className="w-full border rounded px-3 py-2"
-                disabled={!doctors.length}
-              >
-                <option value="">Select Doctor</option>
-                {doctors.map((doc) => (
-                  <option key={doc._id} value={doc._id}>
-                    {doc.userId.fullName}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Consultation Mode */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Preferred Mode of Consultation
-            </label>
-            <select
-              name="consultationMode"
-              value={formData.consultationMode}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-            >
-              <option value="">Select</option>
-              <option value="Offline">In-Person</option>
-              <option value="Online">Online</option>
-            </select>
-          </div>
-
-          {/* Date & Slots */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* Date Selection */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Date</label>
-              <select
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                className="w-full border rounded px-3 py-2"
-                disabled={!availableDates.length}
-              >
-                <option value="">Select Date</option>
-                {availableDates.map((date) => (
-                  <option key={date} value={date}>
-                    {date}
-                  </option>
-                ))}
-              </select>
+              <input
+                type="date"
+                value={form.date}
+                onChange={(e) =>
+                  setForm({ ...form, date: e.target.value, time: "" })
+                }
+                className="w-full mt-2 px-4 py-3 rounded-xl border focus:ring-2 focus:ring-blue-500 outline-none transition"
+              />
             </div>
 
             {/* Slots */}
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Available Slots
+              <label className="text-sm font-medium text-gray-600">
+                Available Time Slots
               </label>
-              {slots.length > 0 ? (
-                <ul className="border rounded p-2 max-h-40 overflow-y-auto">
-                  {slots
-                    .flatMap((s) => s.slots || []) // flatten nested slots
-                    .map((slot) => (
-                      <li
-                        key={slot.start}
-                        className={`px-2 py-1 rounded mb-1 text-center cursor-pointer ${
-                          slot.isBooked
-                            ? "bg-red-500 text-white line-through" // booked
-                            : formData.startTime === slot.start
-                            ? "bg-blue-600 text-white" // selected
-                            : "bg-green-500 text-white hover:bg-green-600" // available
-                        }`}
-                        onClick={() => {
-                          if (!slot.isBooked) {
-                            setFormData((prev) => ({
-                              ...prev,
-                              startTime: slot.start,
-                              endTime: slot.end,
-                            }));
-                          }
-                        }}
-                      >
-                        {slot.start} - {slot.end}{" "}
-                        {slot.isBooked ? "(Booked)" : "(Available)"}
-                      </li>
-                    ))}
-                </ul>
-              ) : (
-                <p className="text-gray-500 text-sm">No slots available</p>
-              )}
+
+              <div className="flex flex-wrap gap-2 mt-3">
+                {availableSlots.length > 0 ? (
+                  availableSlots.map((slot, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setForm({ ...form, time: slot })}
+                      className={`px-4 py-2 rounded-full text-sm border transition-all duration-200 ${
+                        form.time === slot
+                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-105"
+                          : "bg-gray-100 hover:bg-gray-200"
+                      }`}
+                    >
+                      {slot}
+                    </button>
+                  ))
+                ) : (
+                  <p className="text-gray-400 text-sm">No slots available</p>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Reason */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Reason</label>
-            <input
-              type="text"
-              name="reason"
-              placeholder="Reason for appointment"
-              value={formData.reason}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-       
+            {/* Mode */}
+            <div>
+              <label className="text-sm font-medium text-gray-600">
+                Consultation Mode
+              </label>
 
-          {/* Notes */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Quick Notes
-            </label>
-            <textarea
-              name="notes"
-              placeholder="Additional Information"
-              value={formData.notes}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
+              <div className="grid grid-cols-2 gap-3 mt-2">
+                {["Online", "Offline"].map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setForm({ ...form, mode })}
+                    className={`py-3 rounded-xl border transition ${
+                      form.mode === mode
+                        ? "bg-blue-600 text-white shadow-md"
+                        : "bg-gray-100 hover:bg-gray-200"
+                    }`}
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-          {/* Payment */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Mode of Payment
-            </label>
-            <select
-              name="paymentMode"
-              value={formData.paymentMode}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-            >
-              <option value="">Select</option>
-              <option value="Cash">Cash</option>
-              <option value="Card">Card</option>
-              <option value="UPI">UPI</option>
-            </select>
-          </div>
+            {/* Reason */}
+            <div>
+              <label className="text-sm font-medium text-gray-600">
+                Reason
+              </label>
+              <textarea
+                value={form.reason}
+                onChange={(e) => setForm({ ...form, reason: e.target.value })}
+                rows={3}
+                className="w-full mt-2 px-4 py-3 rounded-xl border focus:ring-2 focus:ring-blue-500 outline-none"
+                placeholder="Explain reason..."
+              />
+            </div>
 
-          {/* Buttons */}
-          <div className="flex justify-end gap-2 mt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Add Appointment
-            </button>
-          </div>
-        </form>
+            {/* Footer */}
+            <div className="sticky bottom-0 bg-white pt-4 flex justify-end gap-3 border-t">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-5 py-2 rounded-xl border hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                disabled={loading || !form.time}
+                className="px-6 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:opacity-90 shadow-md"
+              >
+                {loading ? "Saving..." : "Confirm Changes"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
 };
 
-export default NewAppointmentForm;
+export default RescheduleAppointment;

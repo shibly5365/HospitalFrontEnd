@@ -1,4 +1,3 @@
-// AdminSidebar.jsx
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
@@ -17,26 +16,29 @@ import {
 import axios from "axios";
 import { useAuth } from "../../Components/AuthContext";
 
+// ✅ IMPORT FIX (VERY IMPORTANT)
+
 const AdminSidebar = () => {
   const navigate = useNavigate();
-   const { logout } = useAuth();
+  const { logout } = useAuth(); // ✅ now works
 
   const handleLogout = async () => {
     const confirmed = window.confirm("Are you sure you want to logout?");
     if (!confirmed) return;
 
     try {
+      // ✅ optional (you already have logout in context)
       await axios.post(
         "http://localhost:4002/api/admin/admin-logout",
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       localStorage.clear();
-        logout(); 
-      
-      // notify.success("Logged out successfully!");
-      navigate("/"); // 🔒 prevent going back
+
+      await logout(); // ✅ use context logout
+
+      navigate("/");
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -44,7 +46,7 @@ const AdminSidebar = () => {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Logo Section */}
+      {/* Logo */}
       <div className="p-6 flex items-center gap-2 border-b flex-shrink-0">
         <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-white font-bold">
           W
@@ -107,7 +109,7 @@ const AdminSidebar = () => {
         />
       </nav>
 
-      {/* Logout Button */}
+      {/* Logout */}
       <div className="p-4 border-t flex-shrink-0">
         <button
           onClick={handleLogout}
@@ -121,12 +123,11 @@ const AdminSidebar = () => {
   );
 };
 
-// SidebarItem component
 const SidebarItem = ({ to, icon, text, badge }) => (
   <NavLink
     to={to}
     className={({ isActive }) =>
-      `flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer ${
+      `flex items-center justify-between px-3 py-2 rounded-lg ${
         isActive
           ? "bg-teal-100 text-teal-600 font-medium"
           : "text-gray-600 hover:bg-gray-100"

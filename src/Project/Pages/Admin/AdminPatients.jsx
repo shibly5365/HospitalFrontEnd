@@ -16,8 +16,10 @@ const AdminPatients = () => {
       try {
         const res = await axios.get(
           "http://localhost:4002/api/admin/getAll-patients",
-          { withCredentials: true }
+          { withCredentials: true },
         );
+        console.log("res", res.data);
+
         setPatients(res.data.patients || res.data);
       } catch (err) {
         console.error("Error fetching patients:", err);
@@ -32,6 +34,8 @@ const AdminPatients = () => {
 
   // ✅ Confirm delete with toast
   const handleDeletePatient = async (id, name) => {
+    console.log(id);
+
     toast(
       (t) => (
         <div className="flex flex-col">
@@ -41,7 +45,7 @@ const AdminPatients = () => {
           <div className="flex justify-end mt-2 space-x-2">
             <button
               className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-              onClick={() => toast.dismiss(t.id)}
+              onClick={() => toast.dismiss(t._id)}
             >
               Cancel
             </button>
@@ -50,11 +54,12 @@ const AdminPatients = () => {
               onClick={async () => {
                 try {
                   const res = await axios.delete(
-                    `http://localhost:4002/api/admin/deletePatients/${id}`,
-                    { withCredentials: true }
+                    `http://localhost:4002/api/admin/delete-patients/${id}`,
+                    { withCredentials: true },
                   );
+
                   if (res.data.success) {
-                    setPatients((prev) => prev.filter((p) => p._id !== id));
+                    setPatients((prev) => prev.filter((p) => p.id !== id));
                     notify.success("Patient deleted successfully");
                   } else {
                     notify.error("Failed to delete patient");
@@ -63,7 +68,7 @@ const AdminPatients = () => {
                   console.error(err);
                   notify.error("Server error");
                 } finally {
-                  toast.dismiss(t.id);
+                  toast.dismiss(t._id);
                 }
               }}
             >
@@ -72,12 +77,12 @@ const AdminPatients = () => {
           </div>
         </div>
       ),
-      { duration: Infinity }
+      { duration: Infinity },
     );
   };
 
-  // console.log("patintesss",patients);
-  
+  console.log("patintesss",patients);
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold mb-4">Patients</h1>
@@ -103,9 +108,9 @@ const AdminPatients = () => {
             />
           </div>
 
-          <button className="flex items-center px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800">
+          {/* <button className="flex items-center px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800">
             <UserPlus size={18} className="mr-2" /> Add Patient
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -154,7 +159,7 @@ const AdminPatients = () => {
                   ?.filter((a) => ["Pending", "Confirmed"].includes(a.status))
                   .sort(
                     (a, b) =>
-                      new Date(a.appointmentDate) - new Date(b.appointmentDate)
+                      new Date(a.appointmentDate) - new Date(b.appointmentDate),
                   );
                 const nextAppointment = upcomingAppointments?.[0];
 
@@ -185,12 +190,12 @@ const AdminPatients = () => {
                       >
                         <Eye size={18} />
                       </button>
-                      <button className="text-green-600 hover:text-green-800">
+                      {/* <button className="text-green-600 hover:text-green-800">
                         <Edit size={18} />
-                      </button>
+                      </button> */}
                       <button
                         className="text-red-600 hover:text-red-800"
-                        onClick={() => handleDeletePatient(p._id, p.fullName)}
+                        onClick={() => handleDeletePatient(p.id, p.fullName)}
                       >
                         <Trash2 size={18} />
                       </button>

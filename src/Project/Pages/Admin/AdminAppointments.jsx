@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Trash2 } from "lucide-react";
-import NewAppointmentForm from "./pages/AddAppointment";
+import RescheduleAppointment from "./pages/AddAppointment";
 
 const AdminAppointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -19,8 +19,10 @@ const AdminAppointments = () => {
     try {
       const res = await axios.get(
         "http://localhost:4002/api/admin/allAppointments",
-        { withCredentials: true }
+        { withCredentials: true },
       );
+      console.log(res.data);
+
       const data = (res.data.appointments || []).map((appt) => ({
         ...appt,
         selected: false,
@@ -39,6 +41,7 @@ const AdminAppointments = () => {
   }, []);
 
   // Filter appointments by tab and search
+
   const filteredAppointments = appointments.filter((appt) => {
     const statusMatch = tab === "All" ? true : appt.status === tab;
     const searchMatch = appt.patientName
@@ -65,7 +68,7 @@ const AdminAppointments = () => {
       const res = await axios.post(
         "http://localhost:4002/api/admin/book",
         dataToSend,
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       // Update local appointments list
@@ -86,7 +89,7 @@ const AdminAppointments = () => {
     const newValue = !selectAll;
     setSelectAll(newValue);
     setAppointments((prev) =>
-      prev.map((appt) => ({ ...appt, selected: newValue }))
+      prev.map((appt) => ({ ...appt, selected: newValue })),
     );
   };
 
@@ -94,8 +97,8 @@ const AdminAppointments = () => {
   const toggleSelect = (id) => {
     setAppointments((prev) =>
       prev.map((appt) =>
-        appt._id === id ? { ...appt, selected: !appt.selected } : appt
-      )
+        appt._id === id ? { ...appt, selected: !appt.selected } : appt,
+      ),
     );
   };
 
@@ -113,11 +116,13 @@ const AdminAppointments = () => {
       for (const appt of selectedAppointments) {
         await axios.delete(
           `http://localhost:4002/api/admin/deleteAppointments/${appt._id}`,
-          { withCredentials: true }
+          { withCredentials: true },
         );
       }
       setAppointments((prev) =>
-        prev.filter((a) => !selectedAppointments.some((sa) => sa._id === a._id))
+        prev.filter(
+          (a) => !selectedAppointments.some((sa) => sa._id === a._id),
+        ),
       );
       alert("Selected appointments deleted successfully");
     } catch (err) {
@@ -127,10 +132,10 @@ const AdminAppointments = () => {
   };
 
   // Reschedule/Edit
-const handleReschedule = (appt) => {
-  setSelectedAppointment(appt); // Pass appointment to modal
-  setIsModalOpen(true);
-};
+  const handleReschedule = (appt) => {
+    setSelectedAppointment(appt); // Pass appointment to modal
+    setIsModalOpen(true);
+  };
 
   // Cancel appointment
   const handleCancel = async (_id) => {
@@ -140,11 +145,11 @@ const handleReschedule = (appt) => {
       await axios.put(
         `http://localhost:4002/api/admin/cancelappointments/${_id}`,
         {}, // no body needed
-        { withCredentials: true } // 🔥 send cookies with request
+        { withCredentials: true }, // 🔥 send cookies with request
       );
 
       setAppointments((prev) =>
-        prev.map((a) => (a._id === _id ? { ...a, status: "Cancelled" } : a))
+        prev.map((a) => (a._id === _id ? { ...a, status: "Cancelled" } : a)),
       );
 
       alert("Appointment cancelled successfully");
@@ -157,16 +162,12 @@ const handleReschedule = (appt) => {
   // Check if any appointment is selected
   const anySelected = appointments.some((a) => a.selected);
 
+  console.log("faaaa", appointments);
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Appointments To-Do List</h1>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-        >
-          Add New Appointment
-        </button>
       </div>
 
       {/* Tabs */}
@@ -279,7 +280,7 @@ const handleReschedule = (appt) => {
                             {
                               hour: "2-digit",
                               minute: "2-digit",
-                            }
+                            },
                           )
                         : "N/A"}
                     </td>
@@ -293,8 +294,8 @@ const handleReschedule = (appt) => {
                           appt.status === "Confirmed"
                             ? "bg-green-100 text-green-700"
                             : appt.status === "Cancelled"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-yellow-100 text-yellow-700"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-yellow-100 text-yellow-700"
                         }`}
                       >
                         {appt.status || "Pending"}
@@ -303,7 +304,7 @@ const handleReschedule = (appt) => {
                     <td className="px-6 py-4 flex gap-2">
                       {/* Reschedule always visible */}
                       <button
-                        onClick={() => handleReschedule(appt._id)}
+                        onClick={() => handleReschedule(appt)}
                         className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
                       >
                         Reschedule
@@ -334,10 +335,11 @@ const handleReschedule = (appt) => {
         </div>
       )}
       {/* New Appointment Modal */}
-      <NewAppointmentForm
+      <RescheduleAppointment
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleAddAppointment}
+        initialData={selectedAppointment}
       />
     </div>
   );

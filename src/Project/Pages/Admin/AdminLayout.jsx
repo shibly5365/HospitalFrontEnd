@@ -1,7 +1,8 @@
 // AdminLayout.jsx
 import React from "react";
-import AdminSidebar from "./AdminSidebar";
+
 import { Outlet } from "react-router-dom";
+import AdminSidebar from "./AdminSidebar";
 
 function AdminLayout() {
   return (
