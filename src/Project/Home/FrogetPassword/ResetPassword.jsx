@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { apiClient } from "../../../services/queryClient";
 
 export default function ResetPassword() {
   const { token } = useParams(); 
@@ -17,19 +18,16 @@ export default function ResetPassword() {
     }
 
     try {
-      const res = await fetch(`http://localhost:4002/api/auth/forgot-password/${token}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+      const res = await apiClient.post(`/auth/forgot-password/${token}`, {
+        password,
       });
-
-      const data = await res.json();
+      const data = res.data;
       setMessage(data.message);
 
-      if (res.ok) {
+      if (res.status >= 200 && res.status < 300) {
         setTimeout(() => navigate("/login"), 1000); 
       }
-    } catch (error) {
+    } catch {
       setMessage("Something went wrong. Please try again.");
     }
   };

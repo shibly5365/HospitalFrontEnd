@@ -1,7 +1,7 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MdLocalHospital } from "react-icons/md";
-import axios from "axios";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
@@ -36,17 +36,18 @@ const Login = () => {
   const onSubmit = async (data) => {
     setLoading(true); // optional: show loading
     try {
-      const res = await axios.post(
-        "http://localhost:4002/api/auth/login",
+      const res = await apiClient.post(
+        "/auth/login",
         data,
         { withCredentials: true },
       );
-      console.log("ressdfasd", res.data);
 
       if (res.data.success) {
         const { user, jwtToken } = res.data;
 
         login(user, jwtToken); // ✅ fixed
+        console.log("LOGIN USER", user);
+console.log("LOGIN TOKEN", jwtToken);
 
         // Redirect to dashboard based on role
         switch (user.role) {

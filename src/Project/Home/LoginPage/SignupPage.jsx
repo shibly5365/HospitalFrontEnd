@@ -1,8 +1,8 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { notify } from "../../../Units/notification";
 
@@ -44,8 +44,8 @@ const SignupPage = () => {
         formData.append("profileImage", data.profileImage[0]);
       }
 
-      const res = await axios.post(
-        "http://localhost:4002/api/patient/signup",
+      const res = await apiClient.post(
+        "/patient/signup",
         formData,
         {
           withCredentials: true,

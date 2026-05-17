@@ -1,5 +1,5 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useState } from "react";
-import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const VerifyOtp = () => {
@@ -11,8 +11,8 @@ const VerifyOtp = () => {
 
   const handleVerify = async () => {
     try {
-      const res = await axios.post(
-        "http://localhost:4002/api/patient/verify-otp",
+      const res = await apiClient.post(
+        "/patient/verify-otp",
         { email, otp },
       );
 

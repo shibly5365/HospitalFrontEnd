@@ -4,14 +4,7 @@ import { useLocation } from "react-router-dom";
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  let location;
-
-  // ✅ SAFE: prevent crash if router not ready
-  try {
-    location = useLocation();
-  } catch (err) {
-    location = { pathname: "/" };
-  }
+  const location = useLocation();
 
   const getSystemTheme = () => {
     return window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -27,14 +20,10 @@ export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(getInitialTheme);
 
   useEffect(() => {
-    let appliedTheme = "light"; // default for landing
+    let appliedTheme = "light";
 
-    // ✅ apply theme ONLY after login routes
-    if (
-      location.pathname.startsWith("/patient")
-    ) {
-      appliedTheme =
-        theme === "system" ? getSystemTheme() : theme;
+    if (location.pathname.startsWith("/patient")) {
+      appliedTheme = theme === "system" ? getSystemTheme() : theme;
     }
 
     document.documentElement.className = appliedTheme;

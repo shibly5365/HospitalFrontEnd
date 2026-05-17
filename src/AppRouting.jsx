@@ -2,29 +2,26 @@
 import { useRoutes } from "react-router-dom";
 import React, { lazy, Suspense } from "react";
 
-
 // Public pages
 import HomePage from "./Project/Home/Home";
-import SignupPage from "./Project/Home/LoginPage/SignupPage";
+const SignupPage = lazy(() => import("./Project/Home/LoginPage/SignupPage"));
 import Login from "./Project/Home/LoginPage/Login";
 import ForgotPassword from "./Project/Home/FrogetPassword/ForgotPassword";
 import ResetPassword from "./Project/Home/FrogetPassword/ResetPassword";
 
 // Super Admin
 import SuperAdminLayout from "./Project/Pages/SuperAdmin/SuperAdminLayout";
-const SuperAdminDashboard = lazy(() =>
-  import("./Project/Pages/SuperAdmin/SuperAdminDashboard")
+const SuperAdminDashboard = lazy(
+  () => import("./Project/Pages/SuperAdmin/SuperAdminDashboard"),
 );
 import CreateAdmin from "./Project/Pages/SuperAdmin/CreateAdmin";
 import AdminDetails from "./Project/Pages/SuperAdmin/AdminDetails";
-import Payments from "./Project/Pages/SuperAdmin/payments";
-import Analytics from "./Project/Pages/SuperAdmin/Analytics";
+const Payments = lazy(() => import("./Project/Pages/SuperAdmin/payments"));
+const Analytics = lazy(() => import("./Project/Pages/SuperAdmin/Analytics"));
 import SuperAdminSettings from "./Project/Pages/SuperAdmin/SuperAdminSettings";
 
 // Patient
-const Dashboard = lazy(() =>
-  import("./Project/Pages/Patients/Dashboard")
-);
+const Dashboard = lazy(() => import("./Project/Pages/Patients/Dashboard"));
 
 // Route protection
 import ProtectedRoute from "./Project/Components/ProtectedRoute";
@@ -32,78 +29,160 @@ import PatientLayout from "./Project/Pages/Patients/PatientLayout";
 
 // admin
 import AdminLayout from "./Project/Pages/Admin/AdminLayout";
-const AdminDashboard = lazy(() =>
-  import("./Project/Pages/Admin/AdminDashboard")
+const AdminDashboard = lazy(
+  () => import("./Project/Pages/Admin/AdminDashboard"),
 );
-import DoctorTable from "./Project/Pages/Admin/DoctorTable";
-import AdminPatients from "./Project/Pages/Admin/AdminPatients";
-import AdminAppointments from "./Project/Pages/Admin/AdminAppointments";
-import AdminDepartment from "./Project/Pages/Admin/AdminDepartment";
+const DoctorTable = lazy(() => import("./Project/Pages/Admin/DoctorTable"));
+const AdminPatients = lazy(() => import("./Project/Pages/Admin/AdminPatients"));
+const AdminAppointments = lazy(() => import("./Project/Pages/Admin/AdminAppointments"));
+const AdminDepartment = lazy(() => import("./Project/Pages/Admin/AdminDepartment"));
 import DoctorsLayout from "./Project/Pages/Doctors/DoctorsLayout";
 import ReceptionLayout from "./Project/Pages/Receptionist/ReceptionLayout";
-const DoctorsDashboard = lazy(() =>
-  import("./Project/Pages/Doctors/DoctorsDashboard")
+const DoctorsDashboard = lazy(
+  () => import("./Project/Pages/Doctors/DoctorsDashboard"),
 );
-import DoctorAppointment from "./Project/Pages/Doctors/DoctorAppointment";
-import DoctoresPatients from "./Project/Pages/Doctors/DoctoresPatients";
-import PatientDetailCard from "./Project/Pages/Doctors/DoctorPages/PatientDrawer";
-import AddPatientForm from "./Project/Pages/Doctors/DoctorPages/AddPatientForm";
-import AppointmentForm from "./Project/Pages/Doctors/DoctorPages/AppointmentForm";
+const DoctorAppointment = lazy(() => import("./Project/Pages/Doctors/DoctorAppointment"));
+const DoctoresPatients = lazy(() => import("./Project/Pages/Doctors/DoctoresPatients"));
+const PatientDetailCard = lazy(
+  () => import("./Project/Pages/Doctors/DoctorPages/PatientDrawer"),
+);
+const AddPatientForm = lazy(
+  () => import("./Project/Pages/Doctors/DoctorPages/AddPatientForm"),
+);
+const AppointmentForm = lazy(
+  () => import("./Project/Pages/Doctors/DoctorPages/AppointmentForm"),
+);
 
-import AdminReceptionist from "./Project/Pages/Admin/AdminReceptionist";
-import AddDoctorForm from "./Project/Pages/Admin/pages/AddDoctorForm";
+const AdminReceptionist = lazy(() => import("./Project/Pages/Admin/AdminReceptionist"));
+const AddDoctorForm = lazy(() => import("./Project/Pages/Admin/pages/AddDoctorForm"));
 // import Department from "./Project/Pages/Receptionist/Registrection/Department";
-import PatientDetails from "./Project/Pages/Admin/pages/PatientDetails";
-import ReceptionistDetails from "./Project/Pages/Admin/pages/ReceptionistDetails";
-import PatientAppointments from "./Project/Pages/Patients/Appointments";
-import PatientAppointmentForm from "./Project/Pages/Patients/pages/Appointments/PatientAppointmentForm";
-import PatientLists from "./Project/Pages/Receptionist/PatientLists";
-import DepartmentDetails from "./Project/Pages/Admin/pages/DepartmentDetails";
-import DoctorSchedule from "./Project/Pages/Doctors/DoctorSchedule";
-import AddDepartment from "./Project/Pages/Admin/pages/AddDepartment";
-import PatientsLists from "./Project/Pages/Receptionist/pages/Add/PatientsLists";
-import ReSchedulingAppointments from "./Project/Pages/Patients/pages/ReScheduling";
-import DoctorSearch from "./Project/Pages/Patients/pages/DoctorSearch";
-import CreateReceptionistForm from "./Project/Pages/Admin/pages/CreateReceptionistForm";
-import DoctorScheduleRece from "./Project/Pages/Receptionist/DoctorSchedule";
+const PatientDetails = lazy(() => import("./Project/Pages/Admin/pages/PatientDetails"));
+const ReceptionistDetails = lazy(
+  () => import("./Project/Pages/Admin/pages/ReceptionistDetails"),
+);
+const PatientAppointments = lazy(() => import("./Project/Pages/Patients/Appointments"));
+const PatientAppointmentForm = lazy(
+  () => import("./Project/Pages/Patients/pages/Appointments/PatientAppointmentForm"),
+);
+const PatientLists = lazy(() => import("./Project/Pages/Receptionist/PatientLists"));
+const DepartmentDetails = lazy(() => import("./Project/Pages/Admin/pages/DepartmentDetails"));
+const DoctorSchedule = lazy(() => import("./Project/Pages/Doctors/DoctorSchedule"));
+const AddDepartment = lazy(() => import("./Project/Pages/Admin/pages/AddDepartment"));
+const PatientsLists = lazy(
+  () => import("./Project/Pages/Receptionist/pages/Add/PatientsLists"),
+);
+const ReSchedulingAppointments = lazy(
+  () => import("./Project/Pages/Patients/pages/ReScheduling"),
+);
+const DoctorSearch = lazy(() => import("./Project/Pages/Patients/pages/DoctorSearch"));
+const CreateReceptionistForm = lazy(
+  () => import("./Project/Pages/Admin/pages/CreateReceptionistForm"),
+);
+const DoctorScheduleRece = lazy(() => import("./Project/Pages/Receptionist/DoctorSchedule"));
 // import ReceptionHub from "./Project/Pages/Receptionist/Registrection/ReceptionHub";
 import GuestRoute from "./Project/Components/DefaultRoute ";
-import PtientsDepartment from "./Project/Pages/Patients/Departments";
-import PatientsDepartmentDetails from "./Project/Pages/Patients/pages/viewDepartments";
-import AppointmentUI from "./Project/Pages/Patients/pages/doctor";
-import History from "./Project/Pages/Patients/pages/Appointments/History";
-import ConsultationHistory from "./Project/Pages/Patients/ConsultationHistory";
-import MedicalRecord from "./Project/Pages/Patients/MedicalRecord";
-import MedicalRecordDashboard from "./Project/Pages/Patients/MedicalRecord";
-import ChatPagePatient from "./Project/Pages/Patients/ChatPage";
-import PatientSettings from "./Project/Pages/Patients/Settings";
-import Receptinistappointment from "./Project/Pages/Receptionist/RecepAppointmetns";
-import ReceptionRegistration from "./Project/Pages/Receptionist/Registeration";
-import DoctorConsultationDashboard from "./Project/Pages/Doctors/DoctorConsultationDashboard";
-import ChatPageDoctors from "./Project/Pages/Doctors/DoctorPages/doctorChat";
-import DoctorPrescriptionHistory from "./Project/Pages/Doctors/prescriptionHistory";
-import DoctorAnalyticsDashboard from "./Project/Pages/Doctors/DoctorAnalyticsDashboard";
-import PaymentManagementSystem from "./Project/Pages/Doctors/payments";
-import AppointmentBooking from "./Project/Pages/Patients/pages/Appointments/PatientAppointmentForm";
-import BillingManagement from "./Project/Pages/Receptionist/pages/Billing/BillingManagement";
-import DoctorsList from "./Project/Pages/Receptionist/pages/Doctors/DoctorsList";
-import DepartmentsList from "./Project/Pages/Receptionist/pages/Departments/DepartmentsList";
-import ReportsPage from "./Project/Pages/Receptionist/pages/Reports/DailyAppointmentReports";
-import ViewSearchPatients from "./Project/Pages/Receptionist/pages/Patients/ViewSearchPatients";
-import RegisterPatientPage from "./Project/Pages/Receptionist/pages/Patients/RegisterPatientPage";
-import BookAppointment from "./Project/Pages/Receptionist/pages/Patients/BookAppointment";
-import VisitorManagement from "./Project/Pages/Receptionist/pages/Visitors/VisitorManagement";
-import HelpDeskManagement from "./Project/Pages/Receptionist/pages/HelpDesk/HelpDeskManagement";
-import ProfileSettings from "./Project/Pages/Receptionist/pages/Profile/ProfileSettings";
-import RegisterPatient from "./Project/Pages/Receptionist/pages/Patients/RegisterPatient";
-import DailyAppointmentReports from "./Project/Pages/Receptionist/pages/Reports/DailyAppointmentReports";
-import { DailyBillingReports } from "./Project/Pages/Receptionist/pages/Reports/DailyBillingReports";
-import PatientRegistrationReports from "./Project/Pages/Receptionist/pages/Reports/PatientRegistrationReports";
-import DoctorWritePrescription from "./Project/Pages/Doctors/DoctorPages/DoctorWritePrescription";
-import DoctorPrescriptionPage from "./Project/Pages/Doctors/DoctorPages/DoctorPrescriptionPage";
-import VerifyOtp from "./Project/Home/LoginPage/VerifyOtp";
-import DoctorProfileSettings from "./Project/Pages/Doctors/DoctorProfileSettings";
-import  ErrorPage  from "../src/units/ErrorPage";
+const PtientsDepartment = lazy(() => import("./Project/Pages/Patients/Departments"));
+const PatientsDepartmentDetails = lazy(
+  () => import("./Project/Pages/Patients/pages/viewDepartments"),
+);
+const AppointmentUI = lazy(() => import("./Project/Pages/Patients/pages/doctor"));
+const History = lazy(() => import("./Project/Pages/Patients/pages/Appointments/History"));
+const ConsultationHistory = lazy(
+  () => import("./Project/Pages/Patients/ConsultationHistory"),
+);
+const MedicalRecordDashboard = lazy(() => import("./Project/Pages/Patients/MedicalRecord"));
+const ChatPagePatient = lazy(() => import("./Project/Pages/Patients/ChatPage"));
+const PatientSettings = lazy(() => import("./Project/Pages/Patients/Settings"));
+const Receptinistappointment = lazy(
+  () => import("./Project/Pages/Receptionist/RecepAppointmetns"),
+);
+const ReceptionRegistration = lazy(
+  () => import("./Project/Pages/Receptionist/Registeration"),
+);
+const DoctorConsultationDashboard = lazy(
+  () => import("./Project/Pages/Doctors/DoctorConsultationDashboard"),
+);
+const ChatPageDoctors = lazy(
+  () => import("./Project/Pages/Doctors/DoctorPages/doctorChat"),
+);
+const DoctorPrescriptionHistory = lazy(
+  () => import("./Project/Pages/Doctors/prescriptionHistory"),
+);
+const DoctorAnalyticsDashboard = lazy(
+  () => import("./Project/Pages/Doctors/DoctorAnalyticsDashboard"),
+);
+const PaymentManagementSystem = lazy(
+  () => import("./Project/Pages/Doctors/payments"),
+);
+const AppointmentBooking = PatientAppointmentForm;
+const BillingManagement = lazy(
+  () => import("./Project/Pages/Receptionist/pages/Billing/BillingManagement"),
+);
+const DoctorsList = lazy(() => import("./Project/Pages/Receptionist/pages/Doctors/DoctorsList"));
+const DepartmentsList = lazy(
+  () => import("./Project/Pages/Receptionist/pages/Departments/DepartmentsList"),
+);
+const ViewSearchPatients = lazy(
+  () => import("./Project/Pages/Receptionist/pages/Patients/ViewSearchPatients"),
+);
+const RegisterPatientPage = lazy(
+  () => import("./Project/Pages/Receptionist/pages/Patients/RegisterPatientPage"),
+);
+const BookAppointment = lazy(
+  () => import("./Project/Pages/Receptionist/pages/Patients/BookAppointment"),
+);
+const VisitorManagement = lazy(
+  () => import("./Project/Pages/Receptionist/pages/Visitors/VisitorManagement"),
+);
+const HelpDeskManagement = lazy(
+  () => import("./Project/Pages/Receptionist/pages/HelpDesk/HelpDeskManagement"),
+);
+const ProfileSettings = lazy(
+  () => import("./Project/Pages/Receptionist/pages/Profile/ProfileSettings"),
+);
+const RegisterPatient = lazy(
+  () => import("./Project/Pages/Receptionist/pages/Patients/RegisterPatient"),
+);
+const DailyAppointmentReports = lazy(
+  () => import("./Project/Pages/Receptionist/pages/Reports/DailyAppointmentReports"),
+);
+const DailyBillingReports = lazy(() =>
+  import("./Project/Pages/Receptionist/pages/Reports/DailyBillingReports").then(
+    (module) => ({ default: module.DailyBillingReports }),
+  ),
+);
+const PatientRegistrationReports = lazy(
+  () => import("./Project/Pages/Receptionist/pages/Reports/PatientRegistrationReports"),
+);
+const DoctorWritePrescription = lazy(
+  () => import("./Project/Pages/Doctors/DoctorPages/DoctorWritePrescription"),
+);
+const DoctorPrescriptionPage = lazy(
+  () => import("./Project/Pages/Doctors/DoctorPages/DoctorPrescriptionPage"),
+);
+const VerifyOtp = lazy(() => import("./Project/Home/LoginPage/VerifyOtp"));
+const DoctorScheduleAdmin = lazy(
+  () => import("./Project/Pages/Admin/DoctorScheduleAdmin"),
+);
+import ErrorPage from "./units/ErrorPage";
+const DoctorProfileSettings = lazy(
+  () => import("./Project/Pages/Doctors/DoctorProfileSettings"),
+);
+const EditDepartment = lazy(() => import("./Project/Pages/Admin/pages/EditDepartment"));
+const DoctorMonitoringDashboard = lazy(
+  () => import("./Project/Pages/Admin/pages/DoctorMonitoringDashboard"),
+);
+const AdminChat = lazy(() => import("./Project/Pages/Admin/AdminChat"));
+const PaymentDashboard = lazy(
+  () => import("./Project/Pages/Admin/PaymentDashboard"),
+);
+import ChatProvider from "./features/chat/ChatProvider";
+const PatientPaymentHistorys = lazy(
+  () => import("./Project/Pages/Patients/pages/PatientPaymentHistory"),
+);
+const PrescriptionHistory = lazy(
+  () => import("./Project/Pages/Patients/pages/PrescriptionHistory"),
+);
 
 const AppRoutes = () => {
   const routes = [
@@ -177,8 +256,10 @@ const AppRoutes = () => {
             { path: "admin-receptionist", element: <AdminReceptionist /> },
             { path: "admin-doctorDetails", element: <DoctorTable /> },
             { path: "admin-department", element: <AdminDepartment /> },
+            { path: "edit-department/:id", element: <EditDepartment /> },
             { path: "patients/:id", element: <PatientDetails /> },
             { path: "doctorForm", element: <AddDoctorForm /> },
+            { path: "doctorView/:id", element: <DoctorMonitoringDashboard /> },
             { path: "addDepartment", element: <AddDepartment /> },
             {
               path: "creating-receptionist",
@@ -186,6 +267,9 @@ const AppRoutes = () => {
             },
             { path: "departmetsDetails/:id", element: <DepartmentDetails /> },
             { path: "receptionist/:id", element: <ReceptionistDetails /> },
+            { path: "doctor-schedule", element: <DoctorScheduleAdmin /> },
+            { path: "admin-messages", element: <AdminChat /> },
+            { path: "admin-payments", element: <PaymentDashboard /> },
           ],
         },
       ],
@@ -212,7 +296,14 @@ const AppRoutes = () => {
               path: "doctors-prescription",
               element: <DoctorPrescriptionHistory />,
             },
-            { path: "doctors-messages", element: <ChatPageDoctors /> },
+            {
+              path: "doctors-messages",
+              element: (
+                <ChatProvider>
+                  <ChatPageDoctors />
+                </ChatProvider>
+              ),
+            },
             {
               path: "doctors-prescription/:appointmentId",
               element: <DoctorPrescriptionPage />,
@@ -226,7 +317,10 @@ const AppRoutes = () => {
             { path: "patients-Deteails/:id", element: <PatientDetailCard /> },
             { path: "patients-add", element: <AddPatientForm /> },
             { path: "appointments-add", element: <AppointmentForm /> },
-            { path: "appointments-settings", element: <DoctorProfileSettings /> },
+            {
+              path: "appointments-settings",
+              element: <DoctorProfileSettings />,
+            },
           ],
         },
       ],
@@ -324,11 +418,20 @@ const AppRoutes = () => {
               path: "patient-departments/:id",
               element: <PatientsDepartmentDetails />,
             },
-            { path: "chatPage", element: <ChatPagePatient /> },
+            {
+              path: "chatPage",
+              element: (
+                <ChatProvider>
+                  <ChatPagePatient />
+                </ChatProvider>
+              ),
+            },
             { path: "records", element: <MedicalRecordDashboard /> },
             { path: "consultation", element: <ConsultationHistory /> },
             { path: "settings", element: <PatientSettings /> },
             { path: "book-appointments", element: <AppointmentBooking /> },
+            { path: "payment-history", element: <PatientPaymentHistorys /> },
+            { path: "prescrption-history", element: <PrescriptionHistory /> },
           ],
         },
       ],
@@ -347,19 +450,19 @@ const AppRoutes = () => {
     },
   ];
 
- const element = useRoutes(routes);
+  const element = useRoutes(routes);
 
-return (
-  <Suspense
-    fallback={
-      <div className="flex items-center justify-center h-screen">
-        Loading...
-      </div>
-    }
-  >
-    {element}
-  </Suspense>
-);
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center h-screen">
+          Loading...
+        </div>
+      }
+    >
+      {element}
+    </Suspense>
+  );
 };
 
 export default AppRoutes;

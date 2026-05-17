@@ -1,9 +1,11 @@
+import { apiClient } from "../../services/queryClient";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import axios from "axios";
+import { useLocation } from "react-router-dom";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const location = useLocation();
   const [auth, setAuth] = useState({
     isAuthenticated: false,
     user: null,
@@ -14,7 +16,7 @@ export const AuthProvider = ({ children }) => {
   // 🔥 UNIVERSAL USER FETCH
   const fetchUser = async () => {
     try {
-      const res = await axios.get("http://localhost:4002/api/auth/me", {
+      const res = await apiClient.get("/auth/me", {
         withCredentials: true,
       });
 
@@ -22,7 +24,8 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: true,
         user: res.data.user,
       });
-    } catch (error) {
+      window.__AUTH_USER__ = res.data.user;
+    } catch {
       setAuth({
         isAuthenticated: false,
         user: null,
@@ -38,7 +41,7 @@ export const AuthProvider = ({ children }) => {
       location.pathname.startsWith("/patient") ||
       location.pathname.startsWith("/admin") ||
       location.pathname.startsWith("/doctor") ||
-      location.pathname.startsWith("/superadmin") ||
+      location.pathname.startsWith("/super-admin") ||
       location.pathname.startsWith("/receptionist")
     ) {
       fetchUser();
@@ -54,8 +57,8 @@ export const AuthProvider = ({ children }) => {
 
   // ✅ LOGOUT
   const logout = async () => {
-    await axios.post(
-      "http://localhost:4002/api/auth/logout",
+    await apiClient.post(
+      "/auth/logout",
       {},
       { withCredentials: true },
     );

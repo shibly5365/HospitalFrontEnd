@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { apiClient } from "../../../services/queryClient";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -8,17 +9,9 @@ export default function ForgotPassword() {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:4002/api/auth/forgot-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await res.json();
+      const { data } = await apiClient.post("/auth/forgot-password", { email });
       setMessage(data.message); 
-    } catch (error) {
+    } catch {
       setMessage("Something went wrong. Please try again.");
     }
   };
