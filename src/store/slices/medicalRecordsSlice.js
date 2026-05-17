@@ -1,15 +1,15 @@
+import { apiClient } from "../../services/queryClient";
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4002/api/patient';
+const PATIENT_API = '/patient';
 
 // Async thunk for fetching medical records
 export const fetchMedicalRecords = createAsyncThunk(
   'medicalRecords/fetchMedicalRecords',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}/medicalRecord`,
+      const response = await apiClient.get(
+        `${PATIENT_API}/medicalRecord`,
         { withCredentials: true }
       );
       return response.data;
@@ -24,8 +24,8 @@ export const fetchMedicalRecordById = createAsyncThunk(
   'medicalRecords/fetchMedicalRecordById',
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}/medical/${id}`,
+      const response = await apiClient.get(
+        `${PATIENT_API}/medical/${id}`,
         { withCredentials: true }
       );
       return response.data;
@@ -40,8 +40,8 @@ export const deleteMedicalRecord = createAsyncThunk(
   'medicalRecords/deleteMedicalRecord',
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.delete(
-        `${API_BASE_URL}/dlt/${id}`,
+      const response = await apiClient.delete(
+        `${PATIENT_API}/dlt/${id}`,
         { withCredentials: true }
       );
       return { id, data: response.data };

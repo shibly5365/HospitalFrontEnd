@@ -1,15 +1,15 @@
+import { apiClient } from "../../services/queryClient";
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:4002/api/patient';
+const PATIENT_API = '/patient';
 
 // Async thunk for fetching consultations by doctor
 export const fetchConsultationsByDoctor = createAsyncThunk(
   'consultations/fetchConsultationsByDoctor',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}/consultations`,
+      const response = await apiClient.get(
+        `${PATIENT_API}/consultations`,
         { withCredentials: true }
       );
       return response.data;
@@ -35,7 +35,7 @@ const consultationsSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
-    setActiveDoctor: (state, action) => {
+    setActiveDoctor: () => {
       // This can be used for UI state if needed
       // Currently handled locally in component
     },
