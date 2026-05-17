@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 
 export default function Header({ isVisible }) {
   const [patient, setPatient] = useState(null);
@@ -8,8 +8,8 @@ export default function Header({ isVisible }) {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/patient/dashboard  ",
+        const res = await apiClient.get(
+          "/patient/dashboard",
           {
             withCredentials: true, // important if you're using cookies for auth
           },

@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Calendar, User, Filter } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -14,8 +14,8 @@ export default function DoctorSearch() {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/patient/doctors",
+        const res = await apiClient.get(
+          "/patient/doctors",
           { withCredentials: true }
         );
         console.log("res",res.data);
@@ -35,8 +35,8 @@ export default function DoctorSearch() {
     const fetchSchedule = async () => {
       if (!selectedDoctor) return;
       try {
-        const res = await axios.get(
-          `http://localhost:4002/api/patient/getschedule/${selectedDoctor._id}`,
+        const res = await apiClient.get(
+          `/patient/getschedule/${selectedDoctor._id}`,
           { withCredentials: true }
         );
         if (res.data.success) {

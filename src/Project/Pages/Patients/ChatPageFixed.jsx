@@ -1,12 +1,12 @@
+import { apiClient, API_ORIGIN } from "../../../services/queryClient";
 // ✅ FIXED VERSION - Secure Socket.IO Connection with Proper Auth
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { io } from "socket.io-client";
-import axios from "axios";
 import { Search, Send, Menu, X, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
-const API = "http://localhost:4002/api/patient";
+const API = "/patient";
 
 const ChatPagePatient = () => {
   const [selectedChat, setSelectedChat] = useState(null);
@@ -34,7 +34,7 @@ const ChatPagePatient = () => {
       try {
         setIsLoading(true);
         // ✅ withCredentials: true sends httpOnly cookies automatically
-        const res = await axios.get(`${API}/consultations`, {
+        const res = await apiClient.get(`${API}/consultations`, {
           withCredentials: true,
         });
 
@@ -73,7 +73,7 @@ const ChatPagePatient = () => {
 
     try {
       // ✅ Connect with JWT token in auth
-      const socket = io("http://localhost:4002", {
+      const socket = io(API_ORIGIN, {
         auth: {
           token, // ✅ Sent in socket handshake
         },
@@ -173,7 +173,7 @@ const ChatPagePatient = () => {
     async (userId) => {
       try {
         setIsLoading(true);
-        const res = await axios.get(`${API}/getMessage/${userId}`, {
+        const res = await apiClient.get(`${API}/getMessage/${userId}`, {
           withCredentials: true,
         });
         setMessagesList(res.data || []);

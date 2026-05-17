@@ -1,3 +1,4 @@
+import { apiClient } from "../../../services/queryClient";
 import { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -18,7 +19,6 @@ import toast from "react-hot-toast";
 import { notify } from "../../../Units/notification";
 import { useAuth } from "../../Components/AuthContext";
 import { useTheme } from "../../../context/ThemeContext"; // ✅ NEW
-import axios from "axios";
 
 const PatientSidebar = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
@@ -119,8 +119,8 @@ const PatientSidebar = ({ isOpen, setIsOpen }) => {
               onClick={async () => {
                 toast.dismiss(t.id);
                 try {
-                  await axios.post(
-                    "http://localhost:4002/api/auth/logout",
+                  await apiClient.post(
+                    "/auth/logout",
                     {},
                     { withCredentials: true },
                   );

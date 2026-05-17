@@ -1,6 +1,6 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { format } from "date-fns";
 
 import BookingHeader from "./pages/AppointmentsDetails/BookingHeader";
@@ -34,10 +34,10 @@ export default function PatientAppointments() {
     const fetchData = async () => {
       try {
         const [depRes, docRes] = await Promise.all([
-          axios.get("http://localhost:4002/api/patient/getdepartmenst", {
+          apiClient.get("/patient/getdepartmenst", {
             withCredentials: true,
           }),
-          axios.get("http://localhost:4002/api/patient/getAll-Doctor", {
+          apiClient.get("/patient/getAll-Doctor", {
             withCredentials: true,
           }),
         ]);
@@ -57,8 +57,8 @@ export default function PatientAppointments() {
     if (!selectedDoctor?.id) return;
     const fetchDates = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:4002/api/patient/doctor/${selectedDoctor.id}/available-dates`,
+        const res = await apiClient.get(
+          `/patient/doctor/${selectedDoctor.id}/available-dates`,
           { withCredentials: true },
         );
         setAvailableDates(
@@ -82,8 +82,8 @@ export default function PatientAppointments() {
     if (!selectedDoctor?.id || !selectedDate) return;
     const fetchSlots = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:4002/api/patient/doctor/${selectedDoctor.id}/slots?date=${format(selectedDate, "yyyy-MM-dd")}`,
+        const res = await apiClient.get(
+          `/patient/doctor/${selectedDoctor.id}/slots?date=${format(selectedDate, "yyyy-MM-dd")}`,
           { withCredentials: true },
         );
         setDateSlots(res.data.availableSlots || []);
@@ -143,13 +143,11 @@ export default function PatientAppointments() {
     );
   });
 
-  console.log(selectedDoctor);
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-8 font-sans text-gray-800">
-      <div className="max-w-[1400px] mx-auto flex flex-col xl:flex-row gap-6 lg:gap-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 px-3 sm:px-5 lg:px-8 py-4 sm:py-6 font-sans text-gray-800 overflow-x-hidden">
+      <div className="max-w-[1400px] mx-auto flex flex-col xl:flex-row gap-4 sm:gap-6 lg:gap-8">
         {/* LEFT - Calendar & Slots */}
-        <div className="xl:w-96 w-full sticky top-8 space-y-6">
+        <div className="xl:w-96 w-full xl:sticky xl:top-8 space-y-4 sm:space-y-6">
           <BookingHeader
             onHistoryClick={() => navigate("/patient/appointmentsHistory")}
           />
@@ -180,13 +178,14 @@ export default function PatientAppointments() {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {filteredDoctors.map((doc) => (
-                <DoctorsCardAppointments
-                  key={doc._id}
-                  doctor={mapDoctor(doc)} // pass each doctor properly
-                  selectedDate={selectedDate} // pass currently selected date
-                  selectedSlot={selectedTime} // pass currently selected time
-                  onOpenDetail={setSelectedDoctor} // when detail button clicked, set selected doctor
-                />
+<DoctorsCardAppointments
+  key={doc._id}
+  doctor={mapDoctor(doc)}
+  selectedDate={selectedDate}
+  selectedSlot={selectedTime}
+  selectedDoctor={selectedDoctor} // ✅ pass selected doctor
+  onOpenDetail={setSelectedDoctor}
+/>
               ))}
             </div>
           )}

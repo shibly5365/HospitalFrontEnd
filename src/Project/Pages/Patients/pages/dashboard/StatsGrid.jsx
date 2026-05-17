@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react"; // ✅ lightweight arrow icon
 
@@ -11,9 +11,12 @@ export default function StatsGrid({ isVisible }) {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get("http://localhost:4002/api/patient/dashboard", {
-          withCredentials: true,
-        });
+        const res = await apiClient.get(
+          "/patient/dashboard",
+          {
+            withCredentials: true,
+          },
+        );
 
         const data = res.data;
         // console.log(data);
@@ -26,7 +29,7 @@ export default function StatsGrid({ isVisible }) {
             sub: "Recent Activity",
             main: data.consultations?.total ?? "0",
             desc: "All Time",
-            route: "/consultations",
+            route: "/patient/consultation",
           },
           {
             title: "Prescriptions",
@@ -35,7 +38,7 @@ export default function StatsGrid({ isVisible }) {
             sub: "Active",
             main: data.prescriptions?.length ?? "0",
             desc: "Current",
-            route: "/prescriptions",
+            route: "/patient/prescrption-history",
           },
           {
             title: "Payments",
@@ -44,7 +47,7 @@ export default function StatsGrid({ isVisible }) {
             sub: "Recent Transactions",
             main: data.payments?.summary?.count ?? "0",
             desc: "This Month",
-            route: "/payments",
+            route: "/patient/payment-history",
           },
         ];
 

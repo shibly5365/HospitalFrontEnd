@@ -1,6 +1,6 @@
+import { apiClient } from "../../../../services/queryClient";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { parseISO } from "date-fns";
@@ -19,8 +19,8 @@ const RescheduleAppointment = () => {
   useEffect(() => {
     const fetchAppointment = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:4002/api/patient/appointments/${id}`,
+        const res = await apiClient.get(
+          `/patient/appointments/${id}`,
           { withCredentials: true }
         );
         if (res.data?.appointment) {
@@ -41,8 +41,8 @@ const RescheduleAppointment = () => {
   // Fetch available dates for the doctor
   const fetchAvailableDates = async (doctorId) => {
     try {
-      const res = await axios.get(
-        `http://localhost:4002/api/patient/schedules/available-dates/${doctorId}`,
+      const res = await apiClient.get(
+        `/patient/schedules/available-dates/${doctorId}`,
         { withCredentials: true }
       );
       if (res.data.success) {
@@ -58,8 +58,8 @@ const RescheduleAppointment = () => {
   // Fetch slots for a selected date
   const fetchDoctorSlots = async (doctorId, date) => {
     try {
-      const res = await axios.get(
-        `http://localhost:4002/api/patient/schedules/available-dates/${doctorId}?date=${date}`,
+      const res = await apiClient.get(
+        `/patient/schedules/available-dates/${doctorId}?date=${date}`,
         { withCredentials: true }
       );
 
@@ -101,8 +101,8 @@ const RescheduleAppointment = () => {
         .toISOString()
         .split("T")[0];
 
-      const res = await axios.put(
-        `http://localhost:4002/api/patient/rescheduleappointments/${id}`,
+      const res = await apiClient.put(
+        `/patient/rescheduleappointments/${id}`,
         {
           appointmentDate: appointmentDateStr,
           timeSlot: {

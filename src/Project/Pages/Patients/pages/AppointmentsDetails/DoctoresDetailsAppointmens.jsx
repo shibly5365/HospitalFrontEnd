@@ -13,7 +13,7 @@ function DoctoresDetailsAppointmens({ doctor, onClose, onBook }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl shadow-xl p-6 sticky top-8 border border-gray-100 w-full max-w-sm"
+      className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 xl:sticky xl:top-8 border border-gray-100 w-full max-w-sm"
     >
       <div className="flex justify-between items-center mb-6">
         <div className="text-xl font-bold text-gray-900">Doctor Details</div>
@@ -31,7 +31,7 @@ function DoctoresDetailsAppointmens({ doctor, onClose, onBook }) {
         <img
           src={doctor.img}
           alt={doctor.name}
-          className="w-36 h-36 rounded-xl object-cover shadow-lg border-4 border-white"
+         className="w-28 h-28 sm:w-36 sm:h-36  rounded-xl object-cover shadow-lg border-4 border-white"
         />
         <div className="mt-4">
           <h2 className="text-lg font-semibold text-gray-900">{doctor.name}</h2>
@@ -114,7 +114,7 @@ function DoctoresDetailsAppointmens({ doctor, onClose, onBook }) {
         </div>
       </div>
 
-      <div className="flex gap-3">
+     <div className="flex flex-col sm:flex-row gap-3">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}

@@ -1,3 +1,4 @@
+import { apiClient } from "../../../../../services/queryClient";
 import { useEffect, useState } from "react";
 import {
   Calendar,
@@ -11,7 +12,6 @@ import {
   ArrowLeft,
   Home,
 } from "lucide-react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import VideoCallModal from "../dashboard/VideoCallModal";
 
@@ -54,8 +54,8 @@ const History = () => {
 
       let today = [];
       try {
-        const todayRes = await axios.get(
-          "http://localhost:4002/api/patient/today-appointments",
+        const todayRes = await apiClient.get(
+          "/patient/today-appointments",
           { withCredentials: true },
         );
         today = Array.isArray(todayRes.data.appointments)
@@ -67,7 +67,7 @@ const History = () => {
 
       let all = [];
       try {
-        const allRes = await axios.get("http://localhost:4002/api/patient/my", {
+        const allRes = await apiClient.get("/patient/my", {
           withCredentials: true,
         });
         all = Array.isArray(allRes.data.appointments)
@@ -111,8 +111,8 @@ const History = () => {
   /* ---------------- ACTIONS ---------------- */
   const handleCancel = async (id) => {
     try {
-      await axios.put(
-        `http://localhost:4002/api/patient/cancelappointments/${id}`,
+      await apiClient.put(
+        `/patient/cancelappointments/${id}`,
         {},
         { withCredentials: true },
       );
@@ -125,8 +125,8 @@ const History = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this appointment?")) return;
     try {
-      await axios.delete(
-        `http://localhost:4002/api/patient/appointmentsdeletes/${id}`,
+      await apiClient.delete(
+        `/patient/appointmentsdeletes/${id}`,
         { withCredentials: true },
       );
       fetchAppointments();
@@ -159,7 +159,7 @@ const History = () => {
   }
 
   // console.log("reactionVdioe", selectedAppointment);
-  console.log("fill", filtered);
+
 
   return (
     <div className="min-h-screen bg-blue-50 p-6">
@@ -239,7 +239,7 @@ const History = () => {
                   activeTab === "upcoming" ||
                   activeTab === "confirmed") &&
                   a.status === "Confirmed" &&
-                  a.consultationType === "Online" && (
+                  a.consultationType === "Online" &&(
                     <button
                       onClick={() => {
                         setSelectedAppointment(a);

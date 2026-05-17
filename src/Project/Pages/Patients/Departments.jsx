@@ -1,6 +1,6 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 const PtientsDepartment = () => {
   const navigate = useNavigate();
@@ -11,8 +11,8 @@ const PtientsDepartment = () => {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/admin/getdepartmenst",
+        const res = await apiClient.get(
+          "/admin/getdepartmenst",
           { withCredentials: true }
         );
         setDepartments(res.data.data); // backend should return array inside data

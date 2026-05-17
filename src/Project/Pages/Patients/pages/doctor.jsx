@@ -1,6 +1,6 @@
+import { apiClient } from "../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
 import Calendar from "./Detiels/Calendar";
 import TimeSlots from "./Detiels/TimeSlot";
 import DoctorCard from "./Detiels/DoctorCard";
@@ -22,8 +22,8 @@ export default function AppointmentUI() {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:4002/api/patient/getalldoctorDepartments/${id}`,
+        const response = await apiClient.get(
+          `/patient/getalldoctorDepartments/${id}`,
           { withCredentials: true }
         );
 

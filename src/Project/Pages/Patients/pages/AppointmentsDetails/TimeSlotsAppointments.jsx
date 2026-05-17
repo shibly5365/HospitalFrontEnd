@@ -20,7 +20,7 @@ export default function TimeSlotsAppointments({ selectedTime, onSelect, slots = 
     return <div className="text-gray-400 mt-2">No available slots</div>;
 
   return (
-    <div className="grid grid-cols-3 gap-2 mt-2">
+   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
       {filteredSlots.map((slot) => {
         
         // Make sure isBooked is boolean
@@ -37,7 +37,7 @@ export default function TimeSlotsAppointments({ selectedTime, onSelect, slots = 
             disabled={isBooked}
             onClick={() => !isBooked && onSelect(slot)}
             className={`
-              py-2 px-3 rounded-lg border transition
+             py-2 sm:py-3 px-2 sm:px-3 text-xs sm:text-sm rounded-lg border transition
 
               ${isBooked
                 ? "bg-red-500 text-white cursor-not-allowed opacity-70"

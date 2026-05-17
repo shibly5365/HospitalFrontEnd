@@ -49,7 +49,7 @@ export default function AppointmentsCalendar({
 
 
   return (
-    <div className="p-4 bg-white rounded-2xl shadow-md w-full max-w-md">
+   <div className="p-3 sm:p-4 bg-white rounded-2xl shadow-md w-full">
       {/* Month Header */}
       <div className="flex items-center justify-between mb-4">
         <button
@@ -72,14 +72,14 @@ export default function AppointmentsCalendar({
       </div>
 
       {/* Weekdays */}
-      <div className="grid grid-cols-7 gap-2 text-center font-medium text-gray-600 mb-2">
+     <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center text-xs sm:text-sm font-medium text-gray-600 mb-2">
         {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
           <div key={day}>{day}</div>
         ))}
       </div>
 
       {/* Dates Grid */}
-      <div className="grid grid-cols-7 gap-2">
+     <div className="grid grid-cols-7 gap-1 sm:gap-2">
         {allDays.map((dateObj, idx) => {
           const isSelected = selectedDate && isSameDay(dateObj, selectedDate);
           const isToday = isSameDay(dateObj, today);
@@ -90,7 +90,7 @@ export default function AppointmentsCalendar({
             <button
               key={idx}
               onClick={() => available && onSelect(dateObj)}
-              className={`h-12 rounded-xl flex items-center justify-center text-sm font-medium transition-all duration-200
+              className={`h-9 sm:h-11 md:h-12 text-xs sm:text-sm rounded-lg sm:rounded-xl flex items-center justify-center text-sm font-medium transition-all duration-200
                 ${isSelected
                   ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-200"
                   : isToday

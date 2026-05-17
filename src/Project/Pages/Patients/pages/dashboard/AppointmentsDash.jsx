@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { toast } from "react-hot-toast";
 import { notify } from "../../../../../Units/notification";
 import RescheduleModal from "./RescheduleModal";
@@ -16,9 +16,9 @@ export default function Appointments({ isVisible }) {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await axios.get(
-          "http://localhost:4002/api/patient/dashboard",
-          { withCredentials: true }
+        const { data } = await apiClient.get(
+          "/patient/dashboard",
+          { withCredentials: true },
         );
 
         const upcoming = data?.appointments?.upcoming || [];
@@ -30,15 +30,27 @@ export default function Appointments({ isVisible }) {
 
         const todays = upcoming.filter((a) => a.date === todayStr);
 
-        const pending = upcoming
-          .filter(a => a.status?.toLowerCase() === "pending")
+        // ✅ remove today's appointments from upcoming
+        const futureAppointments = upcoming.filter((a) => a.date !== todayStr);
+
+        const pending = futureAppointments
+          .filter((a) => a.status?.toLowerCase() === "pending")
           .slice(0, 3);
 
-        const confirmed = upcoming
-          .filter(a => a.status?.toLowerCase() === "confirmed")
+        const confirmed = futureAppointments
+          .filter((a) => a.status?.toLowerCase() === "confirmed")
           .slice(0, 3 - pending.length);
 
-        setAppointments([...pending, ...confirmed]);
+        const mergedAppointments = [...pending, ...confirmed];
+
+        // ✅ remove duplicates using _id
+        const uniqueAppointments = mergedAppointments.filter(
+          (appointment, index, self) =>
+            index === self.findIndex((a) => a._id === appointment._id),
+        );
+
+        setAppointments(uniqueAppointments);
+
         setTodayAppointments(todays);
       } catch {
         notify.error("Failed to fetch appointments");
@@ -50,7 +62,8 @@ export default function Appointments({ isVisible }) {
 
   // 🔹 check if join allowed
   const canJoin = (a) => {
-    if (!a.timeSlot?.start || a.status?.toLowerCase() !== "confirmed") return false;
+    if (!a.timeSlot?.start || a.status?.toLowerCase() !== "confirmed")
+      return false;
     const diffMinutes =
       (new Date(`${a.date}T${a.timeSlot.start}`) - new Date()) / 60000;
     return diffMinutes >= -30 && diffMinutes <= 30;
@@ -58,14 +71,17 @@ export default function Appointments({ isVisible }) {
 
   // 🔹 check online appointment
   const isOnlineAppointment = (a) =>
-    a?.mode?.toLowerCase() === "online" || a?.consultationType?.toLowerCase() === "online"; // check both fields
+    a?.mode?.toLowerCase() === "online" ||
+    a?.consultationType?.toLowerCase() === "online"; // check both fields
   const canShowVideoCallButton = (a) =>
     a?.status?.toLowerCase() === "confirmed" && isOnlineAppointment(a);
 
   // 🎥 Handle Video Call Button Click
   const handleVideoCallClick = async (appointment) => {
     if (!canJoin(appointment)) {
-      notify.error("Video call can only be joined 30 minutes before or after appointment time");
+      notify.error(
+        "Video call can only be joined 30 minutes before or after appointment time",
+      );
       return;
     }
 
@@ -78,10 +94,10 @@ export default function Appointments({ isVisible }) {
     setShowVideoCallModal(false);
     setSelectedAppt(null);
     // Refresh appointments after call ends
-    setAppointments(prev =>
-      prev.map(a =>
-        a._id === selectedAppt._id ? { ...a, status: "Completed" } : a
-      )
+    setAppointments((prev) =>
+      prev.map((a) =>
+        a._id === selectedAppt._id ? { ...a, status: "Completed" } : a,
+      ),
     );
   };
 
@@ -103,17 +119,17 @@ export default function Appointments({ isVisible }) {
       },
       confirmed: canJoin(a)
         ? {
-          text: "Join Now",
-          color: "text-green-600",
-          bg: "bg-green-50",
-          dot: "bg-green-400",
-        }
+            text: "Join Now",
+            color: "text-green-600",
+            bg: "bg-green-50",
+            dot: "bg-green-400",
+          }
         : {
-          text: "Confirmed",
-          color: "text-blue-600",
-          bg: "bg-blue-50",
-          dot: "bg-blue-400",
-        },
+            text: "Confirmed",
+            color: "text-blue-600",
+            bg: "bg-blue-50",
+            dot: "bg-blue-400",
+          },
     };
 
     return (
@@ -127,8 +143,8 @@ export default function Appointments({ isVisible }) {
   };
 
   const confirmCancel = (id) => {
-    console.log('cancleId',id);
-    
+    console.log("cancleId", id);
+
     toast.custom(
       (t) => (
         <div className="bg-white p-4 rounded-xl shadow-xl border w-80">
@@ -146,15 +162,15 @@ export default function Appointments({ isVisible }) {
               onClick={async () => {
                 toast.dismiss(t.id);
                 try {
-                  await axios.put(
-                    `http://localhost:4002/api/patient/cancel/${id}`,
+                  await apiClient.put(
+                    `/patient/cancel/${id}`,
                     {},
-                    { withCredentials: true }
+                    { withCredentials: true },
                   );
-                  setAppointments(prev =>
-                    prev.map(a =>
-                      a._id === id ? { ...a, status: "cancelled" } : a
-                    )
+                  setAppointments((prev) =>
+                    prev.map((a) =>
+                      a._id === id ? { ...a, status: "cancelled" } : a,
+                    ),
                   );
                   notify.success("Appointment cancelled");
                 } catch {
@@ -168,7 +184,7 @@ export default function Appointments({ isVisible }) {
           </div>
         </div>
       ),
-      { duration: Infinity }
+      { duration: Infinity },
     );
   };
 
@@ -180,34 +196,34 @@ export default function Appointments({ isVisible }) {
 
     const formatDate = (d) =>
       `${String(d.getMonth() + 1).padStart(2, "0")}/${String(
-        d.getDate()
+        d.getDate(),
       ).padStart(2, "0")}/${d.getFullYear()}`;
 
     console.log("slecteapp", selectedAppt);
 
     try {
-      await axios.put(
-        `http://localhost:4002/api/patient/reschedule/${selectedAppt.id}`,
+      await apiClient.put(
+        `/patient/reschedule/${selectedAppt.id}`,
         {
           appointmentDate: formatDate(updated.date),
           timeSlot: { start: updated.time, end: updated.slotEnd },
           reason: updated.reason,
         },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
-      setAppointments(prev =>
-        prev.map(a =>
+      setAppointments((prev) =>
+        prev.map((a) =>
           a.id === selectedAppt.id
             ? {
-              ...a,
-              appointmentDate: formatDate(updated.date),
-              timeSlot: { start: updated.time, end: updated.slotEnd },
-              reason: updated.reason,
-              status: "Pending",
-            }
-            : a
-        )
+                ...a,
+                appointmentDate: formatDate(updated.date),
+                timeSlot: { start: updated.time, end: updated.slotEnd },
+                reason: updated.reason,
+                status: "Pending",
+              }
+            : a,
+        ),
       );
 
       notify.success("Appointment updated!");
@@ -242,13 +258,18 @@ export default function Appointments({ isVisible }) {
       />
 
       <div
-        className={`bg-white rounded-2xl p-6 shadow-lg border transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0 translate-y-4"
-          }`}
+        className={`bg-white rounded-2xl p-6 shadow-lg border transition-all duration-700 ${
+          isVisible ? "opacity-100" : "opacity-0 translate-y-4"
+        }`}
       >
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Today's Appointments</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+          Today's Appointments
+        </h2>
 
         {todayAppointments.length === 0 ? (
-          <p className="text-gray-500 text-center mb-4">No appointments for today.</p>
+          <p className="text-gray-500 text-center mb-4">
+            No appointments for today.
+          </p>
         ) : (
           <div className="space-y-3 mb-6">
             {todayAppointments.map((a) => (
@@ -257,8 +278,12 @@ export default function Appointments({ isVisible }) {
                 className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border"
               >
                 <div>
-                  <h3 className="font-semibold">Dr {a?.doctor?.name || "Unknown"}</h3>
-                  <p className="text-sm text-gray-600">{a.date} • {a.timeSlot?.start} - {a.timeSlot?.end}</p>
+                  <h3 className="font-semibold">
+                    Dr {a?.doctor?.name || "Unknown"}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {a.date} • {a.timeSlot?.start} - {a.timeSlot?.end}
+                  </p>
                 </div>
 
                 <div className="flex gap-2 items-center">
@@ -271,10 +296,20 @@ export default function Appointments({ isVisible }) {
                         📹 Video Call
                       </button>
                     ) : (
-                      <button disabled className="px-3 py-1 text-sm font-semibold text-purple-400 bg-purple-50 rounded-lg border cursor-not-allowed">📹 Video Call</button>
+                      <button
+                        disabled
+                        className="px-3 py-1 text-sm font-semibold text-purple-400 bg-purple-50 rounded-lg border cursor-not-allowed"
+                      >
+                        📹 Video Call
+                      </button>
                     )
                   ) : (
-                    <button disabled className="px-3 py-1 text-sm font-semibold text-gray-400 bg-gray-100 rounded-lg border cursor-not-allowed">📹 Video Call</button>
+                    <button
+                      disabled
+                      className="px-3 py-1 text-sm font-semibold text-gray-400 bg-gray-100 rounded-lg border cursor-not-allowed"
+                    >
+                      📹 Video Call
+                    </button>
                   )}
                 </div>
               </div>
@@ -282,7 +317,9 @@ export default function Appointments({ isVisible }) {
           </div>
         )}
 
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Upcoming Appointments</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+          Upcoming Appointments
+        </h2>
 
         {appointments.length === 0 ? (
           <p className="text-gray-500 text-center">No upcoming appointments.</p>

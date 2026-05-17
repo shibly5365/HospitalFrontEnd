@@ -1,5 +1,5 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 
 import Header from "./pages/dashboard/Header";
 import HealthMetrics from "./pages/dashboard/HealthMetrics";
@@ -23,18 +23,20 @@ export default function Dashboard() {
 
     const fetchDashboardData = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/patient/dashboard",
+        const res = await apiClient.get(
+          "/patient/dashboard",
           { withCredentials: true },
         );
-        console.log("faaa", res.data);
 
         const records = res.data;
+        
 
         // ✅ Medical Records
         const latestRecord = records.medicalRecords;
         const vitals =
           latestRecord && latestRecord.length > 0 ? latestRecord[0] : null;
+
+          
 
         const formattedMetrics = [
           {
@@ -80,6 +82,8 @@ export default function Dashboard() {
 
     fetchDashboardData();
   }, []);
+  
+  
   const activities = [
     { text: "Blood Test results updated", time: "2 hours ago", icon: "🩸" },
     {
@@ -123,7 +127,6 @@ export default function Dashboard() {
       </div>
     );
   }
-  console.log("appointments".appointments);
 
   return (
     <div
@@ -139,7 +142,11 @@ export default function Dashboard() {
         <div className="lg:col-span-2 space-y-6">
           <HealthMetrics metrics={healthMetrics} isVisible={isVisible} />
           <StatsGrid isVisible={isVisible} />
-          {appointments?.total > 0 && (
+          {/* {appointments?.total > 0 && (
+            <Appointments isVisible={isVisible} />
+          )} */}
+                    {(appointments?.today?.length > 0 ||
+            appointments?.upcoming?.length > 0) && (
             <Appointments isVisible={isVisible} appointments={appointments} />
           )}
 

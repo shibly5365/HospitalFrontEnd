@@ -1,9 +1,19 @@
-import { FileText, Clock, CreditCard, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  FileText,
+  Clock,
+  CreditCard,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
-export default function MedicalHistoryCard({ doctor, historyIndex, nextHistory, prevHistory }) {
+export default function MedicalHistoryCard({
+  doctor,
+  historyIndex,
+  nextHistory,
+  prevHistory,
+}) {
   const record = doctor.medicalHistory[historyIndex];
-  console.log("dfasdfsD",record);
-  
+  console.log("dfasdfsD", record);
 
   return (
     <div className="px-6 pb-6 space-y-4 animate-fadeIn">
@@ -21,7 +31,9 @@ export default function MedicalHistoryCard({ doctor, historyIndex, nextHistory, 
         <div className="flex justify-between items-start mb-4">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-gray-500" />
-            <span className="text-sm font-semibold text-gray-700">{record.date}</span>
+            <span className="text-sm font-semibold text-gray-700">
+              {record.date}
+            </span>
           </div>
           <div className="flex items-center gap-2 bg-green-50 px-3 py-1 rounded-full">
             <CreditCard className="w-4 h-4 text-green-600" />
@@ -37,7 +49,9 @@ export default function MedicalHistoryCard({ doctor, historyIndex, nextHistory, 
         </div>
 
         <div className="mb-3">
-          <p className="text-xs text-gray-500 font-semibold mb-1">PRESCRIPTION</p>
+          <p className="text-xs text-gray-500 font-semibold mb-1">
+            PRESCRIPTION
+          </p>
           <p className="text-sm text-gray-800 font-medium flex items-start gap-2">
             <span className="text-lg">💊</span>
             {record.prescription}
@@ -45,7 +59,9 @@ export default function MedicalHistoryCard({ doctor, historyIndex, nextHistory, 
         </div>
 
         <div>
-          <p className="text-xs text-gray-500 font-semibold mb-1">DOCTOR'S NOTES</p>
+          <p className="text-xs text-gray-500 font-semibold mb-1">
+            DOCTOR'S NOTES
+          </p>
           <p className="text-sm text-gray-600">{record.notes}</p>
         </div>
       </div>

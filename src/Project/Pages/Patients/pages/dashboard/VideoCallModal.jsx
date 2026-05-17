@@ -6,6 +6,7 @@ import {
   getVideoCallStatus,
 } from "../../../videoCallApi/videoCallApi";
 import { useNavigate } from "react-router-dom";
+import DoctorFeedbackModal from "../DoctorFeedbackModal";
 
 const resolveRole = () => {
   const storedRole = (localStorage.getItem("role") || "").toLowerCase();
@@ -30,6 +31,7 @@ export default function VideoCallModal({
   const [roomId, setRoomId] = useState("");
   const [canJoin, setCanJoin] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
   const iframeRef = useRef(null);
 
   const navigate = useNavigate();
@@ -94,7 +96,7 @@ export default function VideoCallModal({
       setRoomId(data.roomId || "");
       setCanJoin(Boolean(data.canJoin));
 
-      if (!data.canJoin || !data.roomId) {
+      if (!data.roomId) {
         notify.error("You are not allowed to join this call yet.");
         return;
       }
@@ -117,7 +119,13 @@ export default function VideoCallModal({
       await endVideoCall(appointment._id, role);
 
       setCallActive(false);
-      if (onCallEnd) onCallEnd();
+
+      // ONLY FOR PATIENT
+      if (role === "patient") {
+        setShowFeedback(true);
+      } else {
+        if (onCallEnd) onCallEnd();
+      }
     } catch (err) {
       notify.error(err?.response?.data?.message || "Unable to end call");
     } finally {
@@ -178,10 +186,10 @@ export default function VideoCallModal({
                 <span className="font-semibold">{otherPersonName}</span>
               </p>
 
-              {!canJoin && (
+              {!canJoin && !roomId && (
                 <div className="mt-4 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
                   <p className="text-sm text-yellow-800">
-                    Call is not available right now.
+                    Waiting for doctor to start...
                   </p>
                 </div>
               )}
@@ -196,7 +204,7 @@ export default function VideoCallModal({
 
                 <button
                   onClick={handleStartCall}
-                  disabled={loading || !canJoin}
+                  disabled={loading || (!canJoin && !roomId)}
                   className={`rounded-lg px-6 py-2 text-white ${
                     loading || !canJoin
                       ? "cursor-not-allowed bg-gray-400"
@@ -252,6 +260,17 @@ export default function VideoCallModal({
           </div>
         )}
       </div>
+      {/* ✅ ADD HERE */}
+      {showFeedback && role === "patient" && (
+        <DoctorFeedbackModal
+          appointment={appointment}
+          onClose={() => {
+            setShowFeedback(false);
+
+            if (onCallEnd) onCallEnd();
+          }}
+        />
+      )}
     </div>
   );
 }

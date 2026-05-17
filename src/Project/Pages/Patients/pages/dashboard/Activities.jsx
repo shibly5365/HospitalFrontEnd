@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import {
   FileText,
   CreditCard,
@@ -15,8 +15,8 @@ export default function Activities({ isVisible }) {
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/patient/dashboard",
+        const res = await apiClient.get(
+          "/patient/dashboard",
           { withCredentials: true }
         );
 

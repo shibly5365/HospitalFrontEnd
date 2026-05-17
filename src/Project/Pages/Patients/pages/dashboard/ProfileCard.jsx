@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 
 export default function ProfileCard({ isVisible }) {
   const [profile, setProfile] = useState(null);
@@ -8,8 +8,8 @@ export default function ProfileCard({ isVisible }) {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/patient/dashboard",
+        const res = await apiClient.get(
+          "/patient/dashboard",
           { withCredentials: true }
         );
 

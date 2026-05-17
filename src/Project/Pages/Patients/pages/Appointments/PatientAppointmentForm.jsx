@@ -1,8 +1,8 @@
+import { apiClient } from "../../../../../services/queryClient";
 // AppointmentBooking.jsx
 import React, { useState } from "react";
 import { ChevronRight, ChevronLeft, Home } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
 
 import AppointmentDetails from "./AppointmensForm/AppointmentDetails";
 import PatientInformation from "./AppointmensForm/PatientInformation";
@@ -135,7 +135,7 @@ const AppointmentBooking = () => {
     if (!formData.paymentMethod) return notify.error("Select payment method!");
 
     try {
-      await axios.post("http://localhost:4002/api/patient/create", formData, {
+      await apiClient.post("/patient/create", formData, {
         withCredentials: true,
       });
       notify.success("Appointment booked successfully!");

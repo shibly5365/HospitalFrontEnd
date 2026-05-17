@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Calendar, Clock, Star, Stethoscope } from "lucide-react";
 
 export default function DoctorsList({ isVisible }) {
@@ -9,8 +9,8 @@ export default function DoctorsList({ isVisible }) {
   useEffect(() => {
     const fetchLastDoctor = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/patient/dashboard",
+        const res = await apiClient.get(
+          "/patient/dashboard",
           { withCredentials: true }
         );
 
@@ -36,13 +36,12 @@ export default function DoctorsList({ isVisible }) {
 
   // 🔧 Function to fix backend image bug
   const cleanImageUrl = (url) => {
-    if (!url) return defaultFallback;
-
     const defaultFallback =
       "https://cdn-icons-png.flaticon.com/512/387/387561.png";
+    if (!url) return defaultFallback;
 
     // If backend added "/uploads/.../https://"
-    if (url.includes("http://localhost:4002/uploads/doctors/https")) {
+    if (url.includes("/uploads/doctors/https")) {
       const parts = url.split("uploads/doctors/");
       return parts[1] || defaultFallback;
     }

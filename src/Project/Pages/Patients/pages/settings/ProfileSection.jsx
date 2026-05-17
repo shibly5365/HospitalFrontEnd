@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import {
   User,
   Camera,
@@ -30,7 +30,7 @@ export default function ProfileSection() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get("http://localhost:4002/api/auth/me", {
+        const res = await apiClient.get("/auth/me", {
           withCredentials: true,
         });
         console.log(res.data);
@@ -88,8 +88,8 @@ export default function ProfileSection() {
       formData.append("profileImage", file);
     }
 
-    const res = await axios.put(
-      "http://localhost:4002/api/auth/update-profile",
+    const res = await apiClient.put(
+      "/auth/update-profile",
       formData,
       { withCredentials: true }
     );

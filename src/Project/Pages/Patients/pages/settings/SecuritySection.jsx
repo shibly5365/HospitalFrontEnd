@@ -1,6 +1,6 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState } from "react";
 import { Lock, Eye, EyeOff, Shield } from "lucide-react";
-import axios from "axios";
 import { notify } from "../../../../../Units/notification";
 
 export default function SecuritySection() {
@@ -19,8 +19,8 @@ const handleSubmit = async () => {
   }
 
   try {
-    const res = await axios.put(
-      "http://localhost:4002/api/patient/change-password",
+    const res = await apiClient.put(
+      "/patient/change-password",
       {
         currentPassword: data.current,
         newPassword: data.new,

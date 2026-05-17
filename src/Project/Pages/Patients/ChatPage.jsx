@@ -1,288 +1,335 @@
-import React, { useState, useEffect, useRef } from "react";
-import { io } from "socket.io-client";
-import axios from "axios";
-import { Search, Send, Menu, X } from "lucide-react";
+import { apiClient } from "../../../services/queryClient";
+import { useState, useRef, useEffect } from "react";
+import {
+  FaVideo,
+  FaPhone,
+  FaPaperclip,
+  FaMicrophone,
+  FaSmile,
+  FaSearch,
+} from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
+import EmojiPicker from "emoji-picker-react";
+import { useChat } from "../../../features/chat/hooks/useChat.js";
+import useChatUIStore from "../../../features/chat/store/chatUIStore.js";
+import { useAuth } from "../../../Project/Components/AuthContext.jsx";
 
-const API = "http://localhost:4002/api/patient";
+export default function ChatPagePatient() {
+  const [showEmoji, setShowEmoji] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const messagesEndRef = useRef(null);
 
-const ChatPagePatient = () => {
-  const [selectedChat, setSelectedChat] = useState(null);
-  const [message, setMessage] = useState("");
-  const [messagesList, setMessagesList] = useState([]);
-  const [typingUser, setTypingUser] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const {
+    messageText,
+    setMessageText,
+    sendMessage,
+    isRecording,
+    startVoiceRecording,
+    stopRecording,
+    canSendMessage,
+    conversations,
+    expiryReason,
+    messages,
+  } = useChat("patient");
 
-  const socketRef = useRef(null);
-  const bottomRef = useRef(null);
+  const { activeConversation, setActiveConversation } = useChatUIStore();
 
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const token = localStorage.getItem("token");
+  const { auth } = useAuth();
+  const user = auth.user;
 
-  const [conversations, setConversations] = useState([]);
-
-  // 📥 LOAD CONVERSATIONS
+  // Auto scroll to bottom
   useEffect(() => {
-    const fetchDoctors = async () => {
-      try {
-        const res = await axios.get(`${API}/consultations`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.data.success && res.data.data.doctors) {
-          const docs = res.data.data.doctors.map(d => ({
-            id: d.id,
-            userId: d.id, // we send Doctor._id and receiverType='doctor'
-            name: d.name,
-            role: d.department || "Doctor",
-            avatar: d.avatar,
-            online: false, // You'd need a socket event to update this
-          }));
-          setConversations(docs);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchDoctors();
-  }, [token]);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
 
-  // 🔌 SOCKET CONNECT
-  useEffect(() => {
-    const socket = io("http://localhost:4002");
-    socketRef.current = socket;
+    if (!file) return;
 
-    if (user?._id) socket.emit("register", user._id);
+    setSelectedFile(file);
 
-    socket.on("newMessage", (msg) => {
-      setMessagesList((prev) => [...prev, msg]);
-    });
+    const formData = new FormData();
 
-    socket.on("typing", ({ from }) => {
-      setTypingUser(from);
-    });
-
-    socket.on("stop-typing", () => {
-      setTypingUser(null);
-    });
-
-    return () => socket.disconnect();
-  }, []);
-
-  // 🔽 AUTO SCROLL
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messagesList]);
-
-  // 📥 LOAD MESSAGES FROM API
-  const loadMessages = async (userId) => {
-    try {
-      const res = await axios.get(`${API}/getMessage/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setMessagesList(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // 📤 SEND MESSAGE
-  const handleSend = async () => {
-    if (!message.trim() || !selectedChat) return;
+    formData.append("file", file);
+    formData.append("conversationId", activeConversation._id);
 
     try {
-      // 🔥 API SAVE
-      await axios.post(
-        `${API}/sendMessage`,
-        {
-          receiverId: selectedChat.userId,
-          text: message,
-          receiverType: "doctor",
-        },
+      await apiClient.post(
+        "/message/send-file",
+        formData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
-
-      // ⚡ SOCKET SEND
-      socketRef.current.emit("sendMessage", {
-        sender: user._id,
-        receiver: selectedChat.userId,
-        text: message,
-      });
-
-      setMessage("");
-    } catch (err) {
-      console.error(err.response?.data || err.message);
+    } catch (error) {
+      console.log(error);
     }
   };
-
-  // ✍️ TYPING
-  const handleTyping = (value) => {
-    setMessage(value);
-
-    socketRef.current.emit("typing", {
-      to: selectedChat.userId,
-      from: user._id,
-    });
-
-    setTimeout(() => {
-      socketRef.current.emit("stop-typing", {
-        to: selectedChat.userId,
-        from: user._id,
-      });
-    }, 1000);
-  };
-
-  // 💬 CHAT BUBBLE
-  const ChatBubble = ({ msg }) => {
-    const isMe = msg.sender === user._id;
-
-    return (
-      <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-        <div>
-          <div
-            className={`px-4 py-2 rounded-2xl max-w-xs ${
-              isMe
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200 text-gray-800"
-            }`}
-          >
-            {msg.text}
-          </div>
-          <p className="text-xs text-gray-400 mt-1">
-            {new Date(msg.createdAt).toLocaleTimeString()}
-          </p>
-        </div>
-      </div>
-    );
-  };
-
   return (
-    <div className="h-screen flex bg-gray-100">
+    <div className="flex flex-col md:flex-row h-[100dvh] bg-[#0f172a] text-white overflow-hidden">
+      {/* ==================== SIDEBAR ==================== */}
+     <div className="w-full md:w-80 border-r border-gray-700 bg-[#1e2937] flex flex-col md:h-full h-[35vh]">
+        {/* Sidebar Header */}
+        <div className="p-3 sm:p-4 border-b border-gray-700 bg-[#1e2937]">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl sm:text-2xl font-semibold text-white">Messages</h2>
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-600 flex items-center justify-center cursor-pointer hover:bg-blue-500">
+              +
+            </div>
+          </div>
 
-      {/* SIDEBAR */}
-      <div
-        className={`${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0 fixed lg:relative w-72 bg-white border-r h-full transition`}
-      >
-        <div className="p-4 flex justify-between items-center border-b">
-          <h2 className="font-bold text-lg">Chats</h2>
-          <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden">
-            <X />
-          </button>
-        </div>
-
-        <div className="p-3">
-          <div className="flex items-center bg-gray-100 px-3 py-2 rounded">
-            <Search size={16} />
+          {/* Search */}
+          <div className="relative">
+            <FaSearch className="absolute left-4 top-3 text-gray-400" />
             <input
-              placeholder="Search..."
-              className="ml-2 bg-transparent outline-none text-sm"
+              type="text"
+              placeholder="Search doctors or chats..."
+              className="w-full bg-[#334155] text-sm pl-11 pr-4 py-2.5 rounded-full outline-none border border-gray-600 focus:border-blue-500"
             />
           </div>
         </div>
+        {/* Conversation List */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          {conversations?.length > 0 ? (
+            Array.isArray(conversations) &&
+            conversations
+              .filter((convo) => {
+                const otherUser = convo.members?.find(
+                  (m) => m._id?.toString() !== user?._id?.toString(),
+                );
 
-        {conversations.map((c) => (
-          <div
-            key={c.id}
-            onClick={() => {
-              setSelectedChat(c);
-              setIsSidebarOpen(false);
-              loadMessages(c.userId);
-            }}
-            className="p-3 flex items-center gap-3 cursor-pointer hover:bg-gray-100"
-          >
-            <img src={c.avatar} className="w-10 h-10 rounded-full" />
-            <div>
-              <p className="font-medium">{c.name}</p>
-              <p className="text-xs text-gray-500">{c.role}</p>
+                return (
+                  otherUser &&
+                  otherUser.role?.toLowerCase()?.trim() === "doctor"
+                );
+              })
+              .map((convo) => {
+                const otherUser = convo.members?.find(
+                  (m) => m._id?.toString() !== user?._id?.toString(),
+                );
+
+                return (
+                  <div
+                    key={convo._id}
+                    onClick={() => setActiveConversation(convo)}
+                    className={`p-4 border-b border-gray-700 cursor-pointer hover:bg-[#334155]
+          ${activeConversation?._id === convo._id ? "bg-[#334155]" : ""}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-500 flex items-center justify-center">
+                        👨‍⚕️
+                      </div>
+
+                      <div>
+                        <h3 className="font-semibold">{otherUser?.fullName}</h3>
+
+                        <p className="text-sm text-gray-400">
+                          {otherUser?.role}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+          ) : (
+            <div className="p-3 text-gray-400 text-sm text-center mt-8">
+              No conversations found
             </div>
-          </div>
-        ))}
+          )}
+        </div>
       </div>
 
-      {/* MAIN */}
-      <div className="flex-1 flex flex-col">
+      {/* ==================== MAIN CHAT AREA ==================== */}
+     <div className="flex-1 flex flex-col bg-[#0f172a] min-h-0">
+        {activeConversation ? (
+          <>
+            {/* Chat Header - WhatsApp Style */}
+            <div className="min-h-[64px] bg-[#1e2937] border-b border-gray-700 px-5 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-xl">
+                    👨‍⚕️
+                  </div>
+                  <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-[#1e2937]"></div>
+                </div>
 
-        {/* HEADER */}
-        <div className="p-4 bg-white border-b flex items-center gap-3">
-          <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="lg:hidden"
-          >
-            <Menu />
-          </button>
-
-          {selectedChat && (
-            <>
-              <img
-                src={selectedChat.avatar}
-                className="w-10 h-10 rounded-full"
-              />
-              <div>
-                <p className="font-semibold">{selectedChat.name}</p>
-                <p className="text-xs text-gray-500">
-                  {selectedChat.online ? "Online" : "Offline"}
-                </p>
+                <div>
+                 <h3 className="font-semibold text-base sm:text-lg">
+                    {activeConversation.members?.find(
+                      (m) => m._id?.toString() !== user?._id?.toString(),
+                    )?.fullName || "Doctor"}
+                  </h3>
+                  <p className="text-green-500 text-sm flex items-center gap-1">
+                    ● Online
+                  </p>
+                </div>
               </div>
-            </>
-          )}
-        </div>
 
-        {/* MESSAGES */}
-        <div className="flex-1 p-4 overflow-y-auto space-y-2">
-          {!selectedChat ? (
-            <div className="text-center text-gray-400 mt-10">
-              Select a chat
+              <div className="flex items-center gap-4 sm:gap-6 text-xl sm:text-2xl text-gray-300">
+                <FaPhone className="cursor-pointer hover:text-white transition-colors" />
+                <FaVideo className="cursor-pointer hover:text-white transition-colors" />
+              </div>
             </div>
-          ) : (
-            <>
-              {messagesList
-                .filter(
-                  (msg) =>
-                    // Only show messages. Because `recipient` could be the actual User ID of the doctor,
-                    // we might need to filter by our side only if we want, or just show whatever GET /getMessage returns
-                    // Actually, getting /getMessage/:userId already filters by conversation!
-                    true
-                )
-                .map((msg, i) => (
-                  <ChatBubble key={i} msg={msg} />
-                ))}
 
-              {typingUser === selectedChat.userId && (
-                <p className="text-sm text-gray-400">Typing...</p>
-              )}
-
-              <div ref={bottomRef}></div>
-            </>
-          )}
-        </div>
-
-        {/* INPUT */}
-        {selectedChat && (
-          <div className="p-3 bg-white border-t flex gap-2">
-            <input
-              value={message}
-              onChange={(e) => handleTyping(e.target.value)}
-              placeholder="Type message..."
-              className="flex-1 border rounded px-3 py-2"
-            />
-            <button
-              onClick={handleSend}
-              className="bg-blue-500 text-white px-4 rounded"
+            {/* Messages Area - WhatsApp Background */}
+            <div
+              className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-2
+                         bg-repeat bg-center custom-scrollbar"
+              style={{ backgroundColor: "#0f172a" }}
             >
-              <Send size={18} />
-            </button>
+              <AnimatePresence initial={false}>
+                {messages.map((msg) => {
+                  const isOwnMessage =
+                    msg.sender?._id?.toString() === user?._id?.toString();
+
+                  // ✅ memo-friendly lightweight time formatting
+                  const messageTime = new Date(
+                    msg.createdAt || msg.timestamp,
+                  ).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
+
+                  return (
+                    <motion.div
+                      key={msg._id}
+                      // ✅ lighter animation
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{
+                        duration: 0.15,
+                      }}
+                      layout="position"
+                      className={`flex ${
+                        isOwnMessage ? "justify-end" : "justify-start"
+                      }`}
+                    >
+                      <div
+                        className={`max-w-[85%] sm:max-w-[75%] lg:max-w-[65%] px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-sm sm:text-[15.2px] leading-relaxed shadow-sm
+          ${
+            isOwnMessage
+              ? "bg-[#0ea5e9] text-white rounded-br-none"
+              : "bg-[#1e2937] text-gray-100 rounded-bl-none"
+          }`}
+                      >
+                        {msg.messageType === "text" && <p>{msg.text}</p>}
+
+                        {msg.messageType === "file" && (
+                          <a
+                            href={msg.file}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-300 underline"
+                          >
+                            📄 Open Document
+                          </a>
+                        )}
+
+                        {msg.messageType === "image" && (
+                          <img
+                            src={msg.file}
+                            alt="chat-file"
+                            className="rounded-xl max-w-full"
+                          />
+                        )}
+
+                        {msg.messageType === "audio" && (
+                          <audio controls className="w-full">
+                            <source src={msg.audio} type="audio/webm" />
+                          </audio>
+                        )}
+
+                        <div className="flex items-center justify-end gap-1 mt-1">
+                          <span className="text-xs opacity-75">
+                            {messageTime}
+                          </span>
+
+                          {isOwnMessage && <span className="text-xs">✓✓</span>}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Expiry Banner */}
+            {!canSendMessage && (
+              <div className="bg-red-600 py-3 text-center font-medium text-sm border-t border-red-700">
+                {expiryReason || "Consultation chat has expired"}
+              </div>
+            )}
+
+            {/* Input Area - WhatsApp Style */}
+            {canSendMessage && (
+             <div className="bg-[#1e2937] border-t border-gray-700 px-2 sm:px-4 py-2 sm:py-3">
+                <div className="flex items-center bg-[#334155] rounded-3xl px-2 sm:px-5 py-2 gap-1 sm:gap-2">
+                  <button
+                    onClick={() => setShowEmoji(!showEmoji)}
+                    className="text-yellow-400 hover:text-yellow-300 text-xl sm:text-2xl px-1 sm:px-2"
+                  >
+                    <FaSmile />
+                  </button>
+
+                  <label className="cursor-pointer px-3 text-gray-300 hover:text-white">
+                    <FaPaperclip size={22} />
+                    <input type="file" hidden onChange={handleFileUpload} />
+                  </label>
+
+                  <input
+                    type="text"
+                    value={messageText}
+                    onChange={(e) => setMessageText(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                    placeholder="Type a message..."
+                    className="flex-1 bg-transparent outline-none px-2 sm:px-4 text-sm sm:text-[15.5px] min-w-0"
+                  />
+
+                  <button
+                    onMouseDown={startVoiceRecording}
+                    onMouseUp={stopRecording}
+                    className={`px-1 sm:px-3 transition ${isRecording ? "text-red-500 scale-110" : "text-gray-300 hover:text-white"}`}
+                  >
+                    <FaMicrophone size={23} />
+                  </button>
+
+                  <button
+                    onClick={() => sendMessage()}
+                    disabled={!messageText.trim()}
+                    className="ml-1 sm:ml-2 bg-[#0ea5e9] hover:bg-[#0284c8] text-white w-10 h-10 flex items-center justify-center rounded-full disabled:opacity-50 transition"
+                  >
+                    ↑
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
+            <div className="text-6xl mb-6 opacity-50">💬</div>
+            <p className="text-base sm:text-xl text-center px-4">Select a conversation to start messaging</p>
           </div>
         )}
       </div>
+
+      {/* Emoji Picker */}
+      <AnimatePresence>
+        {showEmoji && (
+          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 sm:left-auto sm:right-6 sm:translate-x-0 z-50 shadow-2xl max-w-[95vw]">
+            <EmojiPicker
+              onEmojiClick={(emoji) =>
+                setMessageText((prev) => prev + emoji.emoji)
+              }
+width={window.innerWidth < 640 ? 300 : 350}
+height={window.innerWidth < 640 ? 350 : 400}
+            />
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
-};
-
-export default ChatPagePatient;
+}

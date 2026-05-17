@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import { apiClient } from "../../../../services/queryClient";
 import {
   FaArrowLeft,
   FaStethoscope,
@@ -29,8 +29,8 @@ const PatientsDepartmentDetails = () => {
   const doctorsPerPage = 5;
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:4002/api/admin/getdepartmenst/${id}`, {
+    apiClient
+      .get(`/admin/getdepartmenst/${id}`, {
         withCredentials: true,
       })
       .then((res) => setDepartment(res.data.department))
@@ -51,7 +51,7 @@ const PatientsDepartmentDetails = () => {
   const indexOfFirstDoctor = indexOfLastDoctor - doctorsPerPage;
   const doctorsToShow = department.doctors.slice(
     indexOfFirstDoctor,
-    indexOfLastDoctor
+    indexOfLastDoctor,
   );
 
   const handleNext = () => {
@@ -81,11 +81,12 @@ const PatientsDepartmentDetails = () => {
       </div>
 
       {/* Department Image */}
-      <div className="w-[130%] max-w-7xl mx-auto overflow-hidden rounded-2xl shadow-lg mb-10 bg-gray-50 flex justify-center items-center">
+      {/* Department Image */}
+      <div className="w-full max-w-7xl mx-auto overflow-hidden rounded-2xl shadow-lg mb-10 bg-gray-50">
         <img
           src={department.image}
           alt={department.name}
-          className="w-[130%] h-[400px] sm:h-[400px] md:h-[400px] lg:h-[550px] object-cover transition-all duration-500 rounded-xl"
+          className="w-full h-[220px] sm:h-[300px] md:h-[400px] lg:h-[550px] object-cover transition-all duration-500"
         />
       </div>
 
@@ -112,11 +113,11 @@ const PatientsDepartmentDetails = () => {
       </div>
 
       {/* About */}
-      <div>
+      <div className="max-w-5xl">
         <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">
           About
         </h3>
-        <p className="text-gray-600 text-2xl leading-relaxed text-justify">
+        <p className="text-gray-600 text-sm sm:text-base md:text-lg leading-7 sm:leading-8 text-left sm:text-justify break-words">
           {department.description}
         </p>
       </div>
@@ -143,7 +144,6 @@ const PatientsDepartmentDetails = () => {
             <h2 className="text-xl font-semibold text-gray-700">Our Team</h2>
             <button
               onClick={() => {
-
                 navigate(`patient-departments/${department._id}`);
               }}
               className="text-sm text-blue-500 hover:text-blue-600 underline transition"
@@ -153,10 +153,10 @@ const PatientsDepartmentDetails = () => {
           </div>
 
           {/* Doctor Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 justify-items-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
             {doctorsToShow.map((doc) => (
               <Link key={doc.id} to={`/doctor/${doc.id}`}>
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center text-center hover:shadow-md transition">
+                <div className="w-full max-w-[280px] bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 flex flex-col items-center text-center hover:shadow-md transition">
                   <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mb-4 overflow-hidden">
                     <img
                       src={doc.profileImage}

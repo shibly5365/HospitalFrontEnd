@@ -1,11 +1,11 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useEffect, useState } from "react";
 import { Calendar, Clock, FileText, Activity } from "lucide-react";
-import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function RescheduleModal({ open, onClose, appointment, onSave }) {
-  console.log("ONESAVE",onSave);
+
   
 const [form, setForm] = useState({
   date: null,
@@ -50,8 +50,8 @@ const [form, setForm] = useState({
         appointment.doctor.id ||
         appointment.doctor;
 
-      const res = await axios.get(
-        `http://localhost:4002/api/patient/doctor/${doctorId}/available-dates`,
+      const res = await apiClient.get(
+        `/patient/doctor/${doctorId}/available-dates`,
         { withCredentials: true }
       );
 
@@ -92,8 +92,8 @@ const [form, setForm] = useState({
         date.getMonth() + 1
       ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
-      const res = await axios.get(
-        `http://localhost:4002/api/patient/doctor/${doctorId}/slots`,
+      const res = await apiClient.get(
+        `/patient/doctor/${doctorId}/slots`,
         {
           withCredentials: true,
           params: { date: formattedDate },
