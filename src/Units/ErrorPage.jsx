@@ -9,6 +9,13 @@ const ErrorPage = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const role = user?.role;
 
+  const clearAllCookies = () => {
+    document.cookie.split(";").forEach((cookie) => {
+      const name = cookie.split("=")[0].trim();
+      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+    });
+  };
+
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
       // Clear localStorage
@@ -30,7 +37,7 @@ const ErrorPage = () => {
     else if (role === "admin") path = "/admin/admin-dashboard";
     else if (role === "doctor") path = "/doctors/doctors-dashboard";
     else if (role === "receptionist")
-      path = "/receptioninst/receptioninst-dashboard";
+      path = "/receptionist/receptionist-appointments";
     else if (role === "patient") path = "/patient/patient-dashboard";
 
     notify.info("Redirecting to home...");
