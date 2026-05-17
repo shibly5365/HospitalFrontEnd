@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { X, Edit, Phone, Mail, Calendar, MapPin, Heart, AlertCircle, User, FileText } from "lucide-react";
 import { notify } from "../../../../../Units/notification";
 
@@ -17,8 +17,8 @@ export default function PatientDetails({ patient, onClose, onEdit }) {
   const fetchPatientDetails = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(
-        `http://localhost:4002/api/receptionist/patients/${patient._id}`,
+      const res = await apiClient.get(
+        `/receptionist/patients/${patient._id}`,
         { withCredentials: true }
       );
 

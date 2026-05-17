@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import {
   Search,
   UserPlus,
@@ -43,8 +43,8 @@ export default function ViewSearchPatients() {
         limit: PAGE_SIZE,
         ...(searchQuery && { search: searchQuery }),
       };
-      const res = await axios.get(
-        "http://localhost:4002/api/receptionist/patients",
+      const res = await apiClient.get(
+        "/receptionist/patients",
         { params, withCredentials: true },
       );
       if (res.data.success) {

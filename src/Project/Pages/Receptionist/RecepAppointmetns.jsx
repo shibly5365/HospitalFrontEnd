@@ -1,5 +1,5 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Calendar, Clock, Stethoscope } from "lucide-react";
 import Header from "./pages/appoint/Header";
 import StatsCards from "./pages/appoint/StatsCards";
@@ -32,8 +32,8 @@ export default function ReceptionistAppointment() {
   const fetchAppointments = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(
-        "http://localhost:4002/api/receptionist/get",
+      const res = await apiClient.get(
+        "/receptionist/get",
         { withCredentials: true }
       );
 
@@ -116,8 +116,8 @@ export default function ReceptionistAppointment() {
 
   const handleSaveEdit = async (updatedAppointment) => {
     try {
-      const res = await axios.put(
-        `http://localhost:4002/api/receptionist/udpated/${updatedAppointment._id}`,
+      const res = await apiClient.put(
+        `/receptionist/udpated/${updatedAppointment._id}`,
         updatedAppointment,
         { withCredentials: true }
       );

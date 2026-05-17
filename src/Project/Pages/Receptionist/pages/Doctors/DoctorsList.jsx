@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Search, Phone, Award, Calendar, Clock, Filter, Users, ChevronRight, CheckCircle, Star, MapPin, Briefcase, User } from "lucide-react";
 import { notify } from "../../../../../Units/notification";
 
@@ -16,7 +16,7 @@ export default function DoctorsList() {
   const fetchDoctors = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:4002/api/receptionist/doctors", { withCredentials: true });
+      const res = await apiClient.get("/receptionist/doctors", { withCredentials: true });
       if (res.data.success) {
         const fetchedDoctors = res.data.data?.doctors || [];
         setDoctors(fetchedDoctors);
@@ -32,7 +32,7 @@ export default function DoctorsList() {
 
   const fetchAvailability = async (doctorId) => {
     try {
-      const res = await axios.get(`http://localhost:4002/api/patient/doctor/${doctorId}/available-dates`,
+      const res = await apiClient.get(`/patient/doctor/${doctorId}/available-dates`,
         { withCredentials: true }
       );
       console.log("Availability API Response:", res.data);

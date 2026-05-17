@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Building2, Users } from "lucide-react";
 import { notify } from "../../../../../Units/notification";
 
@@ -14,8 +14,8 @@ export default function DepartmentsList() {
   const fetchDepartments = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(
-        "http://localhost:4002/api/receptionist/departments",
+      const res = await apiClient.get(
+        "/receptionist/departments",
         { withCredentials: true }
       );
 

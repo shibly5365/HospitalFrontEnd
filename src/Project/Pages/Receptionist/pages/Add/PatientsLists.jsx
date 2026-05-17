@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Pencil, Trash2, Settings } from "lucide-react";
 
 const PatientsLists = () => {
@@ -16,8 +16,8 @@ const PatientsLists = () => {
     const fetchPatients = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          "http://localhost:4002/api/receptionist/patients",
+        const response = await apiClient.get(
+          "/receptionist/patients",
           { withCredentials: true }
         );
 

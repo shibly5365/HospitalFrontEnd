@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Edit, X, Save } from "lucide-react";
 import { notify } from "../../../../../Units/notification";
 
@@ -107,8 +107,8 @@ export default function EditPatient({ patient, onClose, onSuccess }) {
         dob: formData.dob ? new Date(formData.dob) : undefined,
       };
 
-      const res = await axios.put(
-        `http://localhost:4002/api/receptionist/patients/${patient._id}`,
+      const res = await apiClient.put(
+        `/receptionist/patients/${patient._id}`,
         payload,
         { withCredentials: true }
       );

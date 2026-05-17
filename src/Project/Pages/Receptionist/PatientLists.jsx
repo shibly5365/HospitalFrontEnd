@@ -1,5 +1,5 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { Phone, Calendar, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -281,8 +281,8 @@ export default function PatientLists() {
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/receptionist/patients",
+        const res = await apiClient.get(
+          "/receptionist/patients",
           {
             withCredentials: true,
           }
@@ -303,8 +303,8 @@ export default function PatientLists() {
   const fetchPatientCompleteDetails = async (patientId) => {
     try {
       setLoadingDetails(true);
-      const res = await axios.get(
-        `http://localhost:4002/api/receptionist/patient/${patientId}/details`,
+      const res = await apiClient.get(
+        `/receptionist/patient/${patientId}/details`,
         { withCredentials: true }
       );
 

@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Calendar, Clock, Stethoscope, MapPin, Phone, Eye, Edit, X } from "lucide-react";
 import { notify } from "../../../../../Units/notification";
 
@@ -26,7 +26,7 @@ export default function TodaysAppointments({ onViewDetails, onEdit, onCancel }) 
   const fetchAppointments = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:4002/api/receptionist/todayAppoi", { withCredentials: true });
+      const res = await apiClient.get("/receptionist/todayAppoi", { withCredentials: true });
 
       if (res.data.appointments) {
         let filtered = res.data.appointments;

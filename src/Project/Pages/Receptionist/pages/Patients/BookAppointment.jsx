@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { 
   ChevronRight, ChevronLeft, ArrowLeft, CheckCircle,
   Users, Stethoscope, Calendar, CreditCard, Receipt, Clock, X
@@ -50,8 +50,8 @@ export default function BookAppointment() {
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/receptionist/patients",
+        const res = await apiClient.get(
+          "/receptionist/patients",
           { withCredentials: true }
         );
         if (res.data.success && res.data.data) {
@@ -69,8 +69,8 @@ export default function BookAppointment() {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/receptionist/departments",
+        const res = await apiClient.get(
+          "/receptionist/departments",
           { withCredentials: true }
         );
         if (res.data.success && res.data.data) {
@@ -92,8 +92,8 @@ export default function BookAppointment() {
     }
     const fetchDoctors = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:4002/api/receptionist/doctors?department=${selectedDepartment}`,
+        const res = await apiClient.get(
+          `/receptionist/doctors?department=${selectedDepartment}`,
           { withCredentials: true }
         );
         if (res.data.success && res.data.data) {
@@ -119,8 +119,8 @@ export default function BookAppointment() {
     }
     const fetchSchedule = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:4002/api/receptionist/doctor/${selectedDoctor}/available-dates`,
+        const res = await apiClient.get(
+          `/receptionist/doctor/${selectedDoctor}/available-dates`,
           { withCredentials: true }
         );
         if (res.data && res.data.availableDates) {
@@ -152,8 +152,8 @@ export default function BookAppointment() {
     }
     const fetchSlots = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:4002/api/receptionist/doctor/${selectedDoctor}/slots?date=${selectedDate}`,
+        const res = await apiClient.get(
+          `/receptionist/doctor/${selectedDoctor}/slots?date=${selectedDate}`,
           { withCredentials: true }
         );
         if (res.data.success) {
@@ -233,8 +233,8 @@ export default function BookAppointment() {
         },
       };
 
-      const res = await axios.post(
-        "http://localhost:4002/api/receptionist/book-with-payment",
+      const res = await apiClient.post(
+        "/receptionist/book-with-payment",
         appointmentPayload,
         { withCredentials: true }
       );

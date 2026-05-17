@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../../services/queryClient";
 import React from "react";
-import axios from "axios";
 import { 
   CreditCard, 
   Calendar, 
@@ -14,8 +14,8 @@ import { notify } from "../../../../../../Units/notification";
 export default function PaymentRow({ payment, onRefresh }) {
   const handleMarkAsPaid = async () => {
     try {
-      await axios.put(
-        `http://localhost:4002/api/receptionist/payments/${payment._id}/status`,
+      await apiClient.put(
+        `/receptionist/payments/${payment._id}/status`,
         { status: "Paid" },
         { withCredentials: true }
       );
@@ -28,8 +28,8 @@ export default function PaymentRow({ payment, onRefresh }) {
 
   const handleGenerateInvoice = async () => {
     try {
-      const response = await axios.post(
-        `http://localhost:4002/api/receptionist/payments/${payment._id}/invoice`,
+      const response = await apiClient.post(
+        `/receptionist/payments/${payment._id}/invoice`,
         {},
         { responseType: 'blob', withCredentials: true }
       );

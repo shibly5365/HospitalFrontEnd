@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { DollarSign, TrendingUp, CreditCard, Wallet, Download } from "lucide-react";
 
 export const DailyBillingReports = () => {
@@ -9,8 +9,8 @@ export const DailyBillingReports = () => {
     // ------------ FETCH BILLING REPORT ------------
     const fetchBillingReport = async () => {
         try {
-            const res = await axios.get(
-                `http://localhost:4002/api/receptionist/reports/billing?date=${date}`,
+            const res = await apiClient.get(
+                `/receptionist/reports/billing?date=${date}`,
                 { withCredentials: true }
             );
 

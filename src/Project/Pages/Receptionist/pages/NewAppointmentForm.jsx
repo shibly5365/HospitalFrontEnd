@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Calendar, Users, FileText } from "lucide-react";
 
 const NewAppointmentForm = ({ receptionistId }) => {
@@ -29,8 +29,8 @@ const NewAppointmentForm = ({ receptionistId }) => {
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/receptionist/getAll-patients",
+        const res = await apiClient.get(
+          "/receptionist/getAll-patients",
           { withCredentials: true }
         );
         const patientsWithId = res.data.map((p) => ({
@@ -49,8 +49,8 @@ const NewAppointmentForm = ({ receptionistId }) => {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/receptionist/getdepartmenst",
+        const res = await apiClient.get(
+          "/receptionist/getdepartmenst",
           { withCredentials: true }
         );
         setDepartments(res.data.data || []);
@@ -66,8 +66,8 @@ const NewAppointmentForm = ({ receptionistId }) => {
     if (!selectedDepartment) return setDoctors([]);
     const fetchDoctors = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:4002/api/receptionist/getalldoctorDepartments/${selectedDepartment}`,
+        const res = await apiClient.get(
+          `/receptionist/getalldoctorDepartments/${selectedDepartment}`,
           { withCredentials: true }
         );
         setDoctors(res.data.doctors || []);
@@ -87,8 +87,8 @@ const NewAppointmentForm = ({ receptionistId }) => {
     if (!selectedDoctor) return setAvailableDates([]);
     const fetchSchedule = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:4002/api/receptionist/schedules/available-dates/${selectedDoctor}`,
+        const res = await apiClient.get(
+          `/receptionist/schedules/available-dates/${selectedDoctor}`,
           { withCredentials: true }
         );
         setAvailableDates(res.data.schedules || []);
@@ -106,8 +106,8 @@ const NewAppointmentForm = ({ receptionistId }) => {
     if (!selectedDoctor || !selectedDate) return setAvailableSlots([]);
     const fetchSlots = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:4002/api/receptionist/schedules/available-dates/${selectedDoctor}?date=${selectedDate}`,
+        const res = await apiClient.get(
+          `/receptionist/schedules/available-dates/${selectedDoctor}?date=${selectedDate}`,
           { withCredentials: true }
         );
         setAvailableSlots(res.data.schedules || []);
@@ -156,8 +156,8 @@ const NewAppointmentForm = ({ receptionistId }) => {
     };
 
     try {
-      await axios.post(
-        "http://localhost:4002/api/receptionist/book",
+      await apiClient.post(
+        "/receptionist/book",
         payload,
         { withCredentials: true }
       );

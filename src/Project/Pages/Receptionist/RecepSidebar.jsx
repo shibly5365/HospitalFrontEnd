@@ -1,3 +1,4 @@
+import { apiClient } from "../../../services/queryClient";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -28,7 +29,6 @@ import {
 } from "lucide-react";
 import { notify } from "../../../Units/notification";
 import { useAuth } from "../../Components/AuthContext";
-import axios from "axios";
 import toast from "react-hot-toast";
 
 const RecepSidebar = () => {
@@ -61,8 +61,8 @@ const RecepSidebar = () => {
             onClick={async () => {
               toast.dismiss(t.id);
               try {
-                await axios.post(
-                  "http://localhost:4002/api/receptionist/receptionist-logout",
+                await apiClient.post(
+                  "/receptionist/receptionist-logout",
                   {},
                   { withCredentials: true }
                 );

@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Calendar, Clock, Download } from "lucide-react";
 
 const DailyAppointmentReports = () => {
@@ -9,8 +9,8 @@ const DailyAppointmentReports = () => {
   // -------- Fetch backend appointments --------
   const fetchAppointments = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:4002/api/receptionist/reports/appointments?date=${date}`,
+      const res = await apiClient.get(
+        `/receptionist/reports/appointments?date=${date}`,
         { withCredentials: true }
       );
 

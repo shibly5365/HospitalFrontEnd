@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState } from "react";
-import axios from "axios";
 import { UserPlus, X, Calendar, MapPin, Phone, Mail, Heart, AlertCircle } from "lucide-react";
 import { notify } from "../../../../../Units/notification";
 
@@ -74,8 +74,8 @@ export default function RegisterPatient({ onClose, onSuccess }) {
         weight: formData.weight ? parseFloat(formData.weight) : undefined,
       };
 
-      const res = await axios.post(
-        "http://localhost:4002/api/receptionist/patients/register",
+      const res = await apiClient.post(
+        "/receptionist/patients/register",
         payload,
         { withCredentials: true }
       );

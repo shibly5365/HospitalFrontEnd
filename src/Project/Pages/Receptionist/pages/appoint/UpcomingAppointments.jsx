@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Calendar, Clock, User, Stethoscope, ChevronRight, Eye, Edit, X } from "lucide-react";
 import { notify } from "../../../../../Units/notification";
 
@@ -22,8 +22,8 @@ export default function UpcomingAppointments({ onViewDetails, onEdit, onCancel }
       endDate.setDate(endDate.getDate() + daysFilter);
       endDate.setHours(23, 59, 59, 999);
 
-      const res = await axios.get(
-        "http://localhost:4002/api/receptionist/get",
+      const res = await apiClient.get(
+        "/receptionist/get",
         {
           params: {
             date: today.toISOString(),

@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { UserPlus, Users, UserCheck, Calendar, Download } from "lucide-react";
 
 const PatientRegistrationReports = () => {
@@ -21,8 +21,8 @@ const PatientRegistrationReports = () => {
       setLoading(true);
       setError("");
 
-      const res = await axios.get(
-        "http://localhost:4002/api/receptionist/reports/patient-registrations",
+      const res = await apiClient.get(
+        "/receptionist/reports/patient-registrations",
         {
           params: { startDate, endDate },
           withCredentials: true,

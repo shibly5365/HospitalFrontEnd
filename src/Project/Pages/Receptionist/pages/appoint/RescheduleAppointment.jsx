@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Calendar, Clock, X, Save, AlertCircle } from "lucide-react";
 import { notify } from "../../../../../Units/notification";
 
@@ -37,24 +37,16 @@ export default function  RescheduleAppointment({ appointment, onClose, onSuccess
         return;
       }
 
-      const res = await axios.get(
-        `http://localhost:4002/api/receptionist/doctor/${doctorId}/slots`,
+      const res = await apiClient.get(
+        `/receptionist/doctor/${doctorId}/slots`,
         {
           params: { date: selectedDate },
           withCredentials: true,
         }
       );
 
-      // Handle different response formats
-      if (res.data.availableSlots) {
-        setAvailableSlots(res.data.availableSlots);
-      } else if (res.data.data && res.data.data.availableSlots) {
-        setAvailableSlots(res.data.data.availableSlots);
-      } else if (res.data.success && res.data.data && res.data.data.availableSlots) {
-        setAvailableSlots(res.data.data.availableSlots);
-      } else {
-        setAvailableSlots([]);
-      }
+      const slots = res.data.availableSlots || res.data.data?.availableSlots || [];
+      setAvailableSlots(Array.isArray(slots) ? slots : []);
     } catch (err) {
       console.error("Error fetching slots:", err);
       notify.error("Failed to load available slots");
@@ -78,8 +70,8 @@ export default function  RescheduleAppointment({ appointment, onClose, onSuccess
     setLoading(true);
 
     try {
-      const res = await axios.put(
-        `http://localhost:4002/api/receptionist/reschudle/${appointment._id}`,
+      const res = await apiClient.put(
+        `/receptionist/reschudle/${appointment._id}`,
         {
           newDate: selectedDate,
           newSlot: selectedSlot,

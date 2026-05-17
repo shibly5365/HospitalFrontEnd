@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState } from "react";
-import axios from "axios";
 import { UserPlus, X } from "lucide-react";
 import { notify } from "../../../../../Units/notification";
 import { useNavigate } from "react-router-dom";
@@ -56,8 +56,8 @@ export default function RegisterPatientPage() {
         dob: formData.dob ? new Date(formData.dob) : undefined,
       };
 
-      const res = await axios.post(
-        "http://localhost:4002/api/receptionist/patients/register",
+      const res = await apiClient.post(
+        "/receptionist/patients/register",
         payload,
         { withCredentials: true }
       );

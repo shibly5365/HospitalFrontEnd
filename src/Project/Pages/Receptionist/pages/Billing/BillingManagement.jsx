@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { notify } from "../../../../../Units/notification";
 
 // Components
@@ -32,15 +32,15 @@ export default function BillingManagement() {
   const fetchPayments = async () => {
     try {
       setLoading(true);
-      let endpoint = "http://localhost:4002/api/receptionist/payments";
+      let endpoint = "/receptionist/payments";
       
       if (activeTab === "pending") {
-        endpoint = "http://localhost:4002/api/receptionist/payments/pending";
+        endpoint = "/receptionist/payments/pending";
       } else if (activeTab === "completed") {
-        endpoint = "http://localhost:4002/api/receptionist/payments/completed";
+        endpoint = "/receptionist/payments/completed";
       }
 
-      const res = await axios.get(endpoint, { 
+      const res = await apiClient.get(endpoint, { 
         params: { dateRange: dateFilter },
         withCredentials: true 
       });

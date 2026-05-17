@@ -1,5 +1,5 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Header from "./pages/schedule/Header.jsx";
 import SearchFilter from "./pages/schedule/SearchFilter";
 import DoctorsGrid from "./pages/schedule/DoctorsGrid";
@@ -18,8 +18,8 @@ const DoctorScheduleRece = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/receptionist/doctors",
+        const res = await apiClient.get(
+          "/receptionist/doctors",
           { withCredentials: true }
         );
         // console.log("Doctors data:", res.data);
@@ -39,8 +39,8 @@ const DoctorScheduleRece = () => {
 
     try {
       // Fetch available dates for the selected doctor
-      const res = await axios.get(
-        `http://localhost:4002/api/patient/doctor/${doctor._id}/available-dates`,
+      const res = await apiClient.get(
+        `/patient/doctor/${doctor._id}/available-dates`,
         { withCredentials: true }
       );
       
@@ -66,8 +66,8 @@ const DoctorScheduleRece = () => {
       // Format date to YYYY-MM-DD
       const formattedDate = formatDateForAPI(date);
       
-      const res = await axios.get(
-        `http://localhost:4002/api/patient/doctor/${selectedDoctor._id}/slots`,
+      const res = await apiClient.get(
+        `/patient/doctor/${selectedDoctor._id}/slots`,
         {
           params: { date: formattedDate },
           withCredentials: true

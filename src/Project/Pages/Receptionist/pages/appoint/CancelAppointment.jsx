@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState } from "react";
-import axios from "axios";
 import { X, AlertTriangle, Trash2 } from "lucide-react";
 import { notify } from "../../../../../Units/notification";
 
@@ -27,8 +27,8 @@ export default function CancelAppointment({ appointment, onClose, onSuccess }) {
     setLoading(true);
 
     try {
-      const res = await axios.put(
-        `http://localhost:4002/api/receptionist/cancel/${appointment._id}`,
+      const res = await apiClient.put(
+        `/receptionist/cancel/${appointment._id}`,
         {
           reason: reason.trim(),
         },
