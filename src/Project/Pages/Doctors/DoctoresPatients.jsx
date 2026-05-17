@@ -1,6 +1,6 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import DashboardNav from "./DashboardNav";
 import HeaderSection from "./DoctorPages/Patients/HeaderSection";
 // import StatsCards from "./DoctorPages/Patients/StatsCards";
@@ -25,8 +25,8 @@ const DoctoresPatients = () => {
     const fetchPatients = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get(
-          "http://localhost:4002/api/doctor/getallPatients",
+        const { data } = await apiClient.get(
+          "/doctor/getallPatients",
           { withCredentials: true }
         );
 
@@ -79,8 +79,8 @@ const DoctoresPatients = () => {
           totalPatients={patients.length}
           onViewPatient={async (patient) => {
             try {
-              const { data } = await axios.get(
-                `http://localhost:4002/api/doctor/allPatients/${patient.id}`,
+              const { data } = await apiClient.get(
+                `/doctor/allPatients/${patient.id}`,
                 { withCredentials: true }
               );
               console.log(data);

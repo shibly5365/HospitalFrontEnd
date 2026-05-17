@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import axios from "axios";
 import { FaArrowLeft, FaStethoscope, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
+import { apiClient } from "../../../../services/queryClient";
 
 const TreatmentCard = ({ t }) => (
   <div className="flex items-start gap-4 bg-gray-50 p-4 rounded-xl hover:shadow-sm transition">
@@ -23,8 +23,8 @@ const PatientsDepartmentDetails = () => {
   const doctorsPerPage = 5;
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:4002/api/admin/getdepartmenst/${id}`, { withCredentials: true })
+    apiClient
+      .get(`/admin/getdepartmenst/${id}`, { withCredentials: true })
       .then((res) => setDepartment(res.data.department))
       .catch((err) => console.error("Error fetching department:", err))
       .finally(() => setLoading(false));
@@ -54,7 +54,7 @@ const PatientsDepartmentDetails = () => {
         <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">Department Details</h1>
         <div
           className="flex items-center gap-2 mt-2 cursor-pointer text-gray-500 hover:underline"
-          onClick={() => navigate("/admin/addDepartment")}
+          onClick={() => navigate("/admin/admin-department")}
         >
           <FaArrowLeft className="text-xl" />
           Back to Department List

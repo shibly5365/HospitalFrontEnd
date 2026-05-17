@@ -1,5 +1,5 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Trash2 } from "lucide-react";
 import RescheduleAppointment from "./pages/AddAppointment";
 
@@ -17,8 +17,8 @@ const AdminAppointments = () => {
   const fetchAppointments = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(
-        "http://localhost:4002/api/admin/allAppointments",
+      const res = await apiClient.get(
+        "/admin/allAppointments",
         { withCredentials: true },
       );
       console.log(res.data);
@@ -65,8 +65,8 @@ const AdminAppointments = () => {
       };
 
       // POST request to backend
-      const res = await axios.post(
-        "http://localhost:4002/api/admin/book",
+      const res = await apiClient.post(
+        "/admin/book",
         dataToSend,
         { withCredentials: true },
       );
@@ -114,8 +114,8 @@ const AdminAppointments = () => {
 
     try {
       for (const appt of selectedAppointments) {
-        await axios.delete(
-          `http://localhost:4002/api/admin/deleteAppointments/${appt._id}`,
+        await apiClient.delete(
+          `/admin/deleteAppointments/${appt._id}`,
           { withCredentials: true },
         );
       }
@@ -142,8 +142,8 @@ const AdminAppointments = () => {
     console.log(_id);
 
     try {
-      await axios.put(
-        `http://localhost:4002/api/admin/cancelappointments/${_id}`,
+      await apiClient.put(
+        `/admin/cancelappointments/${_id}`,
         {}, // no body needed
         { withCredentials: true }, // 🔥 send cookies with request
       );

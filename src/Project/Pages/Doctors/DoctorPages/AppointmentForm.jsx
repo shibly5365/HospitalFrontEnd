@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Calendar, FileText, Stethoscope, Users, CheckCircle } from "lucide-react";
 
 const AppointmentForm = ({ doctorId }) => {
@@ -24,8 +24,8 @@ const AppointmentForm = ({ doctorId }) => {
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/doctor/allPatients",
+        const res = await apiClient.get(
+          "/doctor/allPatients",
           { withCredentials: true }
         );
         console.log("All patients fetched:", res.data);
@@ -66,8 +66,8 @@ const AppointmentForm = ({ doctorId }) => {
 
       console.log("Fetching available dates for doctorId:", doctorId);
       try {
-        const res = await axios.get(
-          `http://localhost:4002/api/doctor/schedule/${doctorId}`,
+        const res = await apiClient.get(
+          `/doctor/schedule/${doctorId}`,
           { withCredentials: true }
         );
         console.log("Doctor available dates response:", res.data);
@@ -110,8 +110,8 @@ const AppointmentForm = ({ doctorId }) => {
     if (!doctorId || !date) return;
 
     try {
-      const res = await axios.get(
-        `http://localhost:4002/api/patient/schedules/available-dates/${doctorId}?date=${date}`,
+      const res = await apiClient.get(
+        `/patient/schedules/available-dates/${doctorId}?date=${date}`,
         { withCredentials: true }
       );
       console.log("Available slots response:", res.data);
@@ -148,8 +148,8 @@ const AppointmentForm = ({ doctorId }) => {
     console.log("Submitting payload:", payload);
 
     try {
-      const res = await axios.post(
-        "http://localhost:4002/api/doctor/doctor/create-appointment",
+      const res = await apiClient.post(
+        "/doctor/doctor/create-appointment",
         payload,
         { withCredentials: true }
       );

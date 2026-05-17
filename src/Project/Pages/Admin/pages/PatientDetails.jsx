@@ -1,6 +1,6 @@
+import { apiClient } from "../../../../services/queryClient";
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import {
   Home,
   Phone,
@@ -34,8 +34,8 @@ const PatientDetails = () => {
   useEffect(() => {
     const fetchPatient = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:4002/api/admin/getpatients/${id}`,
+        const res = await apiClient.get(
+          `/admin/getpatients/${id}`,
           { withCredentials: true },
         );
         console.log("faaa", res.data);

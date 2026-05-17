@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { Calendar } from "lucide-react";
 import ScheduleCreationPanel from "./Schedules/ScheduleCreationPanel";
 import SchedulesSidebar from "./Schedules/SchedulesSidebar";
@@ -16,7 +16,7 @@ const DoctorSchedules = () => {
   const fetchSchedules = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:4002/api/doctor/getSchedule", {
+      const res = await apiClient.get("/doctor/getSchedule", {
         withCredentials: true,
       });
       console.log("scuue",res.data);

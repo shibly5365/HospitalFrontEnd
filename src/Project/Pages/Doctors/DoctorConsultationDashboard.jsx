@@ -1,5 +1,5 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 
 import DashboardHeader from './DoctorPages/consuletion/DashboardHeader';
 import SearchFilters from './DoctorPages/consuletion/SearchFilters';
@@ -26,8 +26,8 @@ const DoctorConsultationDashboard = () => {
       try {
         setLoading(true);
 
-        const res = await axios.get(
-          "http://localhost:4002/api/doctor/getall",
+        const res = await apiClient.get(
+          "/doctor/getall",
           {
             withCredentials: true,
           }

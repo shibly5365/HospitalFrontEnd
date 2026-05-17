@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../../services/queryClient";
 import React, { useState } from "react";
-import axios from "axios";
 import { Users, Calendar, RefreshCw } from "lucide-react";import ScheduleItem from "./ScheduleItem";
 import { notify } from "../../../../../../Units/notification";
 
@@ -14,7 +14,7 @@ const SchedulesSidebar = ({ schedules, loading, onScheduleDelete }) => {
     
     if (!window.confirm("Are you sure you want to delete this schedule?")) return;
     try {
-      await axios.delete(`http://localhost:4002/api/doctor/deleteSchedule/${scheduleId}`, {
+      await apiClient.delete(`/doctor/deleteSchedule/${scheduleId}`, {
         withCredentials: true,
       });
       notify.success("Schedule deleted successfully!");

@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../services/queryClient";
 import React, { useState } from "react";
-import axios from "axios";
 import { Home, User, Mail, Lock, Phone, Cake, UserCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
@@ -61,8 +61,8 @@ const CreateReceptionistForm = () => {
 
       delete payload.confirmPassword; // Remove from payload
 
-      await axios.post(
-        "http://localhost:4002/api/admin/create-Receptionist",
+      await apiClient.post(
+        "/admin/create-Receptionist",
         payload,
         { withCredentials: true }
       );

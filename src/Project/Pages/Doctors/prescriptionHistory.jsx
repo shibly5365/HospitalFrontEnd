@@ -1,5 +1,5 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 
 import Header from './DoctorPages/Prescription/Header';
 import SearchFilters from './DoctorPages/Prescription/SearchFilters';
@@ -20,11 +20,11 @@ const DoctorPrescriptionHistory = () => {
   useEffect(() => {
     const fetchPrescriptions = async () => {
       try {
-        const res = await axios.get("http://localhost:4002/api/doctor/getPres", {
+        const res = await apiClient.get("/doctor/getPres", {
           withCredentials: true,
         });
 
-        console.log("Fetched data:", res.data.uniquePatients);
+        console.log("Fetched data:", res.data);
 
         // ✔️ Map Backend → Frontend Structure
         const mappedData = res.data.uniquePatients.map((p) => ({
@@ -97,8 +97,8 @@ const DoctorPrescriptionHistory = () => {
             console.log();
 
             try {
-              const res = await axios.get(
-                `http://localhost:4002/api/doctor/getPres/${prescription.id}`,
+              const res = await apiClient.get(
+                `/doctor/getPres/${prescription.id}`,
                 { withCredentials: true }
               );
               console.log("id", res.data.prescription);

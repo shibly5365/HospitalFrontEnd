@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../../Components/AuthContext";
+import { apiClient } from "../../../services/queryClient";
 
 const DoctorSideBar = () => {
   const [isOpen, setIsOpen] = useState(true);
@@ -88,10 +89,7 @@ const DoctorSideBar = () => {
               onClick={async () => {
                 toast.dismiss(t.id);
                 try {
-                  await fetch("http://localhost:4002/api/doctor/doctor-logout", {
-                    method: "POST",
-                    credentials: "include",
-                  });
+                  await apiClient.post("/auth/logout");
 
                   toast.success("Logged out successfully!", {
                     className:
@@ -101,13 +99,11 @@ const DoctorSideBar = () => {
                   localStorage.clear();
                   logout();
                   navigate("/");
-                } catch (error) {
+                } catch {
                   toast.error("Logout failed!", {
                     className:
                       "bg-red-500 text-white px-4 py-2 rounded-lg shadow",
                   });
-                  console.log("error",error);
-                  
                 }
               }}
               className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"

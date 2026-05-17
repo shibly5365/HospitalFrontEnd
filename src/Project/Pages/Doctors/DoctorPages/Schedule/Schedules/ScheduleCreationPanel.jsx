@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../../../services/queryClient";
 import React, { useState } from "react";
-import axios from "axios";
 import moment from "moment";
 import { Plus, RefreshCw, Save } from "lucide-react";
 import { generateTimeOptions } from "../Schedules/utils";
@@ -84,8 +84,8 @@ const ScheduleCreationPanel = ({ onScheduleCreated, timeOptions }) => {
         payload.weeksAhead = 4;
       }
 
-      await axios.post(
-        "http://localhost:4002/api/doctor/createSchedule",
+      await apiClient.post(
+        "/doctor/createSchedule",
         payload,
         { withCredentials: true }
       );

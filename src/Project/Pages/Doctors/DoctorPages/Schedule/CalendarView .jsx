@@ -1,8 +1,8 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import axios from "axios";
 
 const CalendarLeaveRequest = () => {
   const [events, setEvents] = useState([]);
@@ -17,8 +17,8 @@ const CalendarLeaveRequest = () => {
   // ================= FETCH DATA =================
   const fetchAvailability = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:4002/api/doctor/availability`,
+      const res = await apiClient.get(
+        `/doctor/availability`,
         { withCredentials: true },
       );
 
@@ -142,8 +142,8 @@ const CalendarLeaveRequest = () => {
     };
 
     try {
-      await axios.post(
-        "http://localhost:4002/api/doctor/leave-request",
+      await apiClient.post(
+        "/doctor/leave-request",
         payload,
         { withCredentials: true },
       );

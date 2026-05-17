@@ -1,6 +1,6 @@
+import { apiClient } from "../../../../../services/queryClient";
 import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
-import axios from "axios";
 
 const PatientChart = () => {
   const [pieData, setPieData] = useState([]);
@@ -8,7 +8,7 @@ const PatientChart = () => {
   useEffect(() => {
     const fetchSummary = async () => {
       try {
-        const response = await axios.get("http://localhost:4002/api/doctor/summary",{withCredentials:true});
+        const response = await apiClient.get("/doctor/summary",{withCredentials:true});
         
         const data = response.data;
 

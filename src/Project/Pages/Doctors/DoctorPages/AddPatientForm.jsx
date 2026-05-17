@@ -1,5 +1,5 @@
+import { apiClient } from "../../../../services/queryClient";
 import React, { useState } from "react";
-import axios from "axios";
 import {
   FaUser,
   FaEnvelope,
@@ -64,8 +64,8 @@ const AddPatientForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        "http://localhost:4002/api/doctor/createPatintes",
+      const res = await apiClient.post(
+        "/doctor/createPatintes",
         formData,
         { withCredentials: true }
       );

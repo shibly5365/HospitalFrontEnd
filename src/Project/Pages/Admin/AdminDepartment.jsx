@@ -1,6 +1,6 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 const AdminDepartment = () => {
   const navigate = useNavigate();
@@ -11,9 +11,9 @@ const AdminDepartment = () => {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/admin/getdepartmenst",
-          { withCredentials: true }
+        const res = await apiClient.get(
+          "/admin/getdepartmenst",
+          { withCredentials: true },
         );
         setDepartments(res.data.data); // backend should return array inside data
         setLoading(false);
@@ -28,8 +28,12 @@ const AdminDepartment = () => {
   }, []);
 
   if (loading) {
-    return <div className="p-8 text-lg font-medium">Loading departments...</div>;
+    return (
+      <div className="p-8 text-lg font-medium">Loading departments...</div>
+    );
   }
+  console.log(departments);
+  
 
   return (
     <div className="p-8">
@@ -85,14 +89,29 @@ const AdminDepartment = () => {
                 </div>
 
                 {/* See Detail Button */}
-                <button
-                  className="bg-blue-600 text-white px-5 py-2 rounded-xl text-sm hover:bg-blue-700"
-                  onClick={() =>
-                    navigate(`/admin/departmetsDetails/${dept._id || dept.id}`)
-                  }
-                >
-                  See Detail
-                </button>
+                <div className="flex gap-2">
+                  {/* Edit Button */}
+                  <button
+                    className="bg-yellow-500 text-white px-4 py-2 rounded-xl text-sm hover:bg-yellow-600"
+                    onClick={() =>
+                      navigate(`/admin/edit-department/${dept._id || dept.id}`)
+                    }
+                  >
+                    Edit
+                  </button>
+
+                  {/* See Detail Button */}
+                  <button
+                    className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-700"
+                    onClick={() =>
+                      navigate(
+                        `/admin/departmetsDetails/${dept._id || dept.id}`,
+                      )
+                    }
+                  >
+                    View
+                  </button>
+                </div>
               </div>
             </div>
           </div>

@@ -1,6 +1,6 @@
+import { apiClient } from "../../../../services/queryClient";
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import {
   ArrowLeft,
   Mail,
@@ -28,8 +28,8 @@ const ReceptionistDetails = () => {
   useEffect(() => {
     const fetchReceptionist = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:4002/api/admin/getAll-Receptionist/${id}`,
+        const res = await apiClient.get(
+          `/admin/getAll-Receptionist/${id}`,
           { withCredentials: true }
         );
         setReceptionist(res.data);

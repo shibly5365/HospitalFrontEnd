@@ -1,3 +1,4 @@
+import { apiClient } from "../../../services/queryClient";
 // DoctorAnalyticsDashboard.jsx
 import React, { useEffect, useState } from "react";
 
@@ -21,7 +22,6 @@ import CommonDiseases from "./DoctorPages/analytics/CommonDiseases";
 import CommunicationAnalytics from "./DoctorPages/analytics/CommunicationAnalytics";
 import PrescriptionAnalytics from "./DoctorPages/analytics/PrescriptionAnalytics";
 import AppointmentTrends from "./DoctorPages/analytics/AppointmentTrends";
-import axios from "axios";
 
 const DoctorAnalyticsDashboard = () => {
   const [timeframe, setTimeframe] = useState("monthly");
@@ -33,8 +33,8 @@ useEffect(() => {
     try {
       setLoading(true);
 
-      const res = await axios.get(
-        `http://localhost:4002/api/doctor/analytics?filter=${timeframe}`,
+      const res = await apiClient.get(
+        `/doctor/analytics?filter=${timeframe}`,
         { withCredentials: true }
       );
 

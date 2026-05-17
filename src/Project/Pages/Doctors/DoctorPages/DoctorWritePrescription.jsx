@@ -19,16 +19,6 @@ import {
 import { notify } from "../../../../Units/notification";
 
 export default function DoctorWritePrescription({ appointment }) {
-  if (!appointment) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-6">
-        <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-md border border-gray-100 p-6">
-          <p className="text-gray-600">Loading appointment...</p>
-        </div>
-      </div>
-    );
-  }
-
   // ---------------------------------------------------
   // Safe fallback appointment
   // ---------------------------------------------------
@@ -105,6 +95,16 @@ export default function DoctorWritePrescription({ appointment }) {
     consultationType: "Online",
     amount: "",
   });
+
+  if (!appointment) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-6">
+        <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-md border border-gray-100 p-6">
+          <p className="text-gray-600">Loading appointment...</p>
+        </div>
+      </div>
+    );
+  }
 
   // ---------------------------------------------------
   // Helpers

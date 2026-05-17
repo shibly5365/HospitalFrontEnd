@@ -10,7 +10,7 @@ import {
   XCircle,
   AlertCircle,
 } from "lucide-react";
-import VideoCallModal from "../../../Patients/pages/dashboard/VideoCallModal";
+import VideoCall from "../VideoCall";
 
 const AppointmentCard = ({ appointment, onUpdateStatus }) => {
   const [openVideo, setOpenVideo] = useState(false);
@@ -28,9 +28,7 @@ const AppointmentCard = ({ appointment, onUpdateStatus }) => {
 
   // ✅ SAFELY RESOLVE APPOINTMENT DATE (VERY IMPORTANT)
   const appointmentDateValue =
-    appointment.appointmentDate ||
-    appointment.date ||
-    appointment.createdAt;
+    appointment.appointmentDate || appointment.date || appointment.createdAt;
 
   const handleVideoCall = () => {
     setOpenVideo(true);
@@ -59,8 +57,7 @@ const AppointmentCard = ({ appointment, onUpdateStatus }) => {
     },
   };
 
-  const { bg, text, border } =
-    statusColors[status] || statusColors.Cancelled;
+  const { bg, text, border } = statusColors[status] || statusColors.Cancelled;
 
   return (
     <>
@@ -118,14 +115,13 @@ const AppointmentCard = ({ appointment, onUpdateStatus }) => {
       </div>
 
       {/* VIDEO CALL MODAL */}
-     <VideoCallModal
-  open={openVideo}
-  appointment={appointment}
-  role="doctor"
-  onClose={() => setOpenVideo(false)}
-  onCallEnd={() => setOpenVideo(false)}
-/>
-
+      <VideoCall
+        open={openVideo}
+        appointment={appointment}
+        role="doctor"
+        onClose={() => setOpenVideo(false)}
+        onCallEnd={() => setOpenVideo(false)}
+      />
     </>
   );
 };
@@ -136,14 +132,7 @@ export default AppointmentCard;
    SUB COMPONENTS
 ======================================================= */
 
-const PatientInfo = ({
-  patient,
-  reason,
-  notes,
-  isUrgent,
-  appointmentDate,
-}) => {
-  console.log("apoinndata", appointmentDate);
+const PatientInfo = ({ patient, reason, notes, isUrgent, appointmentDate }) => {
   return (
     <div className="flex items-start gap-4 flex-1">
       <div className="relative">
@@ -159,9 +148,7 @@ const PatientInfo = ({
       </div>
 
       <div>
-        <h3 className="text-xl font-bold text-gray-900">
-          {patient?.fullName}
-        </h3>
+        <h3 className="text-xl font-bold text-gray-900">{patient?.fullName}</h3>
 
         <p className="text-gray-600 text-sm">
           {patient?.age} yrs • {patient?.gender} • {patient?.phone}
@@ -177,24 +164,17 @@ const PatientInfo = ({
                 month: "short",
                 day: "numeric",
               })}{" "}
-
             </span>
           </p>
         )}
 
         <p className="text-gray-700 font-medium mt-1">{reason}</p>
 
-        {notes && (
-          <p className="text-gray-500 text-sm italic mt-1">
-            {notes}
-          </p>
-        )}
+        {notes && <p className="text-gray-500 text-sm italic mt-1">{notes}</p>}
       </div>
     </div>
   );
 };
-
-
 
 const ActionButtons = ({
   appointment,
@@ -203,56 +183,85 @@ const ActionButtons = ({
   onVideoCall,
   videoLoading,
 }) => {
-  const isConfirmedOnline =
-    appointment?.status === "Confirmed" &&
-    appointment?.consultationType === "Online";
+  // console.log("appoint",appointment?.status?.trim());
+
+  const status = appointment?.status?.trim();
+  const type = appointment?.consultationType?.trim();
+
+  console.log("status", status);
+  console.log("type", type);
+
+  const isConfirmedOnline = status === "Confirmed" && type === "Online";
+  console.log("faaaaa", isConfirmedOnline);
 
   return (
-    <div className="flex gap-2">
-      {appointment?.status === "Pending" && (
+    <div className="flex gap-2 relative z-10">
+      {/* ✅ PENDING */}
+      {status === "Pending" && (
         <>
           <button
+            type="button"
             onClick={() => onUpdateStatus(appointmentId, "Confirmed")}
-            className="p-2.5 bg-green-50 text-green-600 rounded-xl hover:bg-green-100"
+            className="p-2.5 bg-green-50 text-green-600 rounded-xl hover:bg-green-100 cursor-pointer"
           >
             <CheckCircle size={20} />
           </button>
+          {/* {console.log("faaaa",appointmentId)} */}
 
           <button
+            type="button"
             onClick={() => onUpdateStatus(appointmentId, "Cancelled")}
-            className="p-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-100"
+            className="p-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 cursor-pointer"
           >
             <XCircle size={20} />
           </button>
         </>
       )}
 
-      {appointment?.status === "Confirmed" && (
+      {/* ✅ CONFIRMED */}
+      {status === "Confirmed" && (
         <>
           {isConfirmedOnline && (
             <button
+              type="button"
               onClick={onVideoCall}
               disabled={videoLoading}
-              className={`p-2.5 rounded-xl ${videoLoading
+              className={`p-2.5 rounded-xl ${
+                videoLoading
                   ? "bg-gray-300 cursor-not-allowed"
-                  : "bg-blue-50 text-blue-600 hover:bg-blue-100"
-                }`}
+                  : "bg-blue-50 text-blue-600 hover:bg-blue-100 cursor-pointer"
+              }`}
             >
               <Video size={20} />
             </button>
           )}
 
-          <button className="p-2.5 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-100">
+          <button
+            type="button"
+            className="p-2.5 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-100"
+          >
             <Phone size={20} />
           </button>
         </>
       )}
+      {status === "Cancelled" && (
+        <div className="px-3 py-2 rounded-xl bg-red-100 text-red-700 text-sm font-semibold">
+          Appointment Cancelled
+        </div>
+      )}
 
-      <button className="p-2.5 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200">
+      {/* ALWAYS */}
+      <button
+        type="button"
+        className="p-2.5 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200"
+      >
         <MessageSquare size={20} />
       </button>
 
-      <button className="p-2.5 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200">
+      <button
+        type="button"
+        className="p-2.5 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200"
+      >
         <MoreVertical size={20} />
       </button>
     </div>

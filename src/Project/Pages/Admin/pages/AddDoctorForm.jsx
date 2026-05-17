@@ -1,13 +1,15 @@
+import { apiClient } from "../../../../services/queryClient";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import {
-  FaArrowLeft,
-  FaUser,
-  FaBuilding,
-  FaTrash,
-  FaCalendarAlt,
-} from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { FaArrowLeft, FaUser } from "react-icons/fa";
+import FormStepper from "./doctorsForm/FormStepper";
+import PersonalInfo from "./doctorsForm/PersonalInfo";
+import ProfessionalInfo from "./doctorsForm/ProfessionalInfo";
+import AvailabilityInfo from "./doctorsForm/AvailabilityInfo";
+import AdditionalInfo from "./doctorsForm/AdditionalInfo";
+import DoctorPreview from "./doctorsForm/DoctorPreview";
 
 const initialState = {
   fullName: "",
@@ -15,10 +17,14 @@ const initialState = {
   password: "",
   contact: "",
   profileImage: null,
+  profileImagePreview: null,
+  gender: "",
+  dateOfBirth: "",
   departmentName: "",
   specialization: "",
   qualification: "",
   experience: "",
+  medicalLicenseNumber: "",
   salary: "",
   consultationType: "",
   consultationFee: "",
@@ -26,19 +32,82 @@ const initialState = {
   status: true,
   days: [],
   slots: [{ from: "09:00", to: "10:00" }],
+  languages: [],
+  certifications: "",
+  tags: [],
 };
 
 const AddDoctorForm = () => {
   const navigate = useNavigate();
-  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const [formData, setFormData] = useState(initialState);
   const [departments, setDepartments] = useState([]);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (currentStep === 1) {
+      if (!formData.fullName) newErrors.fullName = "Full name is required";
+      if (!formData.email) newErrors.email = "Email is required";
+      else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email is invalid";
+      if (!formData.password) newErrors.password = "Password is required";
+      else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
+      if (!formData.contact) newErrors.contact = "Contact number is required";
+      else if (!/^[0-9]{10}$/.test(formData.contact)) newErrors.contact = "Invalid phone number";
+    }
+    
+    if (currentStep === 2) {
+      if (!formData.departmentName) newErrors.departmentName = "Department is required";
+      if (!formData.specialization) newErrors.specialization = "Specialization is required";
+      if (!formData.qualification) newErrors.qualification = "Qualification is required";
+      if (!formData.medicalLicenseNumber) newErrors.medicalLicenseNumber = "Medical license number is required";
+    }
+    
+    if (currentStep === 3) {
+      if (formData.days.length === 0) newErrors.days = "At least one working day is required";
+      formData.slots.forEach((slot, index) => {
+        if (!slot.from || !slot.to) {
+          newErrors[`slot_${index}`] = "Both start and end time are required";
+        } else if (slot.from >= slot.to) {
+          newErrors[`slot_${index}`] = "End time must be after start time";
+        }
+      });
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-  const handleProfileUpload = (e) =>
-    setFormData({ ...formData, profileImage: e.target.files[0] });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "contact") {
+      const formatted = value.replace(/\D/g, "").slice(0, 10);
+      setFormData({ ...formData, [name]: formatted });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
+    }
+  };
+
+  const handleProfileUpload = (file) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ 
+          ...formData, 
+          profileImage: file,
+          profileImagePreview: reader.result 
+        });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setFormData({ ...formData, profileImage: null, profileImagePreview: null });
+    }
+  };
 
   const handleDayToggle = (day) => {
     setFormData((prev) => ({
@@ -47,19 +116,42 @@ const AddDoctorForm = () => {
         ? prev.days.filter((d) => d !== day)
         : [...prev.days, day],
     }));
+    if (errors.days) setErrors({ ...errors, days: "" });
+  };
+
+  const handleLanguageToggle = (lang) => {
+    setFormData((prev) => ({
+      ...prev,
+      languages: prev.languages.includes(lang)
+        ? prev.languages.filter((l) => l !== lang)
+        : [...prev.languages, lang],
+    }));
+  };
+
+  const handleTagToggle = (tag) => {
+    setFormData((prev) => ({
+      ...prev,
+      tags: prev.tags.includes(tag)
+        ? prev.tags.filter((t) => t !== tag)
+        : [...prev.tags, tag],
+    }));
   };
 
   const handleSlotChange = (index, field, value) => {
     const updatedSlots = [...formData.slots];
     updatedSlots[index][field] = value;
     setFormData({ ...formData, slots: updatedSlots });
+    if (errors[`slot_${index}`]) {
+      setErrors({ ...errors, [`slot_${index}`]: "" });
+    }
   };
 
-  const addSlot = () =>
+  const addSlot = () => {
     setFormData({
       ...formData,
       slots: [...formData.slots, { from: "", to: "" }],
     });
+  };
 
   const removeSlot = (index) => {
     if (formData.slots.length > 1) {
@@ -69,412 +161,230 @@ const AddDoctorForm = () => {
     }
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const saveAsDraft = () => {
+    localStorage.setItem("doctorFormDraft", JSON.stringify(formData));
+    toast.success("Form saved as draft!");
+  };
 
-  try {
-    const formPayload = new FormData();
-
-    // Append all text fields
-    formPayload.append("fullName", formData.fullName);
-    formPayload.append("email", formData.email);
-    formPayload.append("password", formData.password);
-    formPayload.append("contact", formData.contact);
-    formPayload.append("departmentName", formData.departmentName);
-    formPayload.append("specialization", formData.specialization);
-    formPayload.append("qualification", formData.qualification);
-    formPayload.append("experience", formData.experience);
-    formPayload.append("salary", formData.salary);
-    formPayload.append("consultationType", formData.consultationType);
-    formPayload.append("consultationFee", formData.consultationFee);
-    formPayload.append("bio", formData.bio);
-    formPayload.append("status", formData.status ? "available" : "unavailable");
-
-    // Days and Slots as JSON strings
-    formPayload.append("availableDays", JSON.stringify(formData.days));
-    formPayload.append(
-      "availableSlots",
-      JSON.stringify(
-        formData.slots.map((s) => ({ start: s.from, end: s.to }))
-      )
-    );
-
-    // Append profile image if exists
-    if (formData.profileImage) {
-      formPayload.append("profileImage", formData.profileImage);
+  const loadDraft = () => {
+    const draft = localStorage.getItem("doctorFormDraft");
+    if (draft) {
+      setFormData(JSON.parse(draft));
+      toast.info("Draft loaded successfully");
     }
+  };
 
-    const res = await axios.post(
-      "http://localhost:4002/api/admin/create-Doctor",
-      formPayload,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
-        withCredentials: true,
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      toast.error("Please fix the errors before submitting");
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      const formPayload = new FormData();
+      
+      formPayload.append("fullName", formData.fullName);
+      formPayload.append("email", formData.email);
+      formPayload.append("password", formData.password);
+      formPayload.append("contact", formData.contact);
+      formPayload.append("departmentName", formData.departmentName);
+      formPayload.append("specialization", formData.specialization);
+      formPayload.append("qualification", formData.qualification);
+      formPayload.append("experience", formData.experience);
+      formPayload.append("salary", formData.salary);
+      formPayload.append("consultationType", formData.consultationType);
+      formPayload.append("consultationFee", formData.consultationFee);
+      formPayload.append("bio", formData.bio);
+      formPayload.append("status", formData.status ? "available" : "unavailable");
+      formPayload.append("gender", formData.gender);
+      formPayload.append("dateOfBirth", formData.dateOfBirth);
+      formPayload.append("medicalLicenseNumber", formData.medicalLicenseNumber);
+      formPayload.append("languages", JSON.stringify(formData.languages));
+      formPayload.append("certifications", formData.certifications);
+      formPayload.append("tags", JSON.stringify(formData.tags));
+      formPayload.append("availableDays", JSON.stringify(formData.days));
+      formPayload.append(
+        "availableSlots",
+        JSON.stringify(formData.slots.map((s) => ({ start: s.from, end: s.to })))
+      );
+      
+      if (formData.profileImage) {
+        formPayload.append("profileImage", formData.profileImage);
       }
-    );
+      
+      await apiClient.post(
+        "/admin/create-Doctor",
+        formPayload,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true,
+        }
+      );
+      
+      toast.success("Doctor created successfully!");
+      localStorage.removeItem("doctorFormDraft");
+      setTimeout(() => navigate("/admin/admin-doctorDetails"), 1500);
+    } catch (err) {
+      console.error("Error creating doctor:", err);
+      toast.error(err.response?.data?.message || "Failed to create doctor");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    console.log("✅ Doctor created:", res.data);
-    navigate("/admin/admin-doctorDetails");
-  } catch (err) {
-    console.error("❌ Error creating doctor:", err.response?.data || err.message);
-    alert(err.response?.data?.message || "Failed to create doctor");
-  }
-};
+  const nextStep = () => {
+    if (validateForm()) {
+      setCurrentStep(currentStep + 1);
+      window.scrollTo(0, 0);
+    }
+  };
 
+  const prevStep = () => {
+    setCurrentStep(currentStep - 1);
+    window.scrollTo(0, 0);
+  };
 
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/admin/getdepartmenst",
-          {
-            withCredentials: true,
-          }
+        const res = await apiClient.get(
+          "/admin/getdepartmenst",
+          { withCredentials: true }
         );
         setDepartments(res.data.data);
-        // console.log(res.data.data);
       } catch (err) {
         console.error("Failed to fetch departments:", err);
       }
     };
     fetchDepartments();
+    loadDraft();
   }, []);
 
-  const resetForm = () => setFormData(initialState);
-
   return (
-    <div className="w-full max-w-[80%] mx-auto bg-gradient-to-b from-green-50 to-white shadow-xl rounded-2xl p-10 mt-10 mb-10 space-y-10 relative">
-      {/* Back Button */}
-      <button
-        onClick={() => navigate(-1)}
-        className="absolute top-4 left-4 flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg shadow hover:bg-gray-200"
-      >
-        <FaArrowLeft /> Back
-      </button>
-
-      {/* Header */}
-      <div className="text-center mt-6">
-        <div className="bg-green-500 text-white p-5 rounded-full w-fit mx-auto shadow-md">
-          <FaUser className="text-4xl" />
-        </div>
-        <h2 className="text-3xl font-bold mt-4">Add New Doctor</h2>
-        <p className="text-gray-500 mt-2">
-          Create a new doctor profile for the healthcare system
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-10">
-        {/* Basic Info */}
-        <div>
-          <h3 className="text-xl font-semibold mb-6 flex items-center gap-3 text-green-600">
-            <FaUser /> Basic Information
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Full Name
-              </label>
-              <input
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                className="p-3 border rounded-lg w-full"
-                placeholder="Enter doctor's full name"
-                required
-              />
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <ToastContainer position="top-right" autoClose={3000} />
+      
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+          >
+            <FaArrowLeft /> Back to Doctors
+          </button>
+          
+          <div className="text-center">
+            <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-full w-fit mx-auto shadow-lg">
+              <FaUser className="text-3xl" />
             </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Email Address
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="p-3 border rounded-lg w-full"
-                placeholder="Enter email address"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Password
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="p-3 border rounded-lg w-full"
-                placeholder="Create a secure password"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Contact Number
-              </label>
-              <input
-                type="text"
-                name="contact"
-                value={formData.contact}
-                onChange={handleChange}
-                className="p-3 border rounded-lg w-full"
-                placeholder="Enter contact number"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Specialization
-              </label>
-              <input
-                type="text"
-                name="specialization"
-                value={formData.specialization}
-                onChange={handleChange}
-                className="p-3 border rounded-lg w-full"
-                placeholder="Enter specialization"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Profile Upload */}
-          <div className="mt-6">
-            <label className="block text-gray-700 font-medium mb-2">
-              Profile Image
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleProfileUpload}
-              className="w-full p-3 border rounded-lg cursor-pointer"
-            />
-            {formData.profileImage && (
-              <p className="mt-2 text-green-500 font-medium">
-                {formData.profileImage.name}
-              </p>
-            )}
+            <h1 className="text-3xl font-bold text-gray-900 mt-4">Add New Doctor</h1>
+            <p className="text-gray-500 mt-2">Create a comprehensive doctor profile</p>
           </div>
         </div>
 
-        {/* Professional Info */}
-        <div>
-          <h3 className="text-xl font-semibold mb-6 flex items-center gap-2 text-purple-600">
-            <FaBuilding /> Professional Information
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block mb-2 font-medium">Department</label>
-              <select
-                name="departmentName"
-                value={formData.departmentName}
-                onChange={handleChange}
-                className="p-3 border rounded-lg w-full"
-                required
-              >
-                <option value="">Select department</option>
-                {departments.map((dep) => (
-                  <option key={dep._id} value={dep.name}>
-                    {dep.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Qualification
-              </label>
-              <input
-                type="text"
-                name="qualification"
-                value={formData.qualification}
-                onChange={handleChange}
-                className="p-3 border rounded-lg w-full"
-                placeholder="e.g., MBBS, MD, PhD"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Experience (Years)
-              </label>
-              <input
-                type="number"
-                name="experience"
-                value={formData.experience}
-                onChange={handleChange}
-                className="p-3 border rounded-lg w-full"
-                placeholder="Years of experience"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Salary (Annual)
-              </label>
-              <input
-                type="number"
-                name="salary"
-                value={formData.salary}
-                onChange={handleChange}
-                className="p-3 border rounded-lg w-full"
-                placeholder="Annual salary"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Consultation Type
-              </label>
-              <select
-                name="consultationType"
-                value={formData.consultationType}
-                onChange={handleChange}
-                className="p-3 border rounded-lg w-full"
-              >
-                <option value="">Select consultation type</option>
-                <option value="online">Online</option>
-                <option value="offline">In-person</option>{" "}
-                {/* value must be "offline" */}
-              </select>
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Consultation Fee
-              </label>
-              <input
-                type="number"
-                name="consultationFee"
-                value={formData.consultationFee}
-                onChange={handleChange}
-                className="p-3 border rounded-lg w-full"
-                placeholder="Fee per consultation"
-              />
-            </div>
-          </div>
-        </div>
+        <FormStepper currentStep={currentStep} />
 
-        {/* Availability */}
-        <div>
-          <h3 className="text-xl font-semibold mb-6 flex items-center gap-2 text-pink-600">
-            <FaCalendarAlt /> Availability & Settings
-          </h3>
-
-          {/* Days */}
-          <div className="flex gap-2 mb-6 flex-wrap">
-            {days.map((day) => (
-              <button
-                type="button"
-                key={day}
-                onClick={() => handleDayToggle(day)}
-                className={`px-4 py-2 rounded-lg text-sm min-w-[60px] ${
-                  formData.days.includes(day)
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-100 text-gray-700"
-                }`}
-              >
-                {day}
-              </button>
-            ))}
-          </div>
-
-          {/* Time Slots */}
-          <div className="space-y-3">
-            {formData.slots.map((slot, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <input
-                  type="time"
-                  value={slot.from}
-                  onChange={(e) =>
-                    handleSlotChange(index, "from", e.target.value)
-                  }
-                  className="p-2 border rounded-lg"
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Form Section */}
+          <div className="lg:col-span-2">
+            <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+              {currentStep === 1 && (
+                <PersonalInfo
+                  formData={formData}
+                  errors={errors}
+                  handleChange={handleChange}
+                  handleProfileUpload={handleProfileUpload}
                 />
-                <span>to</span>
-                <input
-                  type="time"
-                  value={slot.to}
-                  onChange={(e) =>
-                    handleSlotChange(index, "to", e.target.value)
-                  }
-                  className="p-2 border rounded-lg"
+              )}
+
+              {currentStep === 2 && (
+                <ProfessionalInfo
+                  formData={formData}
+                  errors={errors}
+                  handleChange={handleChange}
+                  departments={departments}
                 />
-                {formData.slots.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeSlot(index)}
-                    className="text-red-500"
-                  >
-                    <FaTrash />
-                  </button>
-                )}
+              )}
+
+              {currentStep === 3 && (
+                <AvailabilityInfo
+                  formData={formData}
+                  errors={errors}
+                  handleChange={handleChange}
+                  handleDayToggle={handleDayToggle}
+                  handleSlotChange={handleSlotChange}
+                  addSlot={addSlot}
+                  removeSlot={removeSlot}
+                />
+              )}
+
+              {currentStep === 4 && (
+                <AdditionalInfo
+                  formData={formData}
+                  handleChange={handleChange}
+                  handleLanguageToggle={handleLanguageToggle}
+                  handleTagToggle={handleTagToggle}
+                  languagesList={["English", "Hindi", "Spanish", "French", "German", "Arabic", "Chinese"]}
+                  tagsList={["Senior", "Emergency Specialist", "Pediatrician", "Surgeon", "Consultant"]}
+                />
+              )}
+
+              {/* Navigation Buttons */}
+              <div className="flex justify-between gap-4 mt-8 pt-6 border-t">
+                <div>
+                  {currentStep > 1 && (
+                    <button
+                      type="button"
+                      onClick={prevStep}
+                      className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                    >
+                      Previous
+                    </button>
+                  )}
+                </div>
+                <div className="flex gap-3">
+                  {currentStep < 4 ? (
+                    <button
+                      type="button"
+                      onClick={nextStep}
+                      className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                    >
+                      Next
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={saveAsDraft}
+                        className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
+                      >
+                        Save as Draft
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="px-8 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {loading ? "Creating..." : "Create Doctor"}
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
-            ))}
-            <button
-              type="button"
-              onClick={addSlot}
-              className="px-4 py-2 bg-green-100 text-green-600 rounded-lg mt-2"
-            >
-              + Add Slot
-            </button>
+            </form>
           </div>
 
-          {/* Bio */}
-          <div className="mt-6">
-            <label className="block text-gray-700 font-medium mb-2">
-              Professional Bio
-            </label>
-            <textarea
-              name="bio"
-              value={formData.bio}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg"
-              rows={4}
-              placeholder="Enter doctor's professional bio, specialization, and background..."
-            />
-          </div>
-
-          {/* Status */}
-          <div className="flex items-center gap-3 mt-6">
-            <label className="flex items-center gap-2 text-green-600 font-medium">
-              <input
-                type="checkbox"
-                checked={formData.status}
-                onChange={() =>
-                  setFormData({ ...formData, status: !formData.status })
-                }
-                className="w-5 h-5"
-              />
-              Active – Doctor can receive appointments
-            </label>
+          {/* Preview Section */}
+          <div className="lg:col-span-1">
+            <DoctorPreview formData={formData} />
           </div>
         </div>
-
-        {/* Buttons */}
-        <div className="flex justify-end gap-4">
-          <button
-            type="submit"
-            className="px-6 py-3 bg-green-500 text-white rounded-lg"
-          >
-            Create Doctor Profile
-          </button>
-          <button
-            type="reset"
-            onClick={resetForm}
-            className="px-6 py-3 bg-gray-100 text-gray-600 rounded-lg"
-          >
-            Reset Form
-          </button>
-          <button
-            type="button"
-            className="px-6 py-3 bg-red-100 text-red-600 rounded-lg"
-            onClick={() => navigate("/admin/doctors")}
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 };

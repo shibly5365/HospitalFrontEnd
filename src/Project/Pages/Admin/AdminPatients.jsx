@@ -1,6 +1,6 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useEffect, useState } from "react";
 import { Search, UserPlus, Eye, Edit, Trash2 } from "lucide-react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { notify } from "../../../Units/notification";
 import toast from "react-hot-toast";
@@ -14,8 +14,8 @@ const AdminPatients = () => {
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/admin/getAll-patients",
+        const res = await apiClient.get(
+          "/admin/getAll-patients",
           { withCredentials: true },
         );
         console.log("res", res.data);
@@ -53,8 +53,8 @@ const AdminPatients = () => {
               className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
               onClick={async () => {
                 try {
-                  const res = await axios.delete(
-                    `http://localhost:4002/api/admin/delete-patients/${id}`,
+                  const res = await apiClient.delete(
+                    `/admin/delete-patients/${id}`,
                     { withCredentials: true },
                   );
 

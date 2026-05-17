@@ -1,3 +1,4 @@
+import { apiClient } from "../../../services/queryClient";
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
@@ -13,7 +14,6 @@ import {
   LogOut,
   Headset,
 } from "lucide-react";
-import axios from "axios";
 import { useAuth } from "../../Components/AuthContext";
 
 // ✅ IMPORT FIX (VERY IMPORTANT)
@@ -28,8 +28,8 @@ const AdminSidebar = () => {
 
     try {
       // ✅ optional (you already have logout in context)
-      await axios.post(
-        "http://localhost:4002/api/admin/admin-logout",
+      await apiClient.post(
+        "/admin/admin-logout",
         {},
         { withCredentials: true },
       );
@@ -92,20 +92,19 @@ const AdminSidebar = () => {
           text="Doctors’ Schedule"
         />
         <SidebarItem
-          to="/admin/payments"
+          to="/admin/admin-payments"
           icon={<CreditCard />}
           text="Payments"
         />
-        <SidebarItem
+        {/* <SidebarItem
           to="/admin/inventory"
           icon={<Package />}
           text="Inventory"
-        />
+        /> */}
         <SidebarItem
-          to="/admin/messages"
+          to="/admin/admin-messages"
           icon={<MessageSquare />}
           text="Messages"
-          badge={7}
         />
       </nav>
 

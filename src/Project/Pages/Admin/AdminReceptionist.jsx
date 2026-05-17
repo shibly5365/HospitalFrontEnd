@@ -1,5 +1,5 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useEffect, useState, useMemo } from "react";
-import axios from "axios";
 import { 
   FaEye, 
   FaEdit, 
@@ -34,8 +34,8 @@ const AdminReceptionist = () => {
     const fetchReceptionists = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(
-          "http://localhost:4002/api/admin/getAll-Receptionist",
+        const res = await apiClient.get(
+          "/admin/getAll-Receptionist",
           { withCredentials: true }
         );
 
@@ -60,8 +60,8 @@ const AdminReceptionist = () => {
     if (!confirmDelete) return;
 
     try {
-      const res = await axios.delete(
-        `http://localhost:4002/api/admin/deleted-Receptionist/${id}`,
+      const res = await apiClient.delete(
+        `/admin/deleted-Receptionist/${id}`,
         { withCredentials: true }
       );
       

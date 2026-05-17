@@ -1,16 +1,25 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useEffect, useState } from "react";
 import {
-  Search,
-  UserPlus,
-  Edit,
-  Trash2,
   Bell,
   Settings,
-  ChevronUp,
-  ChevronDown,
+  Users,
+  UserCheck,
+  UserX,
+  Calendar,
 } from "lucide-react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Toast from "./pages/ShowDoctors/Toast";
+import DeleteConfirmModal from "./pages/ShowDoctors/DeleteConfirmModal";
+import StatsCard from "./pages/ShowDoctors/StatsCard";
+import DoctorFilters from "./pages/ShowDoctors/DoctorFilters";
+import TableSkeleton from "./pages/ShowDoctors/TableSkeleton";
+import DoctorTable from "./pages/ShowDoctors/DoctorTable";
+import Pagination from "./pages/ShowDoctors/Pagination";
+import EmptyState from "./pages/ShowDoctors/EmptyState";
+import MobileDoctorCard from "./pages/ShowDoctors/MobileDoctorCard";
+
+// Import components
 
 const AdminDoctors = () => {
   const [doctors, setDoctors] = useState([]);
@@ -18,6 +27,12 @@ const AdminDoctors = () => {
   const [specialists, setSpecialists] = useState([]);
   const [statuses] = useState(["available", "unavailable"]);
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    doctorId: null,
+    doctorName: "",
+  });
 
   const [search, setSearch] = useState("");
   const [selectedDept, setSelectedDept] = useState("");
@@ -26,19 +41,31 @@ const AdminDoctors = () => {
   const navigate = useNavigate();
 
   const [currentPage, setCurrentPage] = useState(1);
-  const doctorsPerPage = 13;
+  const doctorsPerPage = 10;
+
+  // Stats
+  const totalDoctors = doctors.length;
+  const availableDoctors = doctors.filter(
+    (d) => d.status === "available",
+  ).length;
+  const unavailableDoctors = doctors.filter(
+    (d) => d.status === "unavailable",
+  ).length;
+  const totalAppointmentsToday = doctors.reduce(
+    (sum, d) => sum + (d.todaysAppointments || 0),
+    0,
+  );
 
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:4002/api/admin/getAll-Doctor",
-          { withCredentials: true }
+        const res = await apiClient.get(
+          "/admin/getAll-Doctor",
+          { withCredentials: true },
         );
 
         const doctorsData =
           res.data.Doctors || res.data.doctors || res.data || [];
-
         setDoctors(doctorsData);
 
         const deptList = [
@@ -46,7 +73,7 @@ const AdminDoctors = () => {
         ];
         const specList = [
           ...new Set(
-            doctorsData.map((doc) => doc.specialization).filter(Boolean)
+            doctorsData.map((doc) => doc.specialization).filter(Boolean),
           ),
         ];
 
@@ -62,30 +89,48 @@ const AdminDoctors = () => {
     fetchDoctors();
   }, []);
 
-  const handleEdit = (id) => {
-    alert(`Edit doctor ${id}`);
+  const showToast = (message, type) => {
+    setToast({ message, type });
   };
 
-  console.log(doctors);
+  const handleEdit = (id) => {
+    navigate(`/admin/doctorForm/${id}`);
+  };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this doctor?")) {
-      try {
-        await axios.delete(
-          `http://localhost:4002/api/admin/delete-Doctor/${id}`,
-          { withCredentials: true }
-        );
-        setDoctors(doctors.filter((doc) => doc._id !== id));
-      } catch (err) {
-        console.error("Error deleting doctor:", err);
-      }
+  const handleDeleteClick = (id, name) => {
+    setDeleteModal({ isOpen: true, doctorId: id, doctorName: name });
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await apiClient.delete(
+        `/admin/delete-Doctor/${deleteModal.doctorId}`,
+        { withCredentials: true },
+      );
+      setDoctors(doctors.filter((doc) => doc._id !== deleteModal.doctorId));
+      showToast("Doctor deleted successfully", "success");
+    } catch (err) {
+      console.error("Error deleting doctor:", err);
+      showToast("Failed to delete doctor", "error");
+    } finally {
+      setDeleteModal({ isOpen: false, doctorId: null, doctorName: "" });
     }
   };
 
+  const clearFilters = () => {
+    setSearch("");
+    setSelectedDept("");
+    setSelectedSpec("");
+    setSelectedStatus("");
+    setCurrentPage(1);
+  };
+
   const filteredDoctors = doctors.filter((doc) => {
-    const matchesSearch = (doc.userId?.fullName || "")
-      .toLowerCase()
-      .includes(search.toLowerCase());
+    const fullName = (doc.userId?.fullName || doc.name || "").toLowerCase();
+    const specialization = (doc.specialization || "").toLowerCase();
+    const matchesSearch =
+      fullName.includes(search.toLowerCase()) ||
+      specialization.includes(search.toLowerCase());
 
     const matchesDept = selectedDept ? doc.department === selectedDept : true;
     const matchesSpec = selectedSpec
@@ -100,228 +145,227 @@ const AdminDoctors = () => {
   const indexOfFirstDoctor = indexOfLastDoctor - doctorsPerPage;
   const currentDoctors = filteredDoctors.slice(
     indexOfFirstDoctor,
-    indexOfLastDoctor
+    indexOfLastDoctor,
   );
   const totalPages = Math.ceil(filteredDoctors.length / doctorsPerPage);
 
   return (
-    <div className="p-6 bg-white min-h-screen">
-      {/* 🔹 Top Bar with Heading + Profile */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Doctors</h1>
+    <div className="bg-gray-50 min-h-screen font-sans">
+      {/* Toast Notifications */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
 
-        <div className="flex items-center space-x-4">
-          {/* Settings */}
-          <button className="p-2 rounded-full hover:bg-gray-100">
-            <Settings size={22} className="text-gray-600" />
-          </button>
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={() =>
+          setDeleteModal({ isOpen: false, doctorId: null, doctorName: "" })
+        }
+        onConfirm={handleDeleteConfirm}
+        doctorName={deleteModal.doctorName}
+      />
 
-          {/* Notifications */}
-          <button className="p-2 rounded-full hover:bg-gray-100 relative">
-            <Bell size={22} className="text-gray-600" />
-            {/* Notification dot */}
-            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
-          </button>
+      {/* Doctor Details Drawer */}
 
-          {/* Profile */}
-          <div className="flex items-center space-x-2 cursor-pointer">
-            <img
-              src="https://via.placeholder.com/40"
-              alt="Admin"
-              className="w-10 h-10 rounded-full border"
-            />
-            <span className="font-medium text-gray-700">Admin</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 🔹 Main Box */}
-      <div className="bg-gray-200 shadow-lg rounded-xl p-6 gap-6">
-        {/* Toolbar */}
-        <div className="flex justify-between items-center mb-6">
-          {/* Left Side: Search + Filters */}
-          <div className="flex items-center space-x-3">
-            {/* Search */}
-            <div className="flex items-center border rounded-xl bg-gray-50 px-3 py-2">
-              <Search size={18} className="text-gray-500 mr-2" />
-              <input
-                type="text"
-                placeholder="Search doctors..."
-                className="outline-none text-sm bg-transparent"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+      {/* Main Content Container */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+                Doctors
+              </h1>
+              <p className="text-sm text-gray-500 mt-1">
+                Manage all registered doctors and their availability
+              </p>
             </div>
 
-            {/* Department Filter */}
-            <select
-              value={selectedDept}
-              onChange={(e) => setSelectedDept(e.target.value)}
-              className="px-4 py-2 bg-gray-50 border rounded-xl text-sm"
-            >
-              <option value="">All Departments</option>
-              {departments.map((dept, i) => (
-                <option key={i} value={dept}>
-                  {dept}
-                </option>
-              ))}
-            </select>
-
-            {/* Specialist Filter */}
-            <select
-              value={selectedSpec}
-              onChange={(e) => setSelectedSpec(e.target.value)}
-              className="px-4 py-2 bg-gray-50 border rounded-xl text-sm"
-            >
-              <option value="">All Specialists</option>
-              {specialists.map((spec, i) => (
-                <option key={i} value={spec}>
-                  {spec}
-                </option>
-              ))}
-            </select>
-
-            {/* Status Filter */}
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-4 py-2 bg-gray-50 border rounded-xl text-sm"
-            >
-              <option value="">All Status</option>
-              {statuses.map((stat, i) => (
-                <option key={i} value={stat}>
-                  {stat}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center gap-3">
+              <button className="p-2 rounded-xl hover:bg-gray-100 transition-colors relative">
+                <Bell size={20} className="text-gray-600" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+              </button>
+              <button className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
+                <Settings size={20} className="text-gray-600" />
+              </button>
+              <div className="flex items-center gap-2 pl-2 border-l border-gray-200">
+                <img
+                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop"
+                  alt="Admin"
+                  className="w-9 h-9 rounded-full object-cover ring-2 ring-gray-200"
+                />
+                <span className="font-medium text-gray-700 hidden sm:inline">
+                  Admin
+                </span>
+              </div>
+            </div>
           </div>
-
-          {/* Right Side: Add Doctor */}
-          <button
-            className="flex items-center px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800"
-            onClick={() => navigate("/admin/doctorForm")}
-          >
-            <UserPlus size={18} className="mr-2" /> Add Doctor
-          </button>
         </div>
 
-        {/* Doctors Table */}
-        <div className=" p-4 rounded-lg">
-          <div className="overflow-x-auto bg-white rounded shadow">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <StatsCard
+            title="Total Doctors"
+            value={totalDoctors}
+            icon={Users}
+            color="blue"
+          />
+          <StatsCard
+            title="Available Doctors"
+            value={availableDoctors}
+            icon={UserCheck}
+            color="green"
+          />
+          <StatsCard
+            title="Unavailable Doctors"
+            value={unavailableDoctors}
+            icon={UserX}
+            color="red"
+          />
+          <StatsCard
+            title="Today's Appointments"
+            value={totalAppointmentsToday}
+            icon={Calendar}
+            color="purple"
+          />
+        </div>
+
+        {/* Main Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Toolbar */}
+          <div className="p-4 sm:p-6 border-b border-gray-100">
+            <DoctorFilters
+              search={search}
+              setSearch={setSearch}
+              selectedDept={selectedDept}
+              setSelectedDept={setSelectedDept}
+              selectedSpec={selectedSpec}
+              setSelectedSpec={setSelectedSpec}
+              selectedStatus={selectedStatus}
+              setSelectedStatus={setSelectedStatus}
+              departments={departments}
+              specialists={specialists}
+              statuses={statuses}
+              clearFilters={clearFilters}
+              onAddDoctor={() => navigate("/admin/doctorForm")}
+            />
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block">
             {loading ? (
-              <p className="p-4 text-gray-500">Loading doctors...</p>
-            ) : currentDoctors.length === 0 ? (
-              <p className="p-4 text-gray-500">No doctors found.</p>
+              <TableSkeleton />
+            ) : filteredDoctors.length === 0 ? (
+              <EmptyState onAdd={() => navigate("/admin/doctorForm")} />
             ) : (
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-sm font-medium">
-                      <div className="flex items-center gap-2">
-                        <span>Name</span>
-                        <div className="flex flex-col gap-0">
-                          <ChevronUp size={8} />
-                          <ChevronDown size={8} />
-                        </div>
-                      </div>
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-medium">
-                      Doctor ID
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-medium">
-                      Department
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-medium">
-                      Specialist
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-medium">
-                      Total Patients
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-medium">
-                      Today's Appointments
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-medium">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-medium">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {currentDoctors.map((doc, i) => (
-                    <tr key={doc._id || i}>
-                      <td className="px-6 py-4 flex items-center gap-3">
-                        <img
-                          src={
-                            doc.profileImage || "https://via.placeholder.com/40"
-                          }
-                          alt={doc.name || "Doctor"}
-                          className="w-10 h-10 rounded-full border object-cover"
-                        />
-                        <span>{doc.name || "N/A"}</span>
-                      </td>
-                      <td className="px-6 py-4">{doc.doctorId}</td>
-                      <td className="px-6 py-4">{doc.department || "N/A"}</td>
-                      <td className="px-6 py-4">
-                        {doc.specialization || "N/A"}
-                      </td>
-                      <td className="px-6 py-4">{doc.totalPatients || 0}</td>
-                      <td className="px-6 py-4">
-                        {doc.todaysAppointments || 0}
-                      </td>
-                      <td className="px-6 py-4">
-                        {doc.status === "available" ? (
-                          <span className="px-3 py-1 bg-green-100 text-green-700 rounded-xl text-sm">
-                            Available
-                          </span>
-                        ) : (
-                          <span className="px-3 py-1 bg-red-100 text-red-700 rounded-xl text-sm">
-                            Unavailable
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 flex space-x-3">
-                        <button
-                          onClick={() => handleEdit(doc._id)}
-                          className="text-black hover:text-blue-800"
-                        >
-                          <Edit size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(doc._id)}
-                          className="text-bl hover:text-red-800"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <>
+                <DoctorTable
+                  doctors={currentDoctors}
+                  onEdit={handleEdit}
+                  onDelete={handleDeleteClick}
+                />
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              </>
             )}
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center mt-4 space-x-2">
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentPage(i + 1)}
-                  className={`px-3 py-1 rounded-lg border ${
-                    currentPage === i + 1
-                      ? "bg-black text-white"
-                      : "bg-white text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
-          )}
+          {/* Mobile Card View */}
+          <div className="md:hidden p-4 space-y-4">
+            {loading ? (
+              <TableSkeleton />
+            ) : filteredDoctors.length === 0 ? (
+              <EmptyState onAdd={() => navigate("/admin/doctorForm")} />
+            ) : (
+              <>
+                {currentDoctors.map((doc) => (
+                  <MobileDoctorCard
+                    key={doc._id}
+                    doctor={doc}
+                    onEdit={handleEdit}
+                    onDelete={handleDeleteClick}
+                  />
+                ))}
+                {/* Mobile Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center items-center gap-3 pt-4">
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="px-3 py-1.5 rounded-lg text-sm disabled:opacity-40 hover:bg-gray-100 transition-colors"
+                    >
+                      Previous
+                    </button>
+                    <span className="text-sm text-gray-600">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      onClick={() =>
+                        setCurrentPage((p) => Math.min(totalPages, p + 1))
+                      }
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-1.5 rounded-lg text-sm disabled:opacity-40 hover:bg-gray-100 transition-colors"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes slide-up {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes slide-in-right {
+          from {
+            opacity: 0;
+            transform: translateX(100%);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        .animate-slide-up {
+          animation: slide-up 0.3s ease-out;
+        }
+        .animate-slide-in-right {
+          animation: slide-in-right 0.3s ease-out;
+        }
+        .animate-fade-in {
+          animation: fade-in 0.2s ease-out;
+        }
+      `}</style>
     </div>
   );
 };
