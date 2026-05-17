@@ -1,3 +1,4 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useState, useEffect } from "react";
 import {
   Pencil,
@@ -15,7 +16,6 @@ import {
   Calendar,
   Activity,
 } from "lucide-react";
-import axios from "axios";
 import { notify } from "../../../Units/notification";
 import { useNavigate } from "react-router-dom";
 
@@ -41,8 +41,8 @@ const CreateAdmin = () => {
 
   const fetchAdmins = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:4002/api/superadmin/getall-admin",
+      const res = await apiClient.get(
+        "/superadmin/getall-admin",
         { withCredentials: true }
       );
       setAdmins(res.data || []);
@@ -75,8 +75,8 @@ const CreateAdmin = () => {
 
       if (editingAdmin) {
         // Update admin
-        const res = await axios.put(
-          `http://localhost:4002/api/superadmin/updated-admin/${editingAdmin._id}`,
+        const res = await apiClient.put(
+          `/superadmin/updated-admin/${editingAdmin._id}`,
           formData,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -91,8 +91,8 @@ const CreateAdmin = () => {
         notify.success("Admin updated successfully");
       } else {
         // Create admin
-        const res = await axios.post(
-          "http://localhost:4002/api/superadmin/create-admin",
+        const res = await apiClient.post(
+          "/superadmin/create-admin",
           formData,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -113,8 +113,8 @@ const CreateAdmin = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this admin?")) return;
     try {
-      await axios.delete(
-        `http://localhost:4002/api/superadmin/delete-admin/${id}`,
+      await apiClient.delete(
+        `/superadmin/delete-admin/${id}`,
         { withCredentials: true }
       );
       setAdmins((prev) => prev.filter((admin) => admin._id !== id));
@@ -127,8 +127,8 @@ const CreateAdmin = () => {
 
   const handleToggleBlock = async (id, currentStatus) => {
     try {
-      const res = await axios.put(
-        `http://localhost:4002/api/superadmin/toggle-block-admin/${id}`,
+      const res = await apiClient.put(
+        `/superadmin/toggle-block-admin/${id}`,
         {},
         { withCredentials: true }
       );

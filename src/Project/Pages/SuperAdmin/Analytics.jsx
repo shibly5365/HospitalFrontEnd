@@ -1,5 +1,5 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import {
   BarChart3,
   TrendingUp,
@@ -58,8 +58,8 @@ function Analytics() {
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(
-        `http://localhost:4002/api/superadmin/analytics?period=${period}`,
+      const res = await apiClient.get(
+        `/superadmin/analytics?period=${period}`,
         { withCredentials: true }
       );
       setAnalytics(res.data.data);

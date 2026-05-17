@@ -1,3 +1,4 @@
+import { apiClient } from "../../../services/queryClient";
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
@@ -8,7 +9,6 @@ import {
   Settings,
   Users2,
 } from "lucide-react";
-import axios from "axios";
 import { useAuth } from "../../Components/AuthContext";
 
 function SuperAdminSidebar() {
@@ -19,8 +19,8 @@ function SuperAdminSidebar() {
     const confirmed = window.confirm("Are you sure you want to logout?");
     if (!confirmed) return;
     try {
-      const response = await axios.post(
-        "http://localhost:4002/api/superadmin/Superadmin-logout",
+      const response = await apiClient.post(
+        "/superadmin/Superadmin-logout",
         {},
         { withCredentials: true } // needed for cookies
       );

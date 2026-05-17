@@ -1,5 +1,5 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import {
   Users,
   UserCheck,
@@ -55,8 +55,8 @@ function SuperAdminDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:4002/api/superadmin/dashboard",
+      const response = await apiClient.get(
+        "/superadmin/dashboard",
         { withCredentials: true }
       );
       setDashboardData(response.data.data);

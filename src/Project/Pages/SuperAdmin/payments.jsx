@@ -1,5 +1,5 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import {
   DollarSign,
   Search,
@@ -67,8 +67,8 @@ function Payments() {
   const fetchPaymentsData = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(
-        "http://localhost:4002/api/superadmin/payments?limit=1000",
+      const res = await apiClient.get(
+        "/superadmin/payments?limit=1000",
         { withCredentials: true }
       );
       setStatistics(res.data.data.statistics);
@@ -91,8 +91,8 @@ function Payments() {
       if (filters.status) params.append("status", filters.status);
       if (filters.method) params.append("method", filters.method);
 
-      const res = await axios.get(
-        `http://localhost:4002/api/superadmin/payments/doctor/${doctorId}?${params.toString()}`,
+      const res = await apiClient.get(
+        `/superadmin/payments/doctor/${doctorId}?${params.toString()}`,
         { withCredentials: true }
       );
       setSelectedDoctor(res.data.data.doctor);

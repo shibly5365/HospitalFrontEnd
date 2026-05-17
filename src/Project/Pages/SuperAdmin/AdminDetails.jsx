@@ -1,6 +1,6 @@
+import { apiClient } from "../../../services/queryClient";
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import {
   ArrowLeft,
   User,
@@ -31,8 +31,8 @@ const AdminDetails = () => {
 
   const fetchAdminDetails = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:4002/api/superadmin/admin-details/${id}`,
+      const res = await apiClient.get(
+        `/superadmin/admin-details/${id}`,
         { withCredentials: true }
       );
       setAdminData(res.data.data);
