@@ -1,16 +1,26 @@
-import axios from "axios";
+import { apiClient } from "../../../services/queryClient";
 
-const API_BASE = "http://localhost:4002/api";
-
-const config = {
-  withCredentials: true,
+// ✅ JOIN CALL (instead of createVideoCall)
+export const createVideoCall = (appointmentId, role) => {
+  return apiClient.get(
+    `/${role}/appointments/${appointmentId}/join-call`,
+    { withCredentials: true }
+  );
 };
 
-export const getVideoCallStatus = (appointmentId) =>
-  axios.get(`${API_BASE}/video-call-status/${appointmentId}`, config);
+// ✅ GET STATUS (optional)
+export const getVideoCallStatus = (appointmentId, role) => {
+  return apiClient.get(
+    `/${role}/appointments/${appointmentId}/join-call`,
+    { withCredentials: true }
+  );
+};
 
-export const createVideoCall = (appointmentId) =>
-  axios.post(`${API_BASE}/video-call/${appointmentId}`, {}, config);
-
-export const endVideoCall = (appointmentId) =>
-  axios.put(`${API_BASE}/video-call-end/${appointmentId}`, {}, config);
+// ✅ END CALL
+export const endVideoCall = (appointmentId, role) => {
+  return apiClient.post(
+    `/${role}/appointments/end-call`,
+    { appointmentId },
+    { withCredentials: true }
+  );
+};

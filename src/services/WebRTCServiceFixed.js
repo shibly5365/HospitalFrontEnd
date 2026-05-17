@@ -38,9 +38,9 @@ class WebRTCService {
         },
         // ✅ TURN server (for firewall traversal) - configure your own
         {
-          urls: process.env.REACT_APP_TURN_URL || "turn:turnserver.example.com:3478",
-          username: process.env.REACT_APP_TURN_USER || "user",
-          credential: process.env.REACT_APP_TURN_PASS || "pass",
+          urls: import.meta.env.VITE_TURN_URL || "turn:turnserver.example.com:3478",
+          username: import.meta.env.VITE_TURN_USER || "user",
+          credential: import.meta.env.VITE_TURN_PASS || "pass",
         },
       ],
     };
@@ -49,7 +49,7 @@ class WebRTCService {
   /**
    * ✅ Initialize local media stream
    */
-  async getLocalStream() {
+  async ensureLocalStream() {
     try {
       if (this.localStream) {
         return this.localStream;
@@ -83,7 +83,7 @@ class WebRTCService {
   async initiateCall(recipientId) {
     try {
       // Get local media
-      await this.getLocalStream();
+      await this.ensureLocalStream();
 
       // Create peer connection
       this.peer = new RTCPeerConnection(this.getRTCConfig());
@@ -166,7 +166,7 @@ class WebRTCService {
   async answerCall(offer, callerId) {
     try {
       // Get local media
-      await this.getLocalStream();
+      await this.ensureLocalStream();
 
       // Create peer connection
       this.peer = new RTCPeerConnection(this.getRTCConfig());

@@ -1,12 +1,12 @@
-import axios from "axios";
+import { apiClient } from "./queryClient";
 
-const API = "http://localhost:4002/api/doctor";
+const doctorPath = (path) => `/doctor${path}`;
 
 // 🔥 Axios instance with cookies
-const api = axios.create({
-  baseURL: API,
-  withCredentials: true, // ✅ VERY IMPORTANT
-});
+const api = {
+  get: (path, config) => apiClient.get(doctorPath(path), config),
+  put: (path, data, config) => apiClient.put(doctorPath(path), data, config),
+};
 
 // 🔥 GET ALL PAYMENTS
 export const getAllPayments = (params) => {

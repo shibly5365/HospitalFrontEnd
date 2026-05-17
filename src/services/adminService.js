@@ -1,9 +1,13 @@
-import axios from "axios";
+import { apiClient } from "./queryClient";
 
-const API = axios.create({
-  baseURL: "http://localhost:4002/api/admin",
-  withCredentials: true, // ✅ THIS IS REQUIRED FOR COOKIES
-});
+const adminPath = (path) => `/admin${path}`;
+
+const API = {
+  get: (path, config) => apiClient.get(adminPath(path), config),
+  post: (path, data, config) => apiClient.post(adminPath(path), data, config),
+  put: (path, data, config) => apiClient.put(adminPath(path), data, config),
+  delete: (path, config) => apiClient.delete(adminPath(path), config),
+};
 
 // ===============================
 // ✅ DASHBOARD COUNTS
@@ -42,3 +46,40 @@ export const getLatestAppointments = (limit = 10) =>
 
 export const updateAppointmentStatus = (id, status) =>
   API.put(`/updateAppointment/${id}`, { status });
+
+export const getDoctorOverview = (id) =>
+  API.get(`/doctors/${id}/dashboard/overview`);
+
+export const updateDoctorStatus = (id, status) =>
+  API.put(`/update-doctor-status/${id}`, { status });
+
+export const updateDoctorSalary = (id, salary) =>
+  API.put(`/update-salary/${id}`, { salary });
+
+// ================= PATIENTS =================
+
+export const getDoctorPatients = (id) =>
+  API.get(`/doctors/${id}/patients`);
+
+// ================= ATTENDANCE =================
+
+export const getDoctorAttendance = (id) =>
+  API.get(`/doctors/${id}/attendance`);
+
+// ================= LEAVES =================
+
+export const getDoctorLeaves = (id) =>
+  API.get(`/doctors/${id}/leaves`);
+
+export const leaveAction = (leaveId, action) =>
+  API.post(`/leave-action/${leaveId}`, { action });
+
+// ================= PAYMENTS =================
+
+export const getDoctorPayments = (id) =>
+  API.get(`/doctors/${id}/dashboard/payments`);
+
+// ================= ACTIVITY =================
+
+export const getDoctorActivity = (id) =>
+  API.get(`/doctors/${id}/dashboard/activity`);
