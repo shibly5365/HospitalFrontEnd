@@ -51,7 +51,8 @@ const ErrorPage = () => {
       <h1 className="text-3xl font-bold text-gray-800 mb-2">
         Oops! Something went wrong
       </h1>
-      <p className="text-gray-500 mb-8">
+      <p className="text-gray-500 mb-8"> 
+        
         The page you are looking for doesn’t exist or an error occurred.
       </p>
 
