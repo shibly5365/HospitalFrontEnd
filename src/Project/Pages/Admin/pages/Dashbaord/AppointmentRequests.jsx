@@ -3,8 +3,8 @@ import {
   getPendingAppointments,
   updateAppointmentStatus,
 } from "../../../../../services/adminService";
-import { notify } from "../../../../../units/notification";
-import { confirmToast } from "../../../../../units/confirmToast";
+import { notify } from "../../../../../UnitsTemp/notification";
+import { confirmToast } from "../../../../../UnitsTemp/confirmToast";
 
 const AppointmentRequests = () => {
   const [appointments, setAppointments] = useState([]);

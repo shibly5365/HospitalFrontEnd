@@ -1,7 +1,7 @@
 import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
 import { Calendar, Clock, Stethoscope, MapPin, Phone, Eye, Edit, X } from "lucide-react";
-import { notify } from "../../../../../units/notification";
+import { notify } from "../../../../../UnitsTemp/notification";
 
 export default function TodaysAppointments({ onViewDetails, onEdit, onCancel }) {
   const [appointments, setAppointments] = useState([]);

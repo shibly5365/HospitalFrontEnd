@@ -8,7 +8,7 @@ import AppointmentDetails from "./AppointmensForm/AppointmentDetails";
 import PatientInformation from "./AppointmensForm/PatientInformation";
 import ReviewAndPayment from "./AppointmensForm/ReviewAndPayment";
 import StepIndicator from "./AppointmensForm/StepIndicator";
-import { notify } from "../../../../../units/notification";
+import { notify } from "../../../../../UnitsTemp/notification";
 
 const AppointmentBooking = () => {
   const navigate = useNavigate();
