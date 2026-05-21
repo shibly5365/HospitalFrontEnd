@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Palette, Sun, Moon, Save, Mail, Lock, User, Bell } from "lucide-react";
-import { notify } from "../../../UnitsTemp/notification";
+import { notify } from "../../../units/notification";
 
 const accentOptions = [
   { name: "Slate", value: "#1f2937" },

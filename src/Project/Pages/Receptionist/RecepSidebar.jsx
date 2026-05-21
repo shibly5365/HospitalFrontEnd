@@ -27,7 +27,7 @@ import {
   KeyRound,
   Eye,
 } from "lucide-react";
-import { notify } from "../../../UnitsTemp/notification";
+import { notify } from "../../../units/notification";
 import { useAuth } from "../../Components/AuthContext";
 import toast from "react-hot-toast";
 

@@ -16,7 +16,7 @@ import {
   Calendar,
   Activity,
 } from "lucide-react";
-import { notify } from "../../../UnitsTemp/notification";
+import { notify } from "../../../units/notification";
 import { useNavigate } from "react-router-dom";
 
 const CreateAdmin = () => {

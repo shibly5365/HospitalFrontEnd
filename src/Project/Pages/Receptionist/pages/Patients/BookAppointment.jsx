@@ -4,7 +4,7 @@ import {
   ChevronRight, ChevronLeft, ArrowLeft, CheckCircle,
   Users, Stethoscope, Calendar, CreditCard, Receipt, Clock, X
 } from "lucide-react";
-import { notify } from "../../../../../UnitsTemp/notification";
+import { notify } from "../../../../../units/notification";
 import { useNavigate } from "react-router-dom";
 import PatientStep from "./registser/components/PatientStep";
 import DepartmentStep from "./registser/components/DepartmentStep";

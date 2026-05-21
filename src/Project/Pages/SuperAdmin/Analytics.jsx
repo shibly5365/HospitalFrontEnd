@@ -34,7 +34,7 @@ import {
   Area,
   AreaChart,
 } from "recharts";
-import { notify } from "../../../UnitsTemp/notification";
+import { notify } from "../../../units/notification";
 
 const COLORS = [
   "#1f2937",

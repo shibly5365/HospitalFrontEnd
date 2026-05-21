@@ -1,7 +1,7 @@
 import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
 import { Building2, Users } from "lucide-react";
-import { notify } from "../../../../../UnitsTemp/notification";
+import { notify } from "../../../../../units/notification";
 
 export default function DepartmentsList() {
   const [departments, setDepartments] = useState([]);

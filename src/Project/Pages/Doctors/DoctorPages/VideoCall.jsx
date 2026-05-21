@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { notify } from "../../../../UnitsTemp/notification.jsx";
+import { notify } from "../../../../units/notification.jsx";
 import {
   createVideoCall,
   endVideoCall,

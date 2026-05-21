@@ -9,7 +9,7 @@ import {
   Globe,
   Download,
 } from "lucide-react";
-import { notify } from "../../../../../UnitsTemp/notification";
+import { notify } from "../../../../../units/notification";
 
 export default function ProfileSection() {
   const [form, setForm] = useState({

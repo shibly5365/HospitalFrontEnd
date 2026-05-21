@@ -1,7 +1,7 @@
 import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
 import { Search, Phone, Award, Calendar, Clock, Filter, Users, ChevronRight, CheckCircle, Star, MapPin, Briefcase, User } from "lucide-react";
-import { notify } from "../../../../../UnitsTemp/notification";
+import { notify } from "../../../../../units/notification";
 
 export default function DoctorsList() {
   const [doctors, setDoctors] = useState([]);

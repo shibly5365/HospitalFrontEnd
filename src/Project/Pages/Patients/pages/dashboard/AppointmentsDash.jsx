@@ -1,7 +1,7 @@
 import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
-import { notify } from "../../../../../UnitsTemp/notification";
+import { notify } from "../../../../../units/notification";
 import RescheduleModal from "./RescheduleModal";
 import VideoCallModal from "./VideoCallModal";
 import CommonLoading from "../../../../../skeletons/CommonLoading";
