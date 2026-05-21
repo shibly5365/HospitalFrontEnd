@@ -55,7 +55,7 @@ export default function DoctorsList({ isVisible }) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 text-center text-gray-500">
+      <div className="theme-card rounded-2xl p-6 shadow-lg text-center text-gray-500">
         Loading doctor info...
       </div>
     );
@@ -63,10 +63,10 @@ export default function DoctorsList({ isVisible }) {
 
   return (
     <div
-      className={`bg-white rounded-2xl p-6 shadow-lg border border-gray-100 transform transition-all duration-700 delay-900 ${isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+      className={`theme-card rounded-2xl p-6 shadow-lg transform transition-all duration-700 delay-900 ${isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
         }`}
     >
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">
+      <h2 className="text-2xl font-bold theme-text mb-4">
         Last Visited Doctor
       </h2>
 
@@ -75,7 +75,7 @@ export default function DoctorsList({ isVisible }) {
           No recent doctor visits found.
         </p>
       ) : (
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 p-5 bg-gradient-to-r from-gray-50 to-white rounded-2xl border border-gray-200 hover:shadow-lg hover:scale-[1.01] transition-all duration-300">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 p-5 theme-soft rounded-2xl border border-gray-200 hover:shadow-lg hover:scale-[1.01] transition-all duration-300">
 
           {/* Doctor Image */}
           <img
@@ -90,7 +90,7 @@ export default function DoctorsList({ isVisible }) {
 
           {/* Info Section */}
           <div className="flex-1 space-y-1">
-            <h3 className="text-xl font-semibold text-gray-800">
+            <h3 className="text-xl font-semibold theme-text">
               Dr. {lastVisited.name || "Unknown"}
             </h3>
 
@@ -99,14 +99,14 @@ export default function DoctorsList({ isVisible }) {
             </p>
 
             {lastVisited.reaction && (
-              <p className="text-sm text-gray-600 flex items-center gap-2">
+              <p className="text-sm theme-text-muted flex items-center gap-2">
                 <Stethoscope className="w-4 h-4 text-gray-400" />
                 Interaction: {lastVisited.reaction}
               </p>
             )}
 
             {lastVisited.lastVisited && (
-              <p className="text-sm text-gray-600 flex items-center gap-2">
+              <p className="text-sm theme-text-muted flex items-center gap-2">
                 <Clock className="w-4 h-4 text-gray-400" />
                 Last Visit:{" "}
                 {new Date(lastVisited.lastVisited).toLocaleString("en-IN", {
@@ -117,7 +117,7 @@ export default function DoctorsList({ isVisible }) {
             )}
 
             {lastVisited.nextAppointment && (
-              <p className="text-sm text-gray-600 flex items-center gap-2">
+              <p className="text-sm theme-text-muted flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-gray-400" />
                 Next Appointment:{" "}
                 {new Date(lastVisited.nextAppointment).toLocaleString("en-IN", {
@@ -129,9 +129,9 @@ export default function DoctorsList({ isVisible }) {
           </div>
 
           {/* Rating */}
-          <div className="flex items-center bg-yellow-50 px-3 py-1 rounded-lg shadow-sm">
+          <div className="flex items-center bg-yellow-500/10 px-3 py-1 rounded-lg shadow-sm">
             <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 mr-1" />
-            <span className="text-sm font-semibold text-gray-700">
+            <span className="text-sm font-semibold theme-text">
               {lastVisited.rating ?? "4.7"}
             </span>
           </div>

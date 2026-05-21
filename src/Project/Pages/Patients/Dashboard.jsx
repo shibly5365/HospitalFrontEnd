@@ -11,6 +11,7 @@ import ProfileCard from "./pages/dashboard/ProfileCard";
 import HealthPlans from "./pages/dashboard/HealthPlans";
 import DoctorsList from "./pages/dashboard/DoctorsList";
 import QuickActions from "./pages/dashboard/QuickActions";
+import PatientLoading from "../../../skeletons/SkeletonBase";
 
 export default function Dashboard() {
   const [isVisible, setIsVisible] = useState(false);
@@ -23,20 +24,16 @@ export default function Dashboard() {
 
     const fetchDashboardData = async () => {
       try {
-        const res = await apiClient.get(
-          "/patient/dashboard",
-          { withCredentials: true },
-        );
+        const res = await apiClient.get("/patient/dashboard", {
+          withCredentials: true,
+        });
 
         const records = res.data;
-        
 
         // ✅ Medical Records
         const latestRecord = records.medicalRecords;
         const vitals =
           latestRecord && latestRecord.length > 0 ? latestRecord[0] : null;
-
-          
 
         const formattedMetrics = [
           {
@@ -82,8 +79,7 @@ export default function Dashboard() {
 
     fetchDashboardData();
   }, []);
-  
-  
+
   const activities = [
     { text: "Blood Test results updated", time: "2 hours ago", icon: "🩸" },
     {
@@ -118,14 +114,7 @@ export default function Dashboard() {
 
   // 🔄 Loading
   if (loading) {
-    return (
-      <div
-        className="flex justify-center items-center h-screen text-lg"
-        style={{ color: "var(--muted)" }}
-      >
-        Loading dashboard...
-      </div>
-    );
+    return <PatientLoading />;
   }
 
   return (
@@ -145,7 +134,7 @@ export default function Dashboard() {
           {/* {appointments?.total > 0 && (
             <Appointments isVisible={isVisible} />
           )} */}
-                    {(appointments?.today?.length > 0 ||
+          {(appointments?.today?.length > 0 ||
             appointments?.upcoming?.length > 0) && (
             <Appointments isVisible={isVisible} appointments={appointments} />
           )}

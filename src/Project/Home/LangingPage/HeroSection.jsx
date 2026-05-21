@@ -64,7 +64,7 @@ const HeroSection = () => {
             </p>
             <div className="mb-2 flex items-center gap-3">
               <img
-                src="https://images.unsplash.com/photo-1594824388853-1ea1f99f5f13?w=120&h=120&fit=crop&crop=face"
+               src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&h=120&fit=crop&q=80"
                 alt="Doctor profile"
                 className="h-10 w-10 rounded-full object-cover"
               />

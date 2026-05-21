@@ -30,7 +30,7 @@ export const LeftSection = () => {
             className="text-center mb-8"
           >
             <img
-              src="https://i.pinimg.com/originals/32/7b/c7/327bc78b01717d92cb62c09e2f8fbb7f.jpg"
+             src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=800&auto=format&fit=crop&q=80"
               alt="Healthcare Professional"
               className="rounded-2xl shadow-2xl mx-auto w-64 h-64 object-cover border-4 border-white"
             />
@@ -52,7 +52,7 @@ export const LeftSection = () => {
                 transition={{ delay: 0.3 + index * 0.1 }}
                 className="flex items-center gap-3 p-3 rounded-xl bg-white/60 hover:bg-white/80 transition-all duration-300 group cursor-pointer"
               >
-                <div className="text-2xl group-hover:scale-110 transition-transform duration-300">
+                <div className="text-2xl  transition-transform duration-300">
                   {feature.icon}
                 </div>
                 <div>

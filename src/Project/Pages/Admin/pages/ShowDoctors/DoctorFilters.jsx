@@ -16,7 +16,8 @@ const DoctorFilters = ({
   clearFilters,
   onAddDoctor,
 }) => {
-  const hasActiveFilters = search || selectedDept || selectedSpec || selectedStatus;
+  const hasActiveFilters =
+    search || selectedDept || selectedSpec || selectedStatus;
 
   return (
     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">

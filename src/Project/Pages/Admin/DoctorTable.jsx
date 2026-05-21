@@ -59,10 +59,9 @@ const AdminDoctors = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const res = await apiClient.get(
-          "/admin/getAll-Doctor",
-          { withCredentials: true },
-        );
+        const res = await apiClient.get("/admin/getAll-Doctor", {
+          withCredentials: true,
+        });
 
         const doctorsData =
           res.data.Doctors || res.data.doctors || res.data || [];
@@ -103,10 +102,9 @@ const AdminDoctors = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await apiClient.delete(
-        `/admin/delete-Doctor/${deleteModal.doctorId}`,
-        { withCredentials: true },
-      );
+      await apiClient.delete(`/admin/delete-Doctor/${deleteModal.doctorId}`, {
+        withCredentials: true,
+      });
       setDoctors(doctors.filter((doc) => doc._id !== deleteModal.doctorId));
       showToast("Doctor deleted successfully", "success");
     } catch (err) {

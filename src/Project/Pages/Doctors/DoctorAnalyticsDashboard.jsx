@@ -22,6 +22,7 @@ import CommonDiseases from "./DoctorPages/analytics/CommonDiseases";
 import CommunicationAnalytics from "./DoctorPages/analytics/CommunicationAnalytics";
 import PrescriptionAnalytics from "./DoctorPages/analytics/PrescriptionAnalytics";
 import AppointmentTrends from "./DoctorPages/analytics/AppointmentTrends";
+import DoctorSkeleton from "../../../skeletons/DoctorSkeleton";
 
 const DoctorAnalyticsDashboard = () => {
   const [timeframe, setTimeframe] = useState("monthly");
@@ -49,7 +50,9 @@ useEffect(() => {
   fetchDashboard();
 }, [timeframe]); // 🔥 VERY IMPORTANT
 
-  if (loading) return <div>Loading dashboard...</div>;
+  if (loading) {
+    return <DoctorSkeleton />;
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto">

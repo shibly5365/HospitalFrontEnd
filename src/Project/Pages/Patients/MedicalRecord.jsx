@@ -22,6 +22,7 @@ import {
   X,
 } from "lucide-react";
 import { usePatient } from "../../../context/PatientContext";
+import PatientLoading from "../../../skeletons/SkeletonBase";
 
 const TABS = [
   { name: "Prescriptions", icon: Syringe, color: "emerald" },
@@ -33,7 +34,7 @@ const TABS = [
 function Card({ children, className = "", gradient = false }) {
   return (
     <div
-      className={`bg-white rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 sm:p-5 md:p-6 ${gradient ? "bg-gradient-to-br from-white to-gray-50" : ""} ${className}`}
+      className={`theme-card rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 sm:p-5 md:p-6 ${gradient ? "bg-gradient-to-br from-white to-gray-50" : ""} ${className}`}
     >
       {children}
     </div>
@@ -74,7 +75,7 @@ function PatientSummary({ patient, onEdit }) {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 text-gray-600">
+          <div className="flex flex-col sm:flex-row gap-4 theme-text-muted">
             <span className="flex items-center justify-center md:justify-start gap-2 group">
               <div className="p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors">
                 <Mail size={16} className="text-blue-600" />
@@ -126,7 +127,7 @@ function FilterBar({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none bg-white shadow-sm hover:shadow-md"
+            className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none theme-card shadow-sm hover:shadow-md"
             placeholder="Search doctors, departments..."
           />
         </div>
@@ -139,7 +140,7 @@ function FilterBar({
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="w-full pl-12 pr-10 py-3.5 rounded-2xl border-2 border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all outline-none bg-white shadow-sm hover:shadow-md appearance-none cursor-pointer"
+            className="w-full pl-12 pr-10 py-3.5 rounded-2xl border-2 border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all outline-none theme-card shadow-sm hover:shadow-md appearance-none cursor-pointer"
           >
             <option value="">All Records</option>
             <option value="Prescriptions">Prescriptions</option>
@@ -171,7 +172,7 @@ function FilterBar({
                             ? "from-purple-500 to-purple-600"
                             : "from-rose-500 to-rose-600"
                     } text-white scale-105`
-                  : "bg-white text-gray-700 hover:bg-gray-50"
+                  : "theme-card theme-text hover:bg-gray-50"
               }`}
               onClick={() => onTabChange(i)}
             >
@@ -190,9 +191,9 @@ function Modal({ show, onClose, children, title }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-md mx-2 sm:mx-0 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
-        <div className="sticky top-0 bg-white border-b border-gray-100 p-4 sm:p-5 md:p-6 rounded-t-3xl flex items-center justify-between">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-800">
+      <div className="theme-card rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-md mx-2 sm:mx-0 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
+        <div className="sticky top-0 theme-card border-b border-gray-100 p-4 sm:p-5 md:p-6 rounded-t-3xl flex items-center justify-between">
+          <h3 className="text-lg sm:text-xl font-bold theme-text">
             {title}
           </h3>
           <button
@@ -200,7 +201,7 @@ function Modal({ show, onClose, children, title }) {
             className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
             aria-label="Close"
           >
-            <X size={24} className="text-gray-500" />
+            <X size={24} className="theme-text-muted" />
           </button>
         </div>
         <div className="p-4 sm:p-5 md:p-6">{children}</div>
@@ -246,13 +247,11 @@ function PrescriptionsSection({ prescriptions }) {
   // ================================
   // Pagination
   // ================================
-  const totalPages = Math.ceil(
-    groupedPrescriptions.length / ITEMS_PER_PAGE
-  );
+  const totalPages = Math.ceil(groupedPrescriptions.length / ITEMS_PER_PAGE);
 
   const paginatedDoctors = groupedPrescriptions.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   return (
@@ -264,9 +263,7 @@ function PrescriptionsSection({ prescriptions }) {
         >
           {/* Doctor Header */}
           <button
-            onClick={() =>
-              setOpenDoctor(openDoctor === doctor ? null : doctor)
-            }
+            onClick={() => setOpenDoctor(openDoctor === doctor ? null : doctor)}
             className="w-full flex items-center justify-between"
           >
             <div className="flex items-center gap-3 text-left">
@@ -275,9 +272,7 @@ function PrescriptionsSection({ prescriptions }) {
               </div>
 
               <div>
-                <h3 className="font-bold text-gray-800 text-lg">
-                  {doctor}
-                </h3>
+                <h3 className="font-bold theme-text text-lg">{doctor}</h3>
 
                 <p className="text-sm text-emerald-700">
                   {doctorPrescriptions.length} Prescriptions
@@ -285,11 +280,7 @@ function PrescriptionsSection({ prescriptions }) {
               </div>
             </div>
 
-            {openDoctor === doctor ? (
-              <ChevronUp />
-            ) : (
-              <ChevronDown />
-            )}
+            {openDoctor === doctor ? <ChevronUp /> : <ChevronDown />}
           </button>
 
           {/* Expand Section */}
@@ -298,15 +289,15 @@ function PrescriptionsSection({ prescriptions }) {
               {doctorPrescriptions.map((p, i) => (
                 <div
                   key={i}
-                  className="bg-white rounded-2xl p-4 border border-emerald-100 shadow-sm"
+                  className="theme-card rounded-2xl p-4 border border-emerald-100 shadow-sm"
                 >
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
-                      <p className="font-semibold text-gray-800">
+                      <p className="font-semibold theme-text">
                         {p.department}
                       </p>
 
-                      <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                      <div className="flex items-center gap-2 text-sm theme-text-muted mt-1">
                         <Calendar size={15} />
                         {p.date}
                       </div>
@@ -331,9 +322,7 @@ function PrescriptionsSection({ prescriptions }) {
         <div className="flex items-center justify-center gap-3 mt-6">
           <button
             disabled={currentPage === 1}
-            onClick={() =>
-              setCurrentPage((prev) => prev - 1)
-            }
+            onClick={() => setCurrentPage((prev) => prev - 1)}
             className="px-4 py-2 rounded-xl bg-gray-200 disabled:opacity-50"
           >
             Prev
@@ -345,9 +334,7 @@ function PrescriptionsSection({ prescriptions }) {
 
           <button
             disabled={currentPage === totalPages}
-            onClick={() =>
-              setCurrentPage((prev) => prev + 1)
-            }
+            onClick={() => setCurrentPage((prev) => prev + 1)}
             className="px-4 py-2 rounded-xl bg-emerald-500 text-white disabled:opacity-50"
           >
             Next
@@ -366,28 +353,21 @@ function PrescriptionsSection({ prescriptions }) {
             <div className="p-4 bg-emerald-50 rounded-2xl space-y-2">
               <div className="flex justify-between">
                 <span>Doctor</span>
-                <span className="font-semibold">
-                  {selected.doctor}
-                </span>
+                <span className="font-semibold">{selected.doctor}</span>
               </div>
 
               <div className="flex justify-between">
                 <span>Date</span>
-                <span className="font-semibold">
-                  {selected.date}
-                </span>
+                <span className="font-semibold">{selected.date}</span>
               </div>
             </div>
 
             <div className="space-y-3">
               {selected.medicines.map((m, i) => (
-                <div
-                  key={i}
-                  className="p-4 rounded-xl bg-gray-50"
-                >
+                <div key={i} className="p-4 rounded-xl bg-gray-50">
                   <p className="font-semibold">{m.name}</p>
 
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm theme-text-muted">
                     {m.dosage} • {m.duration}
                   </p>
                 </div>
@@ -421,9 +401,7 @@ function ConsultationsSection({ consultations }) {
 
     // Sort latest first
     Object.keys(grouped).forEach((doctor) => {
-      grouped[doctor].sort(
-        (a, b) => new Date(b.date) - new Date(a.date)
-      );
+      grouped[doctor].sort((a, b) => new Date(b.date) - new Date(a.date));
     });
 
     return Object.entries(grouped);
@@ -432,13 +410,11 @@ function ConsultationsSection({ consultations }) {
   // =========================================
   // Pagination
   // =========================================
-  const totalPages = Math.ceil(
-    groupedConsultations.length / ITEMS_PER_PAGE
-  );
+  const totalPages = Math.ceil(groupedConsultations.length / ITEMS_PER_PAGE);
 
   const paginatedConsultations = groupedConsultations.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   return (
@@ -449,118 +425,94 @@ function ConsultationsSection({ consultations }) {
             <Stethoscope className="text-gray-400" size={32} />
           </div>
 
-          <p className="text-gray-500 font-medium">
-            No consultations found
-          </p>
+          <p className="theme-text-muted font-medium">No consultations found</p>
         </div>
       )}
 
-      {paginatedConsultations.map(
-        ([doctor, doctorConsultations], idx) => (
-          <Card
-            key={idx}
-            className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100"
+      {paginatedConsultations.map(([doctor, doctorConsultations], idx) => (
+        <Card
+          key={idx}
+          className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100"
+        >
+          {/* ===================== */}
+          {/* Doctor Header */}
+          {/* ===================== */}
+          <button
+            onClick={() => setOpenDoctor(openDoctor === doctor ? null : doctor)}
+            className="w-full flex items-center justify-between"
           >
-            {/* ===================== */}
-            {/* Doctor Header */}
-            {/* ===================== */}
-            <button
-              onClick={() =>
-                setOpenDoctor(
-                  openDoctor === doctor ? null : doctor
-                )
-              }
-              className="w-full flex items-center justify-between"
-            >
-              <div className="flex items-center gap-3 text-left">
-                <div className="p-3 bg-blue-500 rounded-xl shadow-lg">
-                  <Stethoscope
-                    size={20}
-                    className="text-white"
-                  />
-                </div>
-
-                <div>
-                  <h3 className="font-bold text-gray-800 text-lg">
-                    {doctor}
-                  </h3>
-
-                  <div className="flex items-center gap-2 mt-1">
-                    <p className="text-sm text-blue-700">
-                      {
-                        doctorConsultations[0]
-                          ?.department
-                      }
-                    </p>
-
-                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
-                      {doctorConsultations.length} Visits
-                    </span>
-                  </div>
-                </div>
+            <div className="flex items-center gap-3 text-left">
+              <div className="p-3 bg-blue-500 rounded-xl shadow-lg">
+                <Stethoscope size={20} className="text-white" />
               </div>
 
-              {openDoctor === doctor ? (
-                <ChevronUp
-                  className="text-gray-600"
-                  size={22}
-                />
-              ) : (
-                <ChevronDown
-                  className="text-gray-600"
-                  size={22}
-                />
-              )}
-            </button>
+              <div>
+                <h3 className="font-bold theme-text text-lg">{doctor}</h3>
 
-            {/* ===================== */}
-            {/* Expanded Content */}
-            {/* ===================== */}
-            {openDoctor === doctor && (
-              <div className="mt-5 space-y-4">
-                {doctorConsultations.map((c, i) => (
-                  <div
-                    key={i}
-                    className="bg-white rounded-2xl border border-blue-100 p-4 shadow-sm hover:shadow-md transition"
-                  >
-                    <div className="flex flex-col lg:flex-row gap-4 lg:items-start lg:justify-between">
-                      {/* Left */}
-                      <div className="space-y-3 flex-1">
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                          <Calendar size={15} />
-                          <span>{c.date}</span>
-                        </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-sm text-blue-700">
+                    {doctorConsultations[0]?.department}
+                  </p>
 
-                        <div className="p-3 bg-blue-50 rounded-xl border border-blue-100">
-                          <div className="text-xs uppercase font-semibold text-blue-700 mb-1">
-                            Reason
-                          </div>
+                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+                    {doctorConsultations.length} Visits
+                  </span>
+                </div>
+              </div>
+            </div>
 
-                          <div className="text-sm text-gray-800 font-medium">
-                            {c.reason}
-                          </div>
-                        </div>
+            {openDoctor === doctor ? (
+              <ChevronUp className="theme-text-muted" size={22} />
+            ) : (
+              <ChevronDown className="theme-text-muted" size={22} />
+            )}
+          </button>
 
-                        {c.notes && (
-                          <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-100">
-                            <div className="text-xs uppercase font-semibold text-indigo-700 mb-1">
-                              Notes
-                            </div>
-
-                            <div className="text-sm text-gray-700">
-                              {c.notes}
-                            </div>
-                          </div>
-                        )}
+          {/* ===================== */}
+          {/* Expanded Content */}
+          {/* ===================== */}
+          {openDoctor === doctor && (
+            <div className="mt-5 space-y-4">
+              {doctorConsultations.map((c, i) => (
+                <div
+                  key={i}
+                  className="theme-card rounded-2xl border border-blue-100 p-4 shadow-sm hover:shadow-md transition"
+                >
+                  <div className="flex flex-col lg:flex-row gap-4 lg:items-start lg:justify-between">
+                    {/* Left */}
+                    <div className="space-y-3 flex-1">
+                      <div className="flex items-center gap-2 text-sm theme-text-muted">
+                        <Calendar size={15} />
+                        <span>{c.date}</span>
                       </div>
+
+                      <div className="p-3 bg-blue-50 rounded-xl border border-blue-100">
+                        <div className="text-xs uppercase font-semibold text-blue-700 mb-1">
+                          Reason
+                        </div>
+
+                        <div className="text-sm theme-text font-medium">
+                          {c.reason}
+                        </div>
+                      </div>
+
+                      {c.notes && (
+                        <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-100">
+                          <div className="text-xs uppercase font-semibold text-indigo-700 mb-1">
+                            Notes
+                          </div>
+
+                          <div className="text-sm theme-text">{c.notes}</div>
+                        </div>
+                      )}
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </Card>
-        )
-      )}
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      ))}
 
       {/* ===================== */}
       {/* Pagination */}
@@ -569,23 +521,19 @@ function ConsultationsSection({ consultations }) {
         <div className="flex items-center justify-center gap-3 pt-4">
           <button
             disabled={currentPage === 1}
-            onClick={() =>
-              setCurrentPage((prev) => prev - 1)
-            }
-            className="px-4 py-2 rounded-xl bg-gray-200 text-gray-700 disabled:opacity-50"
+            onClick={() => setCurrentPage((prev) => prev - 1)}
+            className="px-4 py-2 rounded-xl bg-gray-200 theme-text disabled:opacity-50"
           >
             Prev
           </button>
 
-          <span className="font-semibold text-gray-700">
+          <span className="font-semibold theme-text">
             Page {currentPage} / {totalPages}
           </span>
 
           <button
             disabled={currentPage === totalPages}
-            onClick={() =>
-              setCurrentPage((prev) => prev + 1)
-            }
+            onClick={() => setCurrentPage((prev) => prev + 1)}
             className="px-4 py-2 rounded-xl bg-blue-500 text-white disabled:opacity-50"
           >
             Next
@@ -604,7 +552,7 @@ function LabReportsSection({ labReports }) {
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <FileText className="text-gray-400" size={32} />
           </div>
-          <p className="text-gray-500 font-medium">No lab reports found</p>
+          <p className="theme-text-muted font-medium">No lab reports found</p>
         </div>
       )}
       {labReports.map((l, idx) => (
@@ -618,7 +566,7 @@ function LabReportsSection({ labReports }) {
                 <File size={20} className="text-white" />
               </div>
               <div>
-                <h4 className="font-bold text-gray-800 break-words">
+                <h4 className="font-bold theme-text break-words">
                   {l.test}
                 </h4>
                 <div className="flex items-center gap-2 text-sm text-purple-700 mt-1">
@@ -641,7 +589,7 @@ function LabReportsSection({ labReports }) {
                 href={l.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-3 sm:px-5 py-2.5 sm:py-3 bg-white text-purple-600 rounded-xl hover:bg-purple-50 transition-all duration-300 border-2 border-purple-200 font-semibold flex items-center gap-2"
+                className="px-3 sm:px-5 py-2.5 sm:py-3 theme-card text-purple-600 rounded-xl hover:bg-purple-50 transition-all duration-300 border-2 border-purple-200 font-semibold flex items-center gap-2"
               >
                 <FileText size={18} />
                 <span>Preview</span>
@@ -677,33 +625,33 @@ function VitalsSection({ patient, vitals }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
       <Card className="bg-gradient-to-br from-rose-50 to-pink-50 border-2 border-rose-100">
-        <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <h3 className="font-bold theme-text mb-4 flex items-center gap-2">
           <Activity className="text-rose-600" size={24} />
           Medical Information
         </h3>
         <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-white rounded-xl">
-            <span className="text-gray-600 flex items-center gap-2">
+          <div className="flex items-center justify-between p-3 theme-card rounded-xl">
+            <span className="theme-text-muted flex items-center gap-2">
               <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
               Blood Group
             </span>
-            <span className="font-bold text-gray-800">{bloodGroup}</span>
+            <span className="font-bold theme-text">{bloodGroup}</span>
           </div>
-          <div className="flex items-center justify-between p-3 bg-white rounded-xl">
-            <span className="text-gray-600 flex items-center gap-2">
+          <div className="flex items-center justify-between p-3 theme-card rounded-xl">
+            <span className="theme-text-muted flex items-center gap-2">
               <ShieldPlus size={16} className="text-amber-500" />
               Allergies
             </span>
-            <span className="font-semibold text-gray-800">
+            <span className="font-semibold theme-text">
               {allergies || "None"}
             </span>
           </div>
-          <div className="flex items-center justify-between p-3 bg-white rounded-xl">
-            <span className="text-gray-600 flex items-center gap-2">
+          <div className="flex items-center justify-between p-3 theme-card rounded-xl">
+            <span className="theme-text-muted flex items-center gap-2">
               <Stethoscope size={16} className="text-violet-500" />
               Chronic Conditions
             </span>
-            <span className="font-semibold text-gray-800">
+            <span className="font-semibold theme-text">
               {chronic || "None"}
             </span>
           </div>
@@ -711,23 +659,23 @@ function VitalsSection({ patient, vitals }) {
       </Card>
 
       <Card className="bg-gradient-to-br from-cyan-50 to-blue-50 border-2 border-cyan-100">
-        <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <h3 className="font-bold theme-text mb-4 flex items-center gap-2">
           <TrendingUp className="text-cyan-600" size={24} />
           Physical Stats
         </h3>
         <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-white rounded-xl">
-            <span className="text-gray-600">Height</span>
-            <span className="font-bold text-gray-800">{height || "--"} cm</span>
+          <div className="flex items-center justify-between p-3 theme-card rounded-xl">
+            <span className="theme-text-muted">Height</span>
+            <span className="font-bold theme-text">{height || "--"} cm</span>
           </div>
-          <div className="flex items-center justify-between p-3 bg-white rounded-xl">
-            <span className="text-gray-600">Weight</span>
-            <span className="font-bold text-gray-800">{weight || "--"} kg</span>
+          <div className="flex items-center justify-between p-3 theme-card rounded-xl">
+            <span className="theme-text-muted">Weight</span>
+            <span className="font-bold theme-text">{weight || "--"} kg</span>
           </div>
           <div className="p-4 bg-gradient-to-r from-cyan-100 to-blue-100 rounded-xl border-2 border-cyan-200">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-700 font-semibold">BMI</span>
-              <span className="text-2xl font-bold text-gray-800">{bmi}</span>
+              <span className="theme-text font-semibold">BMI</span>
+              <span className="text-2xl font-bold theme-text">{bmi}</span>
             </div>
             <div
               className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
@@ -739,7 +687,7 @@ function VitalsSection({ patient, vitals }) {
                       ? "bg-orange-200 text-orange-800"
                       : bmiStatus.color === "red"
                         ? "bg-red-200 text-red-800"
-                        : "bg-gray-200 text-gray-800"
+                        : "bg-gray-200 theme-text"
               }`}
             >
               {bmiStatus.text}
@@ -804,14 +752,7 @@ export default function MedicalRecordDashboard() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading medical records...</p>
-        </div>
-      </div>
-    );
+    return <PatientLoading />;
   }
 
   const renderContent = () => {
@@ -854,7 +795,7 @@ export default function MedicalRecordDashboard() {
           <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2 break-words">
             Medical Dashboard
           </h1>
-          <p className="text-sm sm:text-base text-gray-600">
+          <p className="text-sm sm:text-base theme-text-muted">
             Comprehensive health records and vital information
           </p>
         </div>
@@ -879,7 +820,7 @@ export default function MedicalRecordDashboard() {
           title="Edit Personal Details"
         >
           <div className="space-y-4">
-            <p className="text-gray-600">
+            <p className="theme-text-muted">
               Edit functionality coming soon. This will allow you to update
               patient information.
             </p>

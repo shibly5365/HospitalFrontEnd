@@ -1,16 +1,81 @@
 @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap");
 @import "tailwindcss";
 
+/* =========================
+   ROOT THEME VARIABLES
+========================= */
+
 :root {
   --bg: #f6fbf9;
   --surface: #ffffff;
   --surface-soft: #ebf7f2;
+
   --text: #092a25;
   --muted: #44645f;
+
   --brand: #129a68;
   --brand-dark: #0b7d54;
+
   --line: #d9ebe5;
 }
+
+/* =========================
+   DARK THEME
+========================= */
+
+[data-theme="dark"] {
+  --bg: #020617;
+  --surface: #0f172a;
+  --surface-soft: #111827;
+
+  --text: #f8fafc;
+  --muted: #cbd5e1;
+
+  --brand: #38bdf8;
+  --brand-dark: #0ea5e9;
+
+  --line: #1e293b;
+}
+
+/* =========================
+   BLUE THEME
+========================= */
+
+[data-theme="blue"] {
+  --bg: #0ea5e9;
+  --surface: #0284c7;
+  --surface-soft: #0369a1;
+
+  --text: #ffffff;
+  --muted: #e0f2fe;
+
+  --brand: #7dd3fc;
+  --brand-dark: #38bdf8;
+
+  --line: rgba(255, 255, 255, 0.2);
+}
+
+/* =========================
+   GREEN THEME
+========================= */
+
+[data-theme="green"] {
+  --bg: #10b981;
+  --surface: #059669;
+  --surface-soft: #047857;
+
+  --text: #ffffff;
+  --muted: #d1fae5;
+
+  --brand: #6ee7b7;
+  --brand-dark: #34d399;
+
+  --line: rgba(255, 255, 255, 0.2);
+}
+
+/* =========================
+   GLOBAL STYLES
+========================= */
 
 html {
   scroll-behavior: smooth;
@@ -19,29 +84,122 @@ html {
 body {
   margin: 0;
   font-family: "Manrope", sans-serif;
-  color: var(--text);
+
   background: var(--bg);
+  color: var(--text);
+
+  transition:
+    background 0.3s ease,
+    color 0.3s ease;
 }
+
+/* =========================
+   SMOOTH TRANSITIONS
+========================= */
+
+* {
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+/* =========================
+   TYPOGRAPHY
+========================= */
 
 h1,
 h2,
 h3,
-h4 {
+h4,
+h5,
+h6 {
   font-family: "Sora", sans-serif;
   letter-spacing: -0.02em;
 }
 
-.glass-surface {
-  background: color-mix(in srgb, #ffffff 82%, #eaf8f2 18%);
-  backdrop-filter: blur(10px);
-  border: 1px solid color-mix(in srgb, var(--line) 75%, #ffffff 25%);
+/* =========================
+   THEME UTILITIES
+========================= */
+
+.theme-bg {
+  background: var(--bg);
 }
+
+.theme-surface {
+  background: var(--surface);
+}
+
+.theme-soft {
+  background: var(--surface-soft);
+}
+
+.theme-card {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+
+.theme-border {
+  border-color: var(--line);
+}
+
+.theme-text {
+  color: var(--text);
+}
+
+.theme-text-muted {
+  color: var(--muted);
+}
+
+.theme-brand {
+  color: var(--brand);
+}
+
+.theme-brand-bg {
+  background: var(--brand);
+}
+
+.theme-brand-bg-dark {
+  background: var(--brand-dark);
+}
+
+/* =========================
+   GLASS EFFECT
+========================= */
+
+.glass-surface {
+  background: color-mix(
+    in srgb,
+    var(--surface) 82%,
+    var(--surface-soft) 18%
+  );
+
+  backdrop-filter: blur(10px);
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--line) 75%,
+      #ffffff 25%
+    );
+}
+
+/* =========================
+   CARD SHADOW
+========================= */
 
 .soft-card {
   background: var(--surface);
+
   border: 1px solid var(--line);
+
   box-shadow: 0 18px 50px rgba(16, 95, 67, 0.08);
 }
+
+/* =========================
+   ANIMATIONS
+========================= */
 
 .fade-in-up {
   animation: fadeInUp 0.65s ease-out both;
@@ -68,65 +226,68 @@ h4 {
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* Custom Scrollbar Styles */
+/* =========================
+   SHIMMER EFFECT
+========================= */
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* =========================
+   PULSE EFFECT
+========================= */
+
+@keyframes pulseSlow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 2.5s ease-in-out infinite;
+}
+
+/* =========================
+   CUSTOM SCROLLBAR
+========================= */
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--surface-soft);
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #888;
+  background: var(--muted);
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-
-/* 🌞 LIGHT (default already in :root) */
-
-/* 🌙 DARK */
-.dark {
-  --bg: #0f172a;        /* full background */
-  --surface: #111827;  
-  --surface-soft: #1f2937;
-  --text: #ffffff;
-  --muted: #9ca3af;
-  --brand: #22c55e;
-  --brand-dark: #16a34a;
-  --line: #374151;
-}
-
-/* 🔵 BLUE */
-.blue {
-  --bg: #0ea5e9;
-  --surface: #0284c7;
-  --surface-soft: #0369a1;
-  --text: #ffffff;
-  --muted: #e0f2fe;
-  --brand: #38bdf8;
-  --brand-dark: #0284c7;
-  --line: #7dd3fc;
-}
-
-/* 🟢 GREEN */
-.green {
-  --bg: #10b981;
-  --surface: #059669;
-  --surface-soft: #047857;
-  --text: #ffffff;
-  --muted: #d1fae5;
-  --brand: #34d399;
-  --brand-dark: #059669;
-  --line: #6ee7b7;
+  background: var(--brand);
 }

@@ -1,25 +1,24 @@
-import { apiClient } from "../../../services/queryClient";
+// components/admin/AdminPatients.jsx
 import React, { useEffect, useState } from "react";
-import { Search, UserPlus, Eye, Edit, Trash2 } from "lucide-react";
+import { Search, UserPlus, Eye, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { notify } from "../../../Units/notification";
 import toast from "react-hot-toast";
+import { apiClient } from "../../../services/queryClient";
 
 const AdminPatients = () => {
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
-  // 🔹 Fetch patients from API
+  // Fetch patients
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const res = await apiClient.get(
-          "/admin/getAll-patients",
-          { withCredentials: true },
-        );
-        console.log("res", res.data);
-
+        const res = await apiClient.get("/admin/getAll-patients", {
+          withCredentials: true,
+        });
         setPatients(res.data.patients || res.data);
       } catch (err) {
         console.error("Error fetching patients:", err);
@@ -32,41 +31,37 @@ const AdminPatients = () => {
     fetchPatients();
   }, []);
 
-  // ✅ Confirm delete with toast
-  const handleDeletePatient = async (id, name) => {
-    console.log(id);
+  const filteredPatients = patients.filter(
+    (patient) =>
+      patient.fullName?.toLowerCase().includes(search.toLowerCase()) ||
+      patient.email?.toLowerCase().includes(search.toLowerCase())
+  );
 
+  const handleDeletePatient = async (id, name) => {
     toast(
       (t) => (
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-3">
           <p>
             Are you sure you want to delete <strong>{name}</strong>?
           </p>
-          <div className="flex justify-end mt-2 space-x-2">
+          <div className="flex justify-end gap-3">
             <button
-              className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+              className="px-4 py-2 bg-gray-200 rounded-xl hover:bg-gray-300"
               onClick={() => toast.dismiss(t._id)}
             >
               Cancel
             </button>
             <button
-              className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+              className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700"
               onClick={async () => {
                 try {
-                  const res = await apiClient.delete(
-                    `/admin/delete-patients/${id}`,
-                    { withCredentials: true },
-                  );
-
-                  if (res.data.success) {
-                    setPatients((prev) => prev.filter((p) => p.id !== id));
-                    notify.success("Patient deleted successfully");
-                  } else {
-                    notify.error("Failed to delete patient");
-                  }
+                  await apiClient.delete(`/admin/delete-patients/${id}`, {
+                    withCredentials: true,
+                  });
+                  setPatients((prev) => prev.filter((p) => p._id !== id));
+                  notify.success("Patient deleted successfully");
                 } catch (err) {
-                  console.error(err);
-                  notify.error("Server error");
+                  notify.error("Failed to delete patient");
                 } finally {
                   toast.dismiss(t._id);
                 }
@@ -77,135 +72,178 @@ const AdminPatients = () => {
           </div>
         </div>
       ),
-      { duration: Infinity },
+      { duration: Infinity }
     );
   };
 
-  console.log("patintesss",patients);
+  // Generate avatar initials
+  const getInitials = (name) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold mb-4">Patients</h1>
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Patients</h1>
+            <p className="text-gray-600 mt-1">
+              Manage and monitor all registered patients
+            </p>
+          </div>
 
-      {/* 🔹 Top Controls */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center space-x-3">
-          <button className="px-4 py-2 bg-gray-200 rounded-xl text-sm">
-            All Departments
-          </button>
-          <button className="px-4 py-2 bg-gray-200 rounded-xl text-sm">
-            All Types
+          <button className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-2xl font-medium transition shadow-sm">
+            <UserPlus size={20} />
+            Add New Patient
           </button>
         </div>
 
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center border rounded-xl bg-white px-3 py-2">
-            <Search size={18} className="text-gray-500 mr-2" />
+        {/* Search & Filters */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-4 top-3.5 text-gray-400" size={20} />
             <input
               type="text"
-              placeholder="Search patients..."
-              className="outline-none text-sm"
+              placeholder="Search by name or email..."
+              className="w-full bg-white border border-gray-300 pl-11 py-3.5 rounded-2xl focus:outline-none focus:border-teal-500 transition"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
-          {/* <button className="flex items-center px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800">
-            <UserPlus size={18} className="mr-2" /> Add Patient
-          </button> */}
+          <div className="flex gap-3">
+            <button className="px-5 py-3 bg-white border border-gray-300 rounded-2xl hover:bg-gray-50 transition text-sm font-medium">
+              All Patients
+            </button>
+            <button className="px-5 py-3 bg-white border border-gray-300 rounded-2xl hover:bg-gray-50 transition text-sm font-medium">
+              Recent
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* 🔹 Patients Table */}
-      <div className="overflow-x-auto bg-white rounded shadow">
-        {loading ? (
-          <p className="p-4 text-gray-500">Loading patients...</p>
-        ) : patients.length === 0 ? (
-          <p className="p-4 text-gray-500">No patients found.</p>
-        ) : (
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-medium">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium">Age</th>
-                <th className="px-6 py-3 text-left text-sm font-medium">
-                  Gender
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium">
-                  Contact
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium">
-                  Patient Type
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium">
-                  Total Visits
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium">
-                  {" "}
-                  Visit Mode
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {patients.map((p, i) => {
-                // 🔹 Compute next upcoming appointment dynamically
-                const upcomingAppointments = p.appointments
-                  ?.filter((a) => ["Pending", "Confirmed"].includes(a.status))
-                  .sort(
-                    (a, b) =>
-                      new Date(a.appointmentDate) - new Date(b.appointmentDate),
-                  );
-                const nextAppointment = upcomingAppointments?.[0];
-
-                return (
-                  <tr key={p._id || i}>
-                    <td className="px-6 py-4">{p.fullName}</td>
-                    <td className="px-6 py-4">{p.age || "N/A"}</td>
-                    <td className="px-6 py-4">{p.gender || "N/A"}</td>
-                    <td className="px-6 py-4">{p.contact || "N/A"}</td>
-                    <td className="px-6 py-4">{p.email}</td>
-                    <td className="px-6 py-4">{p.patientType || "General"}</td>
-                    <td className="px-6 py-4">{p.summary?.totalVisits || 0}</td>
-                    <td className="px-6 py-4">
-                      {p.appointments && p.appointments.length > 0 ? (
-                        <div>
-                          <p className="font-medium">
-                            {p.appointments[0]?.consultationType || "N/A"}
-                          </p>
-                        </div>
-                      ) : (
-                        <span className="text-gray-500 text-sm">None</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 flex items-center space-x-3">
-                      <button
-                        className="text-blue-600 hover:text-blue-800"
-                        onClick={() => navigate(`/admin/patients/${p.id}`)}
-                      >
-                        <Eye size={18} />
-                      </button>
-                      {/* <button className="text-green-600 hover:text-green-800">
-                        <Edit size={18} />
-                      </button> */}
-                      <button
-                        className="text-red-600 hover:text-red-800"
-                        onClick={() => handleDeletePatient(p.id, p.fullName)}
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </td>
+        {/* Table Card */}
+        <div className="bg-white rounded-3xl shadow border border-gray-200 overflow-hidden">
+          {loading ? (
+            <div className="py-20 text-center text-gray-500 text-lg">
+              Loading patients...
+            </div>
+          ) : filteredPatients.length === 0 ? (
+            <div className="py-20 text-center text-gray-500">
+              No patients found
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">
+                      Patient
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">
+                      Age
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">
+                      Gender
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">
+                      Contact
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">
+                      Email
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">
+                      Type
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">
+                      Total Visits
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">
+                      Actions
+                    </th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filteredPatients.map((patient) => (
+                    <tr
+                      key={patient._id}
+                      className="hover:bg-teal-50/60 transition group"
+                    >
+                      {/* Profile Column */}
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-teal-100 text-teal-700 rounded-2xl flex items-center justify-center font-semibold text-lg border border-teal-200">
+                            {getInitials(patient.fullName)}
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {patient.fullName}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              ID: {patient._id?.slice(-6) || "N/A"}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-5 text-gray-600">
+                        {patient.age || "N/A"}
+                      </td>
+                      <td className="px-6 py-5 text-gray-600">
+                        {patient.gender || "N/A"}
+                      </td>
+                      <td className="px-6 py-5 text-gray-600">
+                        {patient.contact || "N/A"}
+                      </td>
+                      <td className="px-6 py-5 text-gray-600">
+                        {patient.email}
+                      </td>
+                      <td className="px-6 py-5">
+                        <span className="px-3 py-1 bg-teal-100 text-teal-700 text-sm rounded-full">
+                          {patient.patientType || "General"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5 font-medium text-gray-700">
+                        {patient.summary?.totalVisits || 0}
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() =>
+                              navigate(`/admin/patients/${patient._id || patient.id}`)
+                            }
+                            className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-xl transition"
+                            title="View Details"
+                          >
+                            <Eye size={20} />
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleDeletePatient(
+                                patient._id || patient.id,
+                                patient.fullName
+                              )
+                            }
+                            className="p-2.5 text-red-600 hover:bg-red-50 rounded-xl transition"
+                            title="Delete Patient"
+                          >
+                            <Trash2 size={20} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

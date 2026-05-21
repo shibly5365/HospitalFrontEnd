@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { motion, AnimatePresence } from "framer-motion";
 import { notify } from "../../../Units/notification";
+import { MdLocalHospital } from "react-icons/md";
 
 import { signupSchema } from "./validations/signupSchema";
 import { InputField } from "./InputField";
@@ -44,13 +45,9 @@ const SignupPage = () => {
         formData.append("profileImage", data.profileImage[0]);
       }
 
-      const res = await apiClient.post(
-        "/patient/signup",
-        formData,
-        {
-          withCredentials: true,
-        },
-      );
+      const res = await apiClient.post("/patient/signup", formData, {
+        withCredentials: true,
+      });
 
       setMessage(res.data.message);
 
@@ -119,34 +116,29 @@ const SignupPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-emerald-50 to-cyan-50 flex flex-col overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
-      </div>
-
       {/* Header */}
       <motion.div
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ type: "spring", stiffness: 100 }}
-        className="relative z-10 backdrop-blur-xl bg-white/80 border-b border-white/20 shadow-lg"
+        className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 shadow-sm"
       >
         <div className="flex items-center justify-between px-8 py-4 max-w-7xl mx-auto">
           <motion.div
-            whileHover={{ scale: 1.05 }}
             className="flex items-center gap-3 cursor-pointer"
             onClick={() => navigate("/")}
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-xl">♥</span>
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-600 shadow-md">
+              <MdLocalHospital className="text-white" size={24} />
             </div>
-            <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+            <div className="leading-tight">
+              <h1 className="text-lg font-bold tracking-tight text-gray-900">
                 MediCare Pro
               </h1>
-              <p className="text-xs text-gray-500">Patient Registration</p>
+
+              <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                Healthcare Management System
+              </p>
             </div>
           </motion.div>
 
@@ -175,7 +167,7 @@ const SignupPage = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="w-full"
           >
-            <div className="backdrop-blur-xl bg-white/90 rounded-2xl shadow-2xl border border-white/20 p-6 md:p-8">
+            <div className="backdrop-blur-sm bg-white/90 rounded-2xl shadow-lg border border-white/20 p-6 md:p-8">
               {/* Header */}
               <div className="text-center mb-8">
                 <motion.div
@@ -218,7 +210,7 @@ const SignupPage = () => {
                 {/* Form Fields */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {formFields.map((field, index) => (
-                    <motion.div
+                    <div
                       key={field.name}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -232,7 +224,7 @@ const SignupPage = () => {
                         register={register}
                         error={errors[field.name]}
                       />
-                    </motion.div>
+                    </div>
                   ))}
 
                   {/* Gender Select */}
@@ -265,7 +257,7 @@ const SignupPage = () => {
                   className={`w-full relative overflow-hidden group bg-gradient-to-r from-teal-500 to-emerald-600 text-white py-3 rounded-xl font-semibold shadow-lg transition-all duration-300 ${
                     !isValid || isSubmitting
                       ? "opacity-50 cursor-not-allowed"
-                      : "hover:shadow-xl"
+                      : "hover:shadow-md"
                   }`}
                 >
                   <span className="relative z-10">

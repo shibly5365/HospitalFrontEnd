@@ -82,7 +82,7 @@ export default function Activities({ isVisible }) {
         isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
       }`}
     >
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">
+      <h2 className="text-2xl font-bold text-gray-500 mb-4">
         Recent Activities
       </h2>
 
@@ -95,11 +95,11 @@ export default function Activities({ isVisible }) {
           {activities.map((a, i) => (
             <div
               key={i}
-              className="flex items-center space-x-4 p-3 rounded-xl bg-gradient-to-r from-gray-50 to-white hover:shadow-md hover:scale-[1.02] transition-all duration-300 border border-gray-100 hover:border-blue-200"
+             className="theme-soft flex items-center space-x-4 p-3 rounded-xl hover:shadow-md hover:scale-[1.02] transition-all duration-300 border border-gray-100 hover:border-blue-200"
             >
               <div>{getActivityIcon(a.type)}</div>
               <div className="flex-1">
-                <p className="text-gray-800 font-medium">{a.title}</p>
+                <p className="theme-text font-medium">{a.title}</p>
                 <p className="text-sm text-gray-500 capitalize">
                   {a.type} • {a.status}
                 </p>

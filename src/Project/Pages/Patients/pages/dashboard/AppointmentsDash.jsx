@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import { notify } from "../../../../../Units/notification";
 import RescheduleModal from "./RescheduleModal";
 import VideoCallModal from "./VideoCallModal";
+import CommonLoading from "../../../../../skeletons/CommonLoading";
 
 export default function Appointments({ isVisible }) {
   const [appointments, setAppointments] = useState([]);
@@ -16,10 +17,9 @@ export default function Appointments({ isVisible }) {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await apiClient.get(
-          "/patient/dashboard",
-          { withCredentials: true },
-        );
+        const { data } = await apiClient.get("/patient/dashboard", {
+          withCredentials: true,
+        });
 
         const upcoming = data?.appointments?.upcoming || [];
 
@@ -143,12 +143,10 @@ export default function Appointments({ isVisible }) {
   };
 
   const confirmCancel = (id) => {
-    console.log("cancleId", id);
-
     toast.custom(
       (t) => (
         <div className="bg-white p-4 rounded-xl shadow-xl border w-80">
-          <p className="text-gray-800 font-medium mb-3">
+          <p className="text-gray-500 font-medium mb-3">
             Cancel this appointment?
           </p>
           <div className="flex justify-end gap-2">
@@ -233,10 +231,38 @@ export default function Appointments({ isVisible }) {
     }
   };
 
-  if (loading) {
+if (loading) {
     return (
-      <div className="bg-white rounded-2xl p-6 shadow-lg border text-center text-gray-500">
-        Loading appointments...
+      <div
+        className={`bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg border transition-all duration-700 ${
+          isVisible ? "opacity-100" : "opacity-0 translate-y-4"
+        }`}
+      >
+        {/* Simple Title Skeleton */}
+        <CommonLoading height="h-8" width="w-64" className="mb-8" />
+
+        {/* Very Simple Appointment Skeletons */}
+        <div className="space-y-5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="p-5 bg-gray-50 dark:bg-gray-800 rounded-xl border"
+            >
+              <div className="flex justify-between items-center">
+                <div className="space-y-3">
+                  <CommonLoading height="h-5" width="w-56" />
+                  <CommonLoading height="h-4" width="w-[280px]" />
+                </div>
+
+                <CommonLoading 
+                  height="h-10" 
+                  width="w-32" 
+                  className="rounded-lg" 
+                />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -258,11 +284,11 @@ export default function Appointments({ isVisible }) {
       />
 
       <div
-        className={`bg-white rounded-2xl p-6 shadow-lg border transition-all duration-700 ${
+        className={`theme-card rounded-2xl p-6 shadow-lg transition-all duration-700 ${
           isVisible ? "opacity-100" : "opacity-0 translate-y-4"
         }`}
       >
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+        <h2 className="text-2xl font-bold theme-text mb-4">
           Today's Appointments
         </h2>
 
@@ -317,7 +343,7 @@ export default function Appointments({ isVisible }) {
           </div>
         )}
 
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+        <h2 className="text-2xl font-bold theme-text mb-6">
           Upcoming Appointments
         </h2>
 
@@ -332,7 +358,7 @@ export default function Appointments({ isVisible }) {
               return (
                 <div
                   key={a._id}
-                  className="flex justify-between items-center p-4 bg-gray-50 rounded-xl border"
+                  className="flex justify-between items-center p-4 theme-soft rounded-xl border theme-border"
                 >
                   <div>
                     <h3 className="font-semibold">

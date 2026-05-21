@@ -69,10 +69,10 @@ export default function ProfileCard({ isVisible }) {
           className="w-20 h-20 rounded-full border-4 border-white shadow-lg mb-3 object-cover"
         />
         <h3 className="text-xl font-bold">{formattedName}</h3>
-        <p className="text-blue-100 text-sm">
+        <p className="text-white/80 text-sm">
           Email: #{profile.email ?? "N/A"}
         </p>
-        <p className="text-sm text-blue-100 mt-1">
+        <p className="text-sm text-white/80 mt-1">
           Age: {profile.age ?? "N/A"} • Blood Type: {profile.bloodGroup ?? "N/A"}
         </p>
         <button className="mt-4 bg-white text-blue-600 font-semibold px-4 py-2 rounded-xl shadow-md hover:bg-blue-50 transition-all">

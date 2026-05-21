@@ -10,7 +10,7 @@ export default function HealthMetrics({ metrics, isVisible }) {
       {metrics.map((metric, i) => (
         <div
           key={i}
-          className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 hover:scale-105 group"
+          className="theme-card rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-2xl">{metric.icon}</span>
@@ -26,11 +26,11 @@ export default function HealthMetrics({ metrics, isVisible }) {
               {metric.trend}
             </span>
           </div>
-          <p className="text-2xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
+         <p className="text-2xl font-bold theme-text group-hover:text-blue-500 transition-colors">
             {metric.value}
-            <span className="text-sm text-gray-500 ml-1">{metric.unit}</span>
+             <span className="text-sm theme-text-muted ml-1">{metric.unit}</span>
           </p>
-          <p className="text-sm text-gray-600 mt-1">{metric.label}</p>
+         <p className="text-sm theme-text-muted mt-1">{metric.label}</p>
         </div>
       ))}
     </div>

@@ -10,6 +10,7 @@ import SearchFilterSection from "./pages/AppointmentsDetails/SearchFilterSection
 import DoctorsCardAppointments from "./pages/AppointmentsDetails/DoctorsCardAppointments";
 import DoctoresDetailsAppointmens from "./pages/AppointmentsDetails/DoctoresDetailsAppointmens";
 import AppointmensCalender from "./pages/AppointmentsDetails/AppointmensCalender";
+import PatientLoading from "../../../skeletons/SkeletonBase";
 
 export default function PatientAppointments() {
   const [doctors, setDoctors] = useState([]);
@@ -144,7 +145,7 @@ export default function PatientAppointments() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 px-3 sm:px-5 lg:px-8 py-4 sm:py-6 font-sans text-gray-800 overflow-x-hidden">
+    <div className="min-h-screen theme-bg px-3 sm:px-5 lg:px-8 py-4 sm:py-6 font-sans theme-text overflow-x-hidden">
       <div className="max-w-[1400px] mx-auto flex flex-col xl:flex-row gap-4 sm:gap-6 lg:gap-8">
         {/* LEFT - Calendar & Slots */}
         <div className="xl:w-96 w-full xl:sticky xl:top-8 space-y-4 sm:space-y-6">
@@ -174,18 +175,18 @@ export default function PatientAppointments() {
             departments={departments}
           />
           {loading ? (
-            <div className="text-center text-gray-500">Loading doctors...</div>
+            <PatientLoading />
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {filteredDoctors.map((doc) => (
-<DoctorsCardAppointments
-  key={doc._id}
-  doctor={mapDoctor(doc)}
-  selectedDate={selectedDate}
-  selectedSlot={selectedTime}
-  selectedDoctor={selectedDoctor} // ✅ pass selected doctor
-  onOpenDetail={setSelectedDoctor}
-/>
+                <DoctorsCardAppointments
+                  key={doc._id}
+                  doctor={mapDoctor(doc)}
+                  selectedDate={selectedDate}
+                  selectedSlot={selectedTime}
+                  selectedDoctor={selectedDoctor} // ✅ pass selected doctor
+                  onOpenDetail={setSelectedDoctor}
+                />
               ))}
             </div>
           )}

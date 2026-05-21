@@ -2,6 +2,7 @@ import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react"; // ✅ lightweight arrow icon
+import CommonLoading from "../../../../../skeletons/CommonLoading";
 
 export default function StatsGrid({ isVisible }) {
   const [stats, setStats] = useState([]);
@@ -62,13 +63,48 @@ export default function StatsGrid({ isVisible }) {
     fetchStats();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-10 text-gray-500 text-sm">
-        Loading stats...
-      </div>
-    );
-  }
+if (loading) {
+  return (
+    <div
+      className={`
+        grid grid-cols-1 md:grid-cols-3 gap-4
+        transition-all duration-500
+        ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}
+      `}
+    >
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div
+          key={i}
+          className="
+            bg-white dark:bg-gray-900
+            rounded-3xl
+            border border-gray-100 dark:border-gray-800
+            p-5
+            animate-pulse
+          "
+          style={{
+            animationDelay: `${i * 120}ms`,
+          }}
+        >
+          {/* Top */}
+          <div className="flex items-center justify-between mb-5">
+            <CommonLoading className="h-10 w-10 rounded-2xl" />
+            <CommonLoading className="h-4 w-4 rounded-full" />
+          </div>
+
+          {/* Title */}
+          <CommonLoading className="h-4 w-24 mb-3" />
+
+          {/* Number */}
+          <CommonLoading className="h-8 w-32 mb-4" />
+
+          {/* Bottom */}
+          <CommonLoading className="h-3 w-20 rounded-full" />
+        </div>
+      ))}
+    </div>
+  );
+}
 
   return (
     <div

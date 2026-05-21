@@ -26,7 +26,9 @@ export const ThemeProvider = ({ children }) => {
       appliedTheme = theme === "system" ? getSystemTheme() : theme;
     }
 
-    document.documentElement.className = appliedTheme;
+    document.documentElement.setAttribute("data-theme", appliedTheme);
+
+    localStorage.setItem("theme", theme);
   }, [theme, location.pathname]);
 
   return (

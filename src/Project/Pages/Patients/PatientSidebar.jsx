@@ -182,12 +182,15 @@ const PatientSidebar = ({ isOpen, setIsOpen }) => {
         </div>
 
         {/* User */}
-        <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-cyan-50 to-blue-50">
-          <p className="text-sm opacity-70">Welcome back,</p>
-          <p className="text-lg font-bold truncate">
-            {user?.name || "Patient"}
-          </p>
-        </div>
+<div className="mb-6 p-4 rounded-2xl theme-soft border theme-border">
+  <p className="text-sm theme-text-muted">
+    Welcome back,
+  </p>
+
+  <p className="text-lg font-bold theme-text truncate">
+    {user?.name || "Patient"}
+  </p>
+</div>
 
         {/* Nav */}
         <nav className="flex-1 space-y-2 overflow-y-auto">

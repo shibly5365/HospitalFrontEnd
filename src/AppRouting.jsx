@@ -34,15 +34,23 @@ const AdminDashboard = lazy(
 );
 const DoctorTable = lazy(() => import("./Project/Pages/Admin/DoctorTable"));
 const AdminPatients = lazy(() => import("./Project/Pages/Admin/AdminPatients"));
-const AdminAppointments = lazy(() => import("./Project/Pages/Admin/AdminAppointments"));
-const AdminDepartment = lazy(() => import("./Project/Pages/Admin/AdminDepartment"));
+const AdminAppointments = lazy(
+  () => import("./Project/Pages/Admin/AdminAppointments"),
+);
+const AdminDepartment = lazy(
+  () => import("./Project/Pages/Admin/AdminDepartment"),
+);
 import DoctorsLayout from "./Project/Pages/Doctors/DoctorsLayout";
 import ReceptionLayout from "./Project/Pages/Receptionist/ReceptionLayout";
 const DoctorsDashboard = lazy(
   () => import("./Project/Pages/Doctors/DoctorsDashboard"),
 );
-const DoctorAppointment = lazy(() => import("./Project/Pages/Doctors/DoctorAppointment"));
-const DoctoresPatients = lazy(() => import("./Project/Pages/Doctors/DoctoresPatients"));
+const DoctorAppointment = lazy(
+  () => import("./Project/Pages/Doctors/DoctorAppointment"),
+);
+const DoctoresPatients = lazy(
+  () => import("./Project/Pages/Doctors/DoctoresPatients"),
+);
 const PatientDetailCard = lazy(
   () => import("./Project/Pages/Doctors/DoctorPages/PatientDrawer"),
 );
@@ -53,44 +61,73 @@ const AppointmentForm = lazy(
   () => import("./Project/Pages/Doctors/DoctorPages/AppointmentForm"),
 );
 
-const AdminReceptionist = lazy(() => import("./Project/Pages/Admin/AdminReceptionist"));
-const AddDoctorForm = lazy(() => import("./Project/Pages/Admin/pages/AddDoctorForm"));
+const AdminReceptionist = lazy(
+  () => import("./Project/Pages/Admin/AdminReceptionist"),
+);
+const AddDoctorForm = lazy(
+  () => import("./Project/Pages/Admin/pages/AddDoctorForm"),
+);
 // import Department from "./Project/Pages/Receptionist/Registrection/Department";
-const PatientDetails = lazy(() => import("./Project/Pages/Admin/pages/PatientDetails"));
+const PatientDetails = lazy(
+  () => import("./Project/Pages/Admin/pages/PatientDetails"),
+);
 const ReceptionistDetails = lazy(
   () => import("./Project/Pages/Admin/pages/ReceptionistDetails"),
 );
-const PatientAppointments = lazy(() => import("./Project/Pages/Patients/Appointments"));
-const PatientAppointmentForm = lazy(
-  () => import("./Project/Pages/Patients/pages/Appointments/PatientAppointmentForm"),
+const PatientAppointments = lazy(
+  () => import("./Project/Pages/Patients/Appointments"),
 );
-const PatientLists = lazy(() => import("./Project/Pages/Receptionist/PatientLists"));
-const DepartmentDetails = lazy(() => import("./Project/Pages/Admin/pages/DepartmentDetails"));
-const DoctorSchedule = lazy(() => import("./Project/Pages/Doctors/DoctorSchedule"));
-const AddDepartment = lazy(() => import("./Project/Pages/Admin/pages/AddDepartment"));
+const PatientAppointmentForm = lazy(
+  () =>
+    import("./Project/Pages/Patients/pages/Appointments/PatientAppointmentForm"),
+);
+const PatientLists = lazy(
+  () => import("./Project/Pages/Receptionist/PatientLists"),
+);
+const DepartmentDetails = lazy(
+  () => import("./Project/Pages/Admin/pages/DepartmentDetails"),
+);
+const DoctorSchedule = lazy(
+  () => import("./Project/Pages/Doctors/DoctorSchedule"),
+);
+const AddDepartment = lazy(
+  () => import("./Project/Pages/Admin/pages/AddDepartment"),
+);
 const PatientsLists = lazy(
   () => import("./Project/Pages/Receptionist/pages/Add/PatientsLists"),
 );
 const ReSchedulingAppointments = lazy(
   () => import("./Project/Pages/Patients/pages/ReScheduling"),
 );
-const DoctorSearch = lazy(() => import("./Project/Pages/Patients/pages/DoctorSearch"));
+const DoctorSearch = lazy(
+  () => import("./Project/Pages/Patients/pages/DoctorSearch"),
+);
 const CreateReceptionistForm = lazy(
   () => import("./Project/Pages/Admin/pages/CreateReceptionistForm"),
 );
-const DoctorScheduleRece = lazy(() => import("./Project/Pages/Receptionist/DoctorSchedule"));
+const DoctorScheduleRece = lazy(
+  () => import("./Project/Pages/Receptionist/DoctorSchedule"),
+);
 // import ReceptionHub from "./Project/Pages/Receptionist/Registrection/ReceptionHub";
 import GuestRoute from "./Project/Components/DefaultRoute ";
-const PtientsDepartment = lazy(() => import("./Project/Pages/Patients/Departments"));
+const PtientsDepartment = lazy(
+  () => import("./Project/Pages/Patients/Departments"),
+);
 const PatientsDepartmentDetails = lazy(
   () => import("./Project/Pages/Patients/pages/viewDepartments"),
 );
-const AppointmentUI = lazy(() => import("./Project/Pages/Patients/pages/doctor"));
-const History = lazy(() => import("./Project/Pages/Patients/pages/Appointments/History"));
+const AppointmentUI = lazy(
+  () => import("./Project/Pages/Patients/pages/doctor"),
+);
+const History = lazy(
+  () => import("./Project/Pages/Patients/pages/Appointments/History"),
+);
 const ConsultationHistory = lazy(
   () => import("./Project/Pages/Patients/ConsultationHistory"),
 );
-const MedicalRecordDashboard = lazy(() => import("./Project/Pages/Patients/MedicalRecord"));
+const MedicalRecordDashboard = lazy(
+  () => import("./Project/Pages/Patients/MedicalRecord"),
+);
 const ChatPagePatient = lazy(() => import("./Project/Pages/Patients/ChatPage"));
 const PatientSettings = lazy(() => import("./Project/Pages/Patients/Settings"));
 const Receptinistappointment = lazy(
@@ -118,15 +155,20 @@ const AppointmentBooking = PatientAppointmentForm;
 const BillingManagement = lazy(
   () => import("./Project/Pages/Receptionist/pages/Billing/BillingManagement"),
 );
-const DoctorsList = lazy(() => import("./Project/Pages/Receptionist/pages/Doctors/DoctorsList"));
+const DoctorsList = lazy(
+  () => import("./Project/Pages/Receptionist/pages/Doctors/DoctorsList"),
+);
 const DepartmentsList = lazy(
-  () => import("./Project/Pages/Receptionist/pages/Departments/DepartmentsList"),
+  () =>
+    import("./Project/Pages/Receptionist/pages/Departments/DepartmentsList"),
 );
 const ViewSearchPatients = lazy(
-  () => import("./Project/Pages/Receptionist/pages/Patients/ViewSearchPatients"),
+  () =>
+    import("./Project/Pages/Receptionist/pages/Patients/ViewSearchPatients"),
 );
 const RegisterPatientPage = lazy(
-  () => import("./Project/Pages/Receptionist/pages/Patients/RegisterPatientPage"),
+  () =>
+    import("./Project/Pages/Receptionist/pages/Patients/RegisterPatientPage"),
 );
 const BookAppointment = lazy(
   () => import("./Project/Pages/Receptionist/pages/Patients/BookAppointment"),
@@ -135,7 +177,8 @@ const VisitorManagement = lazy(
   () => import("./Project/Pages/Receptionist/pages/Visitors/VisitorManagement"),
 );
 const HelpDeskManagement = lazy(
-  () => import("./Project/Pages/Receptionist/pages/HelpDesk/HelpDeskManagement"),
+  () =>
+    import("./Project/Pages/Receptionist/pages/HelpDesk/HelpDeskManagement"),
 );
 const ProfileSettings = lazy(
   () => import("./Project/Pages/Receptionist/pages/Profile/ProfileSettings"),
@@ -144,7 +187,8 @@ const RegisterPatient = lazy(
   () => import("./Project/Pages/Receptionist/pages/Patients/RegisterPatient"),
 );
 const DailyAppointmentReports = lazy(
-  () => import("./Project/Pages/Receptionist/pages/Reports/DailyAppointmentReports"),
+  () =>
+    import("./Project/Pages/Receptionist/pages/Reports/DailyAppointmentReports"),
 );
 const DailyBillingReports = lazy(() =>
   import("./Project/Pages/Receptionist/pages/Reports/DailyBillingReports").then(
@@ -152,7 +196,8 @@ const DailyBillingReports = lazy(() =>
   ),
 );
 const PatientRegistrationReports = lazy(
-  () => import("./Project/Pages/Receptionist/pages/Reports/PatientRegistrationReports"),
+  () =>
+    import("./Project/Pages/Receptionist/pages/Reports/PatientRegistrationReports"),
 );
 const DoctorWritePrescription = lazy(
   () => import("./Project/Pages/Doctors/DoctorPages/DoctorWritePrescription"),
@@ -168,7 +213,9 @@ import ErrorPage from "./units/ErrorPage";
 const DoctorProfileSettings = lazy(
   () => import("./Project/Pages/Doctors/DoctorProfileSettings"),
 );
-const EditDepartment = lazy(() => import("./Project/Pages/Admin/pages/EditDepartment"));
+const EditDepartment = lazy(
+  () => import("./Project/Pages/Admin/pages/EditDepartment"),
+);
 const DoctorMonitoringDashboard = lazy(
   () => import("./Project/Pages/Admin/pages/DoctorMonitoringDashboard"),
 );
@@ -177,6 +224,8 @@ const PaymentDashboard = lazy(
   () => import("./Project/Pages/Admin/PaymentDashboard"),
 );
 import ChatProvider from "./features/chat/ChatProvider";
+import PageLoader from "./skeletons/PageLoader";
+import SupportCenter from "./Project/Pages/Admin/SupportCenter";
 const PatientPaymentHistorys = lazy(
   () => import("./Project/Pages/Patients/pages/PatientPaymentHistory"),
 );
@@ -270,6 +319,7 @@ const AppRoutes = () => {
             { path: "doctor-schedule", element: <DoctorScheduleAdmin /> },
             { path: "admin-messages", element: <AdminChat /> },
             { path: "admin-payments", element: <PaymentDashboard /> },
+            { path: "admin-complaints", element: <SupportCenter /> },
           ],
         },
       ],
@@ -431,7 +481,14 @@ const AppRoutes = () => {
             { path: "settings", element: <PatientSettings /> },
             { path: "book-appointments", element: <AppointmentBooking /> },
             { path: "payment-history", element: <PatientPaymentHistorys /> },
-            { path: "prescrption-history", element: <PrescriptionHistory /> },
+            {
+              path: "prescrption-history",
+              element: (
+                <ChatProvider>
+                  <PrescriptionHistory />
+                </ChatProvider>
+              ),
+            },
           ],
         },
       ],
@@ -452,17 +509,7 @@ const AppRoutes = () => {
 
   const element = useRoutes(routes);
 
-  return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center h-screen">
-          Loading...
-        </div>
-      }
-    >
-      {element}
-    </Suspense>
-  );
+  return <Suspense fallback={<PageLoader />}>{element}</Suspense>;
 };
 
 export default AppRoutes;

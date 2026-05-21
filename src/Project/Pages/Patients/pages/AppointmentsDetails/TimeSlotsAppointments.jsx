@@ -15,6 +15,7 @@ export default function TimeSlotsAppointments({ selectedTime, onSelect, slots = 
         (slot.start === "1:00 PM" && slot.end === "2:00 PM")
       )
   );
+  
 
   if (!filteredSlots.length)
     return <div className="text-gray-400 mt-2">No available slots</div>;

@@ -13,6 +13,8 @@ import {
   MessageSquare,
   LogOut,
   Headset,
+  Settings,
+  ShieldAlert,
 } from "lucide-react";
 import { useAuth } from "../../Components/AuthContext";
 
@@ -105,6 +107,18 @@ const AdminSidebar = () => {
           to="/admin/admin-messages"
           icon={<MessageSquare />}
           text="Messages"
+        />
+        <SidebarItem
+          to="/admin/admin-complaints"
+          icon={<ShieldAlert />}
+          text="Complaints"
+          badge="12"
+        />
+
+        <SidebarItem
+          to="/admin/admin-settings"
+          icon={<Settings />}
+          text="Settings"
         />
       </nav>
 

@@ -7,8 +7,8 @@ import { notify } from "../../../Units/notification";
 import TabNavigation from "./pages/appoi/TabNavigation";
 import TabContent from "./pages/appoi/TabContent";
 import Modals from "./pages/appoi/Modals";
-import LoadingSpinner from "./pages/appoi/LoadingSpinner";
 import { useNavigate } from "react-router-dom";
+import ReceptionistSkeleton from "../../../skeletons/ReceptionistSkeleton";
 
 export default function ReceptionistAppointment() {
   const [appointments, setAppointments] = useState([]);
@@ -159,7 +159,7 @@ export default function ReceptionistAppointment() {
   };
 
   if (loading) {
-    return <LoadingSpinner />;
+    return <ReceptionistSkeleton />;
   }
 
   return (

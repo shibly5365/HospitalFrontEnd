@@ -55,27 +55,28 @@ export default function ChatPagePatient() {
     formData.append("conversationId", activeConversation._id);
 
     try {
-      await apiClient.post(
-        "/message/send-file",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+      await apiClient.post("/message/send-file", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
         },
-      );
+      });
     } catch (error) {
       console.log(error);
     }
   };
   return (
-    <div className="flex flex-col md:flex-row h-[100dvh] bg-[#0f172a] text-white overflow-hidden">
+    <div
+      className="flex flex-col md:flex-row h-[100dvh] theme-bg theme-text overflow-hidden
+"
+    >
       {/* ==================== SIDEBAR ==================== */}
-     <div className="w-full md:w-80 border-r border-gray-700 bg-[#1e2937] flex flex-col md:h-full h-[35vh]">
+      <div className="w-full md:w-80 border-r theme-border theme-card flex flex-col md:h-full h-[35vh]">
         {/* Sidebar Header */}
-        <div className="p-3 sm:p-4 border-b border-gray-700 bg-[#1e2937]">
+        <div className="p-3 sm:p-4 border-b theme-border theme-card">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl sm:text-2xl font-semibold text-white">Messages</h2>
+           <h2 className="text-xl sm:text-2xl font-semibold theme-text">
+              Messages
+            </h2>
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-600 flex items-center justify-center cursor-pointer hover:bg-blue-500">
               +
             </div>
@@ -83,11 +84,11 @@ export default function ChatPagePatient() {
 
           {/* Search */}
           <div className="relative">
-            <FaSearch className="absolute left-4 top-3 text-gray-400" />
+            <FaSearch className="absolute left-4 top-3 theme-text-muted" />
             <input
               type="text"
               placeholder="Search doctors or chats..."
-              className="w-full bg-[#334155] text-sm pl-11 pr-4 py-2.5 rounded-full outline-none border border-gray-600 focus:border-blue-500"
+              className="w-full theme-soft text-sm pl-11 pr-4 py-2.5 rounded-full outline-none border theme-border focus:border-blue-500"
             />
           </div>
         </div>
@@ -115,8 +116,8 @@ export default function ChatPagePatient() {
                   <div
                     key={convo._id}
                     onClick={() => setActiveConversation(convo)}
-                    className={`p-4 border-b border-gray-700 cursor-pointer hover:bg-[#334155]
-          ${activeConversation?._id === convo._id ? "bg-[#334155]" : ""}`}
+                    className={`p-4 border-b theme-border cursor-pointer hover:theme-soft
+          ${activeConversation?._id === convo._id ? "theme-soft" : ""}`}
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-500 flex items-center justify-center">
@@ -126,7 +127,7 @@ export default function ChatPagePatient() {
                       <div>
                         <h3 className="font-semibold">{otherUser?.fullName}</h3>
 
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm theme-text-muted">
                           {otherUser?.role}
                         </p>
                       </div>
@@ -135,7 +136,7 @@ export default function ChatPagePatient() {
                 );
               })
           ) : (
-            <div className="p-3 text-gray-400 text-sm text-center mt-8">
+            <div className="p-3 theme-text-muted text-sm text-center mt-8">
               No conversations found
             </div>
           )}
@@ -143,21 +144,21 @@ export default function ChatPagePatient() {
       </div>
 
       {/* ==================== MAIN CHAT AREA ==================== */}
-     <div className="flex-1 flex flex-col bg-[#0f172a] min-h-0">
+     <div className="flex-1 flex flex-col theme-bg min-h-0">
         {activeConversation ? (
           <>
             {/* Chat Header - WhatsApp Style */}
-            <div className="min-h-[64px] bg-[#1e2937] border-b border-gray-700 px-5 flex items-center justify-between">
+            <div className="min-h-[64px] theme-card border-b theme-border px-5 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="relative">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-xl">
                     👨‍⚕️
                   </div>
-                  <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-[#1e2937]"></div>
+                  <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 theme-border"></div>
                 </div>
 
                 <div>
-                 <h3 className="font-semibold text-base sm:text-lg">
+                  <h3 className="font-semibold text-base sm:text-lg">
                     {activeConversation.members?.find(
                       (m) => m._id?.toString() !== user?._id?.toString(),
                     )?.fullName || "Doctor"}
@@ -178,7 +179,7 @@ export default function ChatPagePatient() {
             <div
               className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-2
                          bg-repeat bg-center custom-scrollbar"
-              style={{ backgroundColor: "#0f172a" }}
+              // style={{ backgroundColor: "#0f172a" }}
             >
               <AnimatePresence initial={false}>
                 {messages.map((msg) => {
@@ -212,7 +213,7 @@ export default function ChatPagePatient() {
           ${
             isOwnMessage
               ? "bg-[#0ea5e9] text-white rounded-br-none"
-              : "bg-[#1e2937] text-gray-100 rounded-bl-none"
+              : "theme-card theme-text rounded-bl-none"
           }`}
                       >
                         {msg.messageType === "text" && <p>{msg.text}</p>}
@@ -266,8 +267,8 @@ export default function ChatPagePatient() {
 
             {/* Input Area - WhatsApp Style */}
             {canSendMessage && (
-             <div className="bg-[#1e2937] border-t border-gray-700 px-2 sm:px-4 py-2 sm:py-3">
-                <div className="flex items-center bg-[#334155] rounded-3xl px-2 sm:px-5 py-2 gap-1 sm:gap-2">
+              <div className="theme-card border-t theme-border px-2 sm:px-4 py-2 sm:py-3">
+                <div className="flex items-center theme-soft rounded-3xl px-2 sm:px-5 py-2 gap-1 sm:gap-2">
                   <button
                     onClick={() => setShowEmoji(!showEmoji)}
                     className="text-yellow-400 hover:text-yellow-300 text-xl sm:text-2xl px-1 sm:px-2"
@@ -275,7 +276,7 @@ export default function ChatPagePatient() {
                     <FaSmile />
                   </button>
 
-                  <label className="cursor-pointer px-3 text-gray-300 hover:text-white">
+                  <label className="cursor-pointer px-3 theme-text-muted hover:opacity-80">
                     <FaPaperclip size={22} />
                     <input type="file" hidden onChange={handleFileUpload} />
                   </label>
@@ -292,7 +293,7 @@ export default function ChatPagePatient() {
                   <button
                     onMouseDown={startVoiceRecording}
                     onMouseUp={stopRecording}
-                    className={`px-1 sm:px-3 transition ${isRecording ? "text-red-500 scale-110" : "text-gray-300 hover:text-white"}`}
+                    className={`px-1 sm:px-3 transition ${isRecording ? "text-red-500 scale-110" : "theme-text-muted hover:opacity-80"}`}
                   >
                     <FaMicrophone size={23} />
                   </button>
@@ -309,9 +310,11 @@ export default function ChatPagePatient() {
             )}
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
+          <div className="flex-1 flex flex-col items-center justify-center theme-text-muted">
             <div className="text-6xl mb-6 opacity-50">💬</div>
-            <p className="text-base sm:text-xl text-center px-4">Select a conversation to start messaging</p>
+            <p className="text-base sm:text-xl text-center px-4">
+              Select a conversation to start messaging
+            </p>
           </div>
         )}
       </div>
@@ -324,8 +327,8 @@ export default function ChatPagePatient() {
               onEmojiClick={(emoji) =>
                 setMessageText((prev) => prev + emoji.emoji)
               }
-width={window.innerWidth < 640 ? 300 : 350}
-height={window.innerWidth < 640 ? 350 : 400}
+              width={window.innerWidth < 640 ? 300 : 350}
+              height={window.innerWidth < 640 ? 350 : 400}
             />
           </div>
         )}

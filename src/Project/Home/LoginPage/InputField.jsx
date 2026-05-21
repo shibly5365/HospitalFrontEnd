@@ -43,7 +43,7 @@ export const InputField = ({
           type={type}
           placeholder={placeholder}
           {...register(name)}
-          className={`w-full pl-10 pr-4 py-2.5 rounded-xl border-2 transition-all duration-200 outline-none
+          className={`w-full pl-10 pr-4 py-2.5 rounded-xl border-2 transition-colors duration-200 outline-none
             ${error 
               ? "border-red-300 focus:border-red-500 bg-red-50" 
               : "border-gray-200 focus:border-teal-400 bg-white/50"

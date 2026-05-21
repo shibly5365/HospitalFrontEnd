@@ -1,7 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { getLatestAppointments } from "../../../../../services/adminService";
 
 const ITEMS_PER_PAGE = 10;
+
+const statusStyles = {
+  Completed: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+  Confirmed: "bg-blue-50 text-blue-700 ring-1 ring-blue-200",
+  Pending: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
+  Cancelled: "bg-red-50 text-red-700 ring-1 ring-red-200",
+};
 
 const LatestAppointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -9,127 +16,206 @@ const LatestAppointments = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    fetchLatest();
+    fetchLatestAppointments();
   }, []);
 
-  const fetchLatest = async () => {
+  const fetchLatestAppointments = async () => {
     try {
-      const res = await getLatestAppointments(50); // 🔥 fetch more, paginate in UI
-      const data = res.data.data || [];
+      setLoading(true);
 
-      const formatted = data.map((item) => ({
+      const res = await getLatestAppointments(50);
+
+      const data = res?.data?.data || [];
+
+      const formattedData = data.map((item) => ({
         id: item.patientId,
         patient: item.patientName,
         patientImage: item.patientImage,
         session: item.consultationType,
         doctor: item.doctorName,
         doctorImage: item.doctorImage,
-        date: `${new Date(item.date).toLocaleDateString()} | ${item.time}`,
+        date: new Date(item.date).toLocaleDateString(),
+        time: item.time,
         status: item.status,
       }));
 
-      setAppointments(formatted);
+      setAppointments(formattedData);
     } catch (error) {
-      console.error(error);
+      console.error("Failed to fetch appointments:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ PAGINATION LOGIC
   const totalPages = Math.ceil(appointments.length / ITEMS_PER_PAGE);
 
-  const paginatedData = appointments.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE,
-  );
+  const paginatedAppointments = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+
+    return appointments.slice(start, start + ITEMS_PER_PAGE);
+  }, [appointments, currentPage]);
 
   return (
-    <div className="bg-white shadow rounded-2xl p-6 mt-6">
+    <div className="mt-6 rounded-3xl border border-gray-100 bg-white shadow-sm">
       {/* HEADER */}
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">Latest Appointments</h3>
-        <button className="text-sm text-blue-500 hover:underline">
+      <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900">
+            Latest Appointments
+          </h2>
+
+          <p className="mt-1 text-sm text-gray-500">
+            Recent patient booking activities
+          </p>
+        </div>
+
+        <button className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
           View All
         </button>
       </div>
 
       {/* LOADING */}
       {loading ? (
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-10 bg-gray-100 animate-pulse rounded" />
+        <div className="space-y-4 p-6">
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between rounded-2xl border border-gray-100 p-4"
+            >
+              <div className="flex items-center gap-4">
+                <div className="h-11 w-11 animate-pulse rounded-full bg-gray-200" />
+
+                <div className="space-y-2">
+                  <div className="h-3 w-32 animate-pulse rounded bg-gray-200" />
+                  <div className="h-3 w-20 animate-pulse rounded bg-gray-100" />
+                </div>
+              </div>
+
+              <div className="h-8 w-24 animate-pulse rounded-full bg-gray-100" />
+            </div>
           ))}
         </div>
       ) : (
         <>
           {/* TABLE */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left min-w-[700px]">
-              <thead>
-                <tr className="text-gray-500 text-sm border-b">
-                  <th className="pb-2">Patient ID</th>
-                  <th className="pb-2">Patient Name</th>
-                  <th className="pb-2">Session</th>
-                  <th className="pb-2">Doctor</th>
-                  <th className="pb-2">Date & Time</th>
-                  <th className="pb-2">Status</th>
+            <table className="min-w-full">
+              <thead className="bg-gray-50">
+                <tr className="text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  <th className="px-6 py-4">Patient ID</th>
+                  <th className="px-6 py-4">Patient</th>
+                  <th className="px-6 py-4">Session</th>
+                  <th className="px-6 py-4">Doctor</th>
+                  <th className="px-6 py-4">Date & Time</th>
+                  <th className="px-6 py-4">Status</th>
                 </tr>
               </thead>
 
-              <tbody className="text-sm">
-                {paginatedData.length === 0 ? (
+              <tbody>
+                {paginatedAppointments.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="py-4 text-center text-gray-500">
-                      No appointments found
+                    <td colSpan={6} className="px-6 py-16 text-center">
+                      <div className="flex flex-col items-center">
+                        <div className="mb-3 rounded-full bg-gray-100 p-4">
+                          📅
+                        </div>
+
+                        <h3 className="text-sm font-semibold text-gray-800">
+                          No appointments found
+                        </h3>
+
+                        <p className="mt-1 text-sm text-gray-500">
+                          New appointments will appear here
+                        </p>
+                      </div>
                     </td>
                   </tr>
                 ) : (
-                  paginatedData.map((appt, idx) => (
+                  paginatedAppointments.map((appointment, index) => (
                     <tr
-                      key={idx}
-                      className="border-b last:border-none hover:bg-gray-50 transition"
+                      key={index}
+                      className="border-b border-gray-100 transition hover:bg-gray-50/70"
                     >
-                      <td className="py-3 font-medium text-gray-700">
-                        {appt.id}
+                      {/* PATIENT ID */}
+                      <td className="px-6 py-4">
+                        <span className="font-medium text-gray-800">
+                          #{appointment.id}
+                        </span>
                       </td>
 
                       {/* PATIENT */}
-                      <td className="py-3 flex items-center gap-2">
-                        <img
-                          src={appt.patientImage || "https://i.pravatar.cc/40"}
-                          alt={appt.patient}
-                          className="w-8 h-8 rounded-full object-cover"
-                        />
-                        {appt.patient}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={
+                              appointment.patientImage ||
+                              "https://i.pravatar.cc/100"
+                            }
+                            alt={appointment.patient}
+                            className="h-11 w-11 rounded-full object-cover ring-2 ring-gray-100"
+                          />
+
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {appointment.patient}
+                            </p>
+
+                            <p className="text-sm text-gray-500">Patient</p>
+                          </div>
+                        </div>
                       </td>
 
-                      <td className="py-3">{appt.session}</td>
+                      {/* SESSION */}
+                      <td className="px-6 py-4">
+                        <span className="rounded-lg bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">
+                          {appointment.session}
+                        </span>
+                      </td>
 
                       {/* DOCTOR */}
-                      <td className="py-3 flex items-center gap-2">
-                        <img
-                          src={appt.doctorImage || "https://i.pravatar.cc/40"}
-                          alt={appt.doctor}
-                          className="w-8 h-8 rounded-full object-cover"
-                        />
-                        {appt.doctor}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={
+                              appointment.doctorImage ||
+                              "https://i.pravatar.cc/100"
+                            }
+                            alt={appointment.doctor}
+                            className="h-11 w-11 rounded-full object-cover ring-2 ring-gray-100"
+                          />
+
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {appointment.doctor}
+                            </p>
+
+                            <p className="text-sm text-gray-500">Doctor</p>
+                          </div>
+                        </div>
                       </td>
 
-                      <td className="py-3 text-gray-600">{appt.date}</td>
+                      {/* DATE */}
+                      <td className="px-6 py-4">
+                        <div>
+                          <p className="font-medium text-gray-800">
+                            {appointment.date}
+                          </p>
+
+                          <p className="text-sm text-gray-500">
+                            {appointment.time}
+                          </p>
+                        </div>
+                      </td>
 
                       {/* STATUS */}
-                      <td className="py-3">
+                      <td className="px-6 py-4">
                         <span
-                          className={`px-3 py-1 text-xs rounded-full font-medium ${
-                            appt.status === "Completed"
-                              ? "bg-green-100 text-green-600"
-                              : appt.status === "Confirmed"
-                                ? "bg-blue-100 text-blue-600"
-                                : "bg-purple-100 text-purple-600"
+                          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+                            statusStyles[appointment.status] ||
+                            "bg-gray-100 text-gray-700"
                           }`}
                         >
-                          {appt.status}
+                          {appointment.status}
                         </span>
                       </td>
                     </tr>
@@ -141,38 +227,53 @@ const LatestAppointments = () => {
 
           {/* PAGINATION */}
           {totalPages > 1 && (
-            <div className="flex justify-between items-center mt-4">
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                className="px-3 py-1 bg-gray-100 rounded hover:bg-gray-200"
-              >
-                Prev
-              </button>
+            <div className="flex flex-col items-center justify-between gap-4 border-t border-gray-100 px-6 py-4 sm:flex-row">
+              <p className="text-sm text-gray-500">
+                Showing page{" "}
+                <span className="font-semibold text-gray-800">
+                  {currentPage}
+                </span>{" "}
+                of{" "}
+                <span className="font-semibold text-gray-800">
+                  {totalPages}
+                </span>
+              </p>
 
-              <div className="flex gap-2">
-                {[...Array(totalPages)].map((_, i) => (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
+                  disabled={currentPage === 1}
+                  className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Previous
+                </button>
+
+                {[...Array(totalPages)].map((_, index) => (
                   <button
-                    key={i}
-                    onClick={() => setCurrentPage(i + 1)}
-                    className={`px-3 py-1 rounded ${
-                      currentPage === i + 1
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-100 hover:bg-gray-200"
+                    key={index}
+                    onClick={() => setCurrentPage(index + 1)}
+                    className={`h-10 w-10 rounded-xl text-sm font-semibold transition ${
+                      currentPage === index + 1
+                        ? "bg-blue-600 text-white shadow-md"
+                        : "border border-gray-200 text-gray-700 hover:bg-gray-50"
                     }`}
                   >
-                    {i + 1}
+                    {index + 1}
                   </button>
                 ))}
-              </div>
 
-              <button
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(p + 1, totalPages))
-                }
-                className="px-3 py-1 bg-gray-100 rounded hover:bg-gray-200"
-              >
-                Next
-              </button>
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
             </div>
           )}
         </>

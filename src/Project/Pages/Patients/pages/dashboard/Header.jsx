@@ -65,13 +65,13 @@ export default function Header({ isVisible }) {
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
               Welcome {patient.patientInfo.fullName || "Patient"}! 👋
             </h1>
-            <p className="text-gray-600 text-lg">
+            <p className="theme-text-muted text-lg">
               Here's your health overview for today
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-sm border border-white/20">
+       <div className="theme-card backdrop-blur-sm rounded-2xl px-4 py-2 shadow-sm flex items-center gap-3">
           {/* Profile Image */}
           <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-teal-400">
             <img
@@ -86,8 +86,8 @@ export default function Header({ isVisible }) {
 
           {/* Patient ID */}
           <div>
-            <p className="text-sm text-gray-500">Patient ID</p>
-            <p className="font-semibold text-gray-800">
+           <p className="text-sm theme-text-muted">Patient ID</p>
+            <p className="font-semibold theme-text">
               #{patient?._id?.slice(-6).toUpperCase() || "N/A"}
             </p>
           </div>

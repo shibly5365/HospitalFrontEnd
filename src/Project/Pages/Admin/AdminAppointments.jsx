@@ -1,348 +1,284 @@
+// components/admin/AdminPatients.jsx
+import React, { useEffect, useState } from "react";
+import { Search, UserPlus, Eye, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { notify } from "../../../Units/notification";
+import toast from "react-hot-toast";
 import { apiClient } from "../../../services/queryClient";
-import React, { useState, useEffect } from "react";
-import { Trash2 } from "lucide-react";
-import RescheduleAppointment from "./pages/AddAppointment";
 
-const AdminAppointments = () => {
-  const [appointments, setAppointments] = useState([]);
+const AdminPatients = () => {
+  const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
-  const [tab, setTab] = useState("All"); // All, Confirmed, Pending, Cancelled
-  const [selectAll, setSelectAll] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
-  // Fetch appointments
-  const fetchAppointments = async () => {
-    setLoading(true);
-    try {
-      const res = await apiClient.get(
-        "/admin/allAppointments",
-        { withCredentials: true },
-      );
-      console.log(res.data);
-
-      const data = (res.data.appointments || []).map((appt) => ({
-        ...appt,
-        selected: false,
-      }));
-      setAppointments(data);
-      setLoading(false);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to fetch appointments");
-      setLoading(false);
-    }
-  };
-
+  // Fetch patients
   useEffect(() => {
-    fetchAppointments();
+    const fetchPatients = async () => {
+      try {
+        const res = await apiClient.get("/admin/getAll-patients", {
+          withCredentials: true,
+        });
+        setPatients(res.data.patients || res.data);
+      } catch (err) {
+        console.error("Error fetching patients:", err);
+        notify.error("Failed to fetch patients");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPatients();
   }, []);
 
-  // Filter appointments by tab and search
+  const filteredPatients = patients.filter(
+    (patient) =>
+      patient.fullName?.toLowerCase().includes(search.toLowerCase()) ||
+      patient.email?.toLowerCase().includes(search.toLowerCase()),
+  );
+  console.log(filteredPatients);
 
-  const filteredAppointments = appointments.filter((appt) => {
-    const statusMatch = tab === "All" ? true : appt.status === tab;
-    const searchMatch = appt.patientName
-      ?.toLowerCase()
-      .includes(search.toLowerCase());
-    return statusMatch && searchMatch;
-  });
-
-  // Add Appointments
-  // Pass the form data from the modal
-  const handleAddAppointment = async (formData) => {
-    try {
-      // Build timeSlot object for backend
-      const dataToSend = {
-        ...formData,
-        appointmentDate: formData.date,
-        timeSlot: {
-          start: formData.startTime,
-          end: formData.endTime,
-        },
-      };
-
-      // POST request to backend
-      const res = await apiClient.post(
-        "/admin/book",
-        dataToSend,
-        { withCredentials: true },
-      );
-
-      // Update local appointments list
-      setAppointments((prev) => [
-        ...prev,
-        { ...res.data.appointment, selected: false },
-      ]);
-
-      alert("Appointment added successfully!");
-    } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.message || "Failed to add appointment");
-    }
-  };
-
-  // Select/deselect all
-  const handleSelectAll = () => {
-    const newValue = !selectAll;
-    setSelectAll(newValue);
-    setAppointments((prev) =>
-      prev.map((appt) => ({ ...appt, selected: newValue })),
-    );
-  };
-
-  // Toggle row selection
-  const toggleSelect = (id) => {
-    setAppointments((prev) =>
-      prev.map((appt) =>
-        appt._id === id ? { ...appt, selected: !appt.selected } : appt,
+  const handleDeletePatient = async (id, name) => {
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3">
+          <p>
+            Are you sure you want to delete <strong>{name}</strong>?
+          </p>
+          <div className="flex justify-end gap-3">
+            <button
+              className="px-4 py-2 bg-gray-200 rounded-xl hover:bg-gray-300"
+              onClick={() => toast.dismiss(t._id)}
+            >
+              Cancel
+            </button>
+            <button
+              className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700"
+              onClick={async () => {
+                try {
+                  await apiClient.delete(`/admin/delete-patients/${id}`, {
+                    withCredentials: true,
+                  });
+                  setPatients((prev) => prev.filter((p) => p._id !== id));
+                  notify.success("Patient deleted successfully");
+                } catch (err) {
+                  notify.error("Failed to delete patient");
+                } finally {
+                  toast.dismiss(t._id);
+                }
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
       ),
+      { duration: Infinity },
     );
   };
 
-  // Delete selected appointments
-  // Delete selected appointments
-  const handleDeleteSelected = async () => {
-    const selectedAppointments = appointments.filter((a) => a.selected);
-    if (selectedAppointments.length === 0) return;
-    if (
-      !window.confirm("Are you sure you want to delete selected appointments?")
-    )
-      return;
-
-    try {
-      for (const appt of selectedAppointments) {
-        await apiClient.delete(
-          `/admin/deleteAppointments/${appt._id}`,
-          { withCredentials: true },
-        );
-      }
-      setAppointments((prev) =>
-        prev.filter(
-          (a) => !selectedAppointments.some((sa) => sa._id === a._id),
-        ),
-      );
-      alert("Selected appointments deleted successfully");
-    } catch (err) {
-      console.error(err);
-      alert("Error deleting selected appointments");
-    }
+  // Fallback to initials if no image
+  const getInitials = (name) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
-
-  // Reschedule/Edit
-  const handleReschedule = (appt) => {
-    setSelectedAppointment(appt); // Pass appointment to modal
-    setIsModalOpen(true);
-  };
-
-  // Cancel appointment
-  const handleCancel = async (_id) => {
-    console.log(_id);
-
-    try {
-      await apiClient.put(
-        `/admin/cancelappointments/${_id}`,
-        {}, // no body needed
-        { withCredentials: true }, // 🔥 send cookies with request
-      );
-
-      setAppointments((prev) =>
-        prev.map((a) => (a._id === _id ? { ...a, status: "Cancelled" } : a)),
-      );
-
-      alert("Appointment cancelled successfully");
-    } catch (error) {
-      console.error("Error cancelling appointment:", error);
-      alert("Failed to cancel appointment");
-    }
-  };
-
-  // Check if any appointment is selected
-  const anySelected = appointments.some((a) => a.selected);
-
-  console.log("faaaa", appointments);
+  
+  
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Appointments To-Do List</h1>
-      </div>
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Patients</h1>
+            <p className="text-gray-600 mt-1">
+              Manage and monitor all registered patients
+            </p>
+          </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 mb-4">
-        {["All", "Confirmed", "Pending", "Cancelled"].map((status) => (
-          <button
-            key={status}
-            onClick={() => setTab(status)}
-            className={`px-4 py-2 rounded-full text-sm font-medium ${
-              tab === status
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200 text-gray-700"
-            }`}
-          >
-            {status}{" "}
-            {status !== "All" &&
-              `(${appointments.filter((a) => a.status === status).length})`}
+          <button className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-2xl font-medium transition shadow-sm">
+            <UserPlus size={20} />
+            Add New Patient
           </button>
-        ))}
-      </div>
-
-      {/* Search + Delete Icon */}
-      <div className="flex justify-between mb-4 items-center">
-        <input
-          type="text"
-          placeholder="Search by patient name"
-          className="px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 w-64"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-
-        {anySelected && (
-          <button
-            onClick={handleDeleteSelected}
-            className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
-          >
-            <Trash2 size={16} /> Delete Selected
-          </button>
-        )}
-      </div>
-
-      {/* Appointments Table */}
-      {loading ? (
-        <p className="text-center py-4">Loading appointments...</p>
-      ) : error ? (
-        <p className="text-red-500 text-center py-4">{error}</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 bg-white rounded-xl shadow">
-            <thead className="bg-gray-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                  <input
-                    type="checkbox"
-                    checked={selectAll}
-                    onChange={handleSelectAll}
-                    className="w-4 h-4 cursor-pointer"
-                  />
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                  Time
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                  Doctor
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                  Treatment
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filteredAppointments.length > 0 ? (
-                filteredAppointments.map((appt) => (
-                  <tr
-                    key={appt._id}
-                    className={`hover:bg-gray-50 ${
-                      appt.selected ? "bg-blue-50" : ""
-                    }`}
-                  >
-                    <td className="px-6 py-4 text-center">
-                      <input
-                        type="checkbox"
-                        checked={appt.selected}
-                        onChange={() => toggleSelect(appt._id)}
-                        className="w-4 h-4 cursor-pointer"
-                      />
-                    </td>
-                    <td className="px-6 py-4">{appt.patientName || "N/A"}</td>
-                    <td className="px-6 py-4">
-                      {appt.appointmentDate
-                        ? new Date(appt.appointmentDate).toLocaleDateString()
-                        : "N/A"}
-                    </td>
-                    <td className="px-6 py-4">
-                      {appt.appointmentDate
-                        ? new Date(appt.appointmentDate).toLocaleTimeString(
-                            [],
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            },
-                          )
-                        : "N/A"}
-                    </td>
-                    <td className="px-6 py-4">{appt.doctorName || "N/A"}</td>
-                    <td className="px-6 py-4">
-                      {appt.departmentName || "N/A"}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-3 py-1 text-sm rounded-full ${
-                          appt.status === "Confirmed"
-                            ? "bg-green-100 text-green-700"
-                            : appt.status === "Cancelled"
-                              ? "bg-red-100 text-red-700"
-                              : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
-                        {appt.status || "Pending"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 flex gap-2">
-                      {/* Reschedule always visible */}
-                      <button
-                        onClick={() => handleReschedule(appt)}
-                        className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                      >
-                        Reschedule
-                      </button>
-
-                      {/* Cancel only visible if status is Pending or Confirmed */}
-                      {(appt.status === "Pending" ||
-                        appt.status === "Confirmed") && (
-                        <button
-                          onClick={() => handleCancel(appt._id)}
-                          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                        >
-                          Cancel
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="8" className="text-center py-4">
-                    No appointments found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
         </div>
-      )}
-      {/* New Appointment Modal */}
-      <RescheduleAppointment
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleAddAppointment}
-        initialData={selectedAppointment}
-      />
+
+        {/* Search & Filters */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="relative flex-1 max-w-md">
+            <Search
+              className="absolute left-4 top-3.5 text-gray-400"
+              size={20}
+            />
+            <input
+              type="text"
+              placeholder="Search by name or email..."
+              className="w-full bg-white border border-gray-300 pl-11 py-3.5 rounded-2xl focus:outline-none focus:border-teal-500 transition"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          <div className="flex gap-3">
+            <button className="px-5 py-3 bg-white border border-gray-300 rounded-2xl hover:bg-gray-50 transition text-sm font-medium">
+              All Patients
+            </button>
+            <button className="px-5 py-3 bg-white border border-gray-300 rounded-2xl hover:bg-gray-50 transition text-sm font-medium">
+              Recent
+            </button>
+          </div>
+        </div>
+
+        {/* Table Card */}
+        <div className="bg-white rounded-3xl shadow border border-gray-200 overflow-hidden">
+          {loading ? (
+            <div className="py-20 text-center text-gray-500 text-lg">
+              Loading patients...
+            </div>
+          ) : filteredPatients.length === 0 ? (
+            <div className="py-20 text-center text-gray-500">
+              No patients found
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">
+                      Patient
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">
+                      Age
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">
+                      Gender
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">
+                      Contact
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">
+                      Email
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">
+                      Type
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">
+                      Total Visits
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filteredPatients.map((patient) => (
+                    <tr
+                      key={patient._id}
+                      className="hover:bg-teal-50/60 transition group"
+                    >
+                      {/* Profile Image Column */}
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-11 h-11 rounded-2xl overflow-hidden border border-gray-200 flex-shrink-0">
+                            {patient.profileImage ||
+                            patient.avatar ||
+                            patient.image ? (
+                              <img
+                                src={
+                                  patient.profileImage ||
+                                  patient.avatar ||
+                                  patient.image
+                                }
+                                alt={patient.fullName}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.target.style.display = "none";
+                                  e.target.parentElement.innerHTML = `
+                                    <div class="w-full h-full bg-teal-100 text-teal-700 flex items-center justify-center font-semibold text-lg">
+                                      ${getInitials(patient.fullName)}
+                                    </div>
+                                  `;
+                                }}
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-teal-100 text-teal-700 flex items-center justify-center font-semibold text-lg border border-teal-200">
+                                {getInitials(patient.fullName)}
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {patient.fullName}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              ID: {patient._id?.slice(-6) || "N/A"}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-5 text-gray-600">
+                        {patient.age || "N/A"}
+                      </td>
+                      <td className="px-6 py-5 text-gray-600">
+                        {patient.gender || "N/A"}
+                      </td>
+                      <td className="px-6 py-5 text-gray-600">
+                        {patient.contact || "N/A"}
+                      </td>
+                      <td className="px-6 py-5 text-gray-600">
+                        {patient.email}
+                      </td>
+                      <td className="px-6 py-5">
+                        <span className="px-3 py-1 bg-teal-100 text-teal-700 text-sm rounded-full">
+                          {patient.patientType || "General"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5 font-medium text-gray-700">
+                        {patient.summary?.totalVisits || 0}
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() =>
+                              navigate(
+                                `/admin/patients/${patient._id || patient.id}`,
+                              )
+                            }
+                            className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-xl transition"
+                            title="View Details"
+                          >
+                            <Eye size={20} />
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleDeletePatient(
+                                patient._id || patient.id,
+                                patient.fullName,
+                              )
+                            }
+                            className="p-2.5 text-red-600 hover:bg-red-50 rounded-xl transition"
+                            title="Delete Patient"
+                          >
+                            <Trash2 size={20} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
 
-export default AdminAppointments;
+export default AdminPatients;
