@@ -1,7 +1,7 @@
 import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
 import { X, Edit, Phone, Mail, Calendar, MapPin, Heart, AlertCircle, User, FileText } from "lucide-react";
-import { notify } from "../../../../../Units/notification";
+import { notify } from "../../../../../units/notification";
 
 export default function PatientDetails({ patient, onClose, onEdit }) {
   const [patientData, setPatientData] = useState(patient);

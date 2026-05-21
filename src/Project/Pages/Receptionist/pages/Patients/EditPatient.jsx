@@ -1,7 +1,7 @@
 import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
 import { Edit, X, Save } from "lucide-react";
-import { notify } from "../../../../../Units/notification";
+import { notify } from "../../../../../units/notification";
 
 export default function EditPatient({ patient, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);

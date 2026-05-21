@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { UserCircle2, KeyRound, Lock, Mail, Phone, MapPin, Save, Eye, EyeOff } from "lucide-react";
-import { notify } from "../../../../../Units/notification";
+import { notify } from "../../../../../units/notification";
 
 export default function ProfileSettings() {
   const [activeTab, setActiveTab] = useState("profile");

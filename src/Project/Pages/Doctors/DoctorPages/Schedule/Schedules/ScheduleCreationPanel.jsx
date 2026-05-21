@@ -7,7 +7,7 @@ import ScheduleTypeSelector from "./ScheduleTypeSelector";
 import TimeConfiguration from "./TimeConfiguration";
 import SlotSettings from "./SlotSettings";
 import GeneratedSlotsPreview from "./GeneratedSlotsPreview";
-import { notify } from "../../../../../../Units/notification";
+import { notify } from "../../../../../../units/notification";
 
 const ScheduleCreationPanel = ({ onScheduleCreated, timeOptions }) => {
   const [selectedDate, setSelectedDate] = useState("");

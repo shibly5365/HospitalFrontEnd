@@ -209,7 +209,6 @@ const VerifyOtp = lazy(() => import("./Project/Home/LoginPage/VerifyOtp"));
 const DoctorScheduleAdmin = lazy(
   () => import("./Project/Pages/Admin/DoctorScheduleAdmin"),
 );
-import ErrorPage from "./units/ErrorPage";
 const DoctorProfileSettings = lazy(
   () => import("./Project/Pages/Doctors/DoctorProfileSettings"),
 );
@@ -232,6 +231,7 @@ const PatientPaymentHistorys = lazy(
 const PrescriptionHistory = lazy(
   () => import("./Project/Pages/Patients/pages/PrescriptionHistory"),
 );
+import ErrorPages from "./units/ErrorPage.js";
 
 const AppRoutes = () => {
   const routes = [
@@ -272,7 +272,7 @@ const AppRoutes = () => {
     {
       path: "/super-admin",
       element: <ProtectedRoute roleRequired="superadmin" />,
-      errorElement: <ErrorPage />,
+      errorElement: <ErrorPages />,
       children: [
         {
           element: <SuperAdminLayout />,
@@ -294,7 +294,7 @@ const AppRoutes = () => {
     {
       path: "/admin",
       element: <ProtectedRoute roleRequired={"admin"} />,
-      errorElement: <ErrorPage />,
+      errorElement: <ErrorPages />,
       children: [
         {
           element: <AdminLayout />,
@@ -330,7 +330,7 @@ const AppRoutes = () => {
     {
       path: "/doctors",
       element: <ProtectedRoute roleRequired="doctor" />,
-      errorElement: <ErrorPage />,
+      errorElement: <ErrorPages />,
       children: [
         {
           element: <DoctorsLayout />,
@@ -381,7 +381,7 @@ const AppRoutes = () => {
     {
       path: "/receptionist",
       element: <ProtectedRoute roleRequired="receptionist" />,
-      errorElement: <ErrorPage />,
+      errorElement: <ErrorPages />,
       children: [
         {
           element: <ReceptionLayout />,
@@ -448,7 +448,7 @@ const AppRoutes = () => {
     {
       path: "/patient",
       element: <ProtectedRoute roleRequired="patient" />,
-      errorElement: <ErrorPage />,
+      errorElement: <ErrorPages />,
       children: [
         {
           element: <PatientLayout />,
@@ -496,14 +496,14 @@ const AppRoutes = () => {
     {
       path: "/errorPage",
       element: <ProtectedRoute guestRedirect={true} />,
-      errorElement: <ErrorPage />,
-      children: [{ path: "", element: <ErrorPage /> }],
+      errorElement: <ErrorPages />,
+      children: [{ path: "", element: <ErrorPages /> }],
     },
 
     // 🔹 404 fallback
     {
       path: "*",
-      element: <ErrorPage />,
+      element: <ErrorPages />,
     },
   ];
 

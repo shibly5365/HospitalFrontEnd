@@ -16,7 +16,7 @@ import {
   Activity,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { notify } from "../../../Units/notification";
+import { notify } from "../../../units/notification";
 import { useAuth } from "../../Components/AuthContext";
 import { useTheme } from "../../../context/ThemeContext"; // ✅ NEW
 

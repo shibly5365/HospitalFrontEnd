@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Search, UserPlus, Eye, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { notify } from "../../../Units/notification";
+import { notify } from "../../../units/notification";
 import toast from "react-hot-toast";
 import { apiClient } from "../../../services/queryClient";
 

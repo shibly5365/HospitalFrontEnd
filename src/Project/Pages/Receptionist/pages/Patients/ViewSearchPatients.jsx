@@ -12,7 +12,7 @@ import {
   Mail,
   User,
 } from "lucide-react";
-import { notify } from "../../../../../Units/notification";
+import { notify } from "../../../../../units/notification";
 import PatientDetails from "./PatientDetails";
 import EditPatient from "./EditPatient";
 import RegisterPatient from "./RegisterPatient";

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { motion, AnimatePresence } from "framer-motion";
-import { notify } from "../../../Units/notification";
+import { notify } from "../../../units/notification";
 import { MdLocalHospital } from "react-icons/md";
 
 import { signupSchema } from "./validations/signupSchema";

@@ -12,7 +12,7 @@ import {
 } from "react-icons/fa";
 import { Home, Users, UserCheck, Calendar, Phone, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { notify } from "../../../Units/notification";
+import { notify } from "../../../units/notification";
 
 const AdminReceptionist = () => {
   const [receptionists, setReceptionists] = useState([]);

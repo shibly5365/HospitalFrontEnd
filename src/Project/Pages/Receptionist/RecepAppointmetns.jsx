@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Calendar, Clock, Stethoscope } from "lucide-react";
 import Header from "./pages/appoint/Header";
 import StatsCards from "./pages/appoint/StatsCards";
-import { notify } from "../../../Units/notification";
+import { notify } from "../../../units/notification";
 import TabNavigation from "./pages/appoi/TabNavigation";
 import TabContent from "./pages/appoi/TabContent";
 import Modals from "./pages/appoi/Modals";

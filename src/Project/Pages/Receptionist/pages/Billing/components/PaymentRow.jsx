@@ -9,7 +9,7 @@ import {
   Printer, 
   MoreVertical 
 } from "lucide-react";
-import { notify } from "../../../../../../Units/notification";
+import { notify } from "../../../../../../units/notification";
 
 export default function PaymentRow({ payment, onRefresh }) {
   const handleMarkAsPaid = async () => {

@@ -1,7 +1,7 @@
 import { apiClient } from "../../../../../services/queryClient";
 import React, { useState } from "react";
 import { UserPlus, X, Calendar, MapPin, Phone, Mail, Heart, AlertCircle } from "lucide-react";
-import { notify } from "../../../../../Units/notification";
+import { notify } from "../../../../../units/notification";
 
 export default function RegisterPatient({ onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);

@@ -1,7 +1,7 @@
 import { apiClient } from "../../../../../services/queryClient";
 import React, { useState } from "react";
 import { UserPlus, X } from "lucide-react";
-import { notify } from "../../../../../Units/notification";
+import { notify } from "../../../../../units/notification";
 import { useNavigate } from "react-router-dom";
 import FormHeader from "./registser/FormHeader";
 import RegistrationSidebar from "./registser/RegistrationSidebar";
