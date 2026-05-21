@@ -1,7 +1,7 @@
 import { apiClient } from "../../../../../services/queryClient";
 import React, { useState } from "react";
 import { X, AlertTriangle, Trash2 } from "lucide-react";
-import { notify } from "../../../../../units/notification";
+import { notify } from "../../../../../UnitsTemp/notification";
 
 export default function CancelAppointment({ appointment, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);

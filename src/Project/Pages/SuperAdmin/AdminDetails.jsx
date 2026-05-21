@@ -16,7 +16,7 @@ import {
   XCircle,
   Shield,
 } from "lucide-react";
-import { notify } from "../../../units/notification";
+import { notify } from "../../../UnitsTemp/notification";
 
 const AdminDetails = () => {
   const { id } = useParams();

@@ -1,7 +1,7 @@
 import { apiClient } from "../../../../../services/queryClient";
 import React, { useState } from "react";
 import { Lock, Eye, EyeOff, Shield } from "lucide-react";
-import { notify } from "../../../../../units/notification";
+import { notify } from "../../../../../UnitsTemp/notification";
 
 export default function SecuritySection() {
   const [data, setData] = useState({ current: "", new: "", confirm: "" });

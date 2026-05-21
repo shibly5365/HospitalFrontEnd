@@ -4,7 +4,7 @@ import { Calendar } from "lucide-react";
 import ScheduleCreationPanel from "./Schedules/ScheduleCreationPanel";
 import SchedulesSidebar from "./Schedules/SchedulesSidebar";
 import { generateTimeOptions } from "./Schedules/utils";
-import  {notify}  from "../../../../../units/notification";
+import  {notify}  from "../../../../../UnitsTemp/notification";
 
 const timeOptions = generateTimeOptions();
 

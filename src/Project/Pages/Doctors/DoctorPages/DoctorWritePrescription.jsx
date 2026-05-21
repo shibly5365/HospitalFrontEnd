@@ -16,7 +16,7 @@ import {
   FileText,
   CalendarDays,
 } from "lucide-react";
-import { notify } from "../../../../units/notification";
+import { notify } from "../../../../UnitsTemp/notification";
 
 export default function DoctorWritePrescription({ appointment }) {
   // ---------------------------------------------------

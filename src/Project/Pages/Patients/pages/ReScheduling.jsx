@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { parseISO } from "date-fns";
-import { notify } from "../../../../units/notification";
+import { notify } from "../../../../UnitsTemp/notification";
 
 const RescheduleAppointment = () => {
   const { id } = useParams();

@@ -231,7 +231,7 @@ const PatientPaymentHistorys = lazy(
 const PrescriptionHistory = lazy(
   () => import("./Project/Pages/Patients/pages/PrescriptionHistory"),
 );
-import ErrorPages from "./units/ErrorPage.js";
+import ErrorPages from "./UnitsTemp/ErrorPages";
 
 const AppRoutes = () => {
   const routes = [

@@ -6,7 +6,7 @@ import {
   deleteMedicalRecord,
 } from "../store/slices/medicalRecordsSlice";
 import { fetchConsultationsByDoctor } from "../store/slices/consultationsSlice";
-import { notify } from "../units/notification";
+import { notify } from "../UnitsTemp/notification";
 
 const PatientContext = createContext();
 

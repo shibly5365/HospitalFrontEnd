@@ -1,7 +1,7 @@
 import { apiClient } from "../../../../../../services/queryClient";
 import React, { useState } from "react";
 import { Users, Calendar, RefreshCw } from "lucide-react";import ScheduleItem from "./ScheduleItem";
-import { notify } from "../../../../../../units/notification";
+import { notify } from "../../../../../../UnitsTemp/notification";
 
 
 const SchedulesSidebar = ({ schedules, loading, onScheduleDelete }) => {
