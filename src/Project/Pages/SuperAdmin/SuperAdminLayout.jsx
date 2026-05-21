@@ -1,6 +1,6 @@
 import React from 'react'
-import SuperAdminSidebar from './SuperAdminSidebar'
 import { Outlet } from 'react-router-dom'
+import SuperAdminSidebar from './SuperAdminSidebar'
 
 function SuperAdminLayout() {
   return (
