@@ -42,6 +42,7 @@ This project uses Redux Toolkit for state management along with React Context AP
 ### PatientContext (`context/PatientContext.jsx`)
 
 Provides a convenient wrapper around Redux store with helper functions:
+
 - `usePatient()`: Hook to access patient-related data and actions
 - Automatically handles error notifications
 - Provides clean API for components
@@ -49,19 +50,19 @@ Provides a convenient wrapper around Redux store with helper functions:
 ## Usage Example
 
 ```jsx
-import { usePatient } from '../context/PatientContext';
+import { usePatient } from "../context/PatientContext";
 
 function MyComponent() {
   const { medicalRecords, consultations } = usePatient();
-  
+
   // Access data
   const { patient, prescriptions, loading } = medicalRecords;
   const { doctors, summary } = consultations;
-  
+
   // Use actions
   medicalRecords.loadMedicalRecords();
   consultations.loadConsultations();
-  
+
   return <div>...</div>;
 }
 ```

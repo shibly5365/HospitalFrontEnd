@@ -57,11 +57,7 @@ export const AuthProvider = ({ children }) => {
 
   // ✅ LOGOUT
   const logout = async () => {
-    await apiClient.post(
-      "/auth/logout",
-      {},
-      { withCredentials: true },
-    );
+    await apiClient.post("/auth/logout", {}, { withCredentials: true });
 
     setAuth({ isAuthenticated: false, user: null });
   };
