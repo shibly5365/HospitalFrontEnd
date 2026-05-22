@@ -13,7 +13,7 @@ import { useAuth } from "../../Components/AuthContext";
 
 function SuperAdminSidebar() {
   const navigate = useNavigate();
-   const { logout } = useAuth();
+  const { logout } = useAuth();
 
   const handleLogout = async () => {
     const confirmed = window.confirm("Are you sure you want to logout?");
@@ -22,12 +22,12 @@ function SuperAdminSidebar() {
       const response = await apiClient.post(
         "/superadmin/Superadmin-logout",
         {},
-        { withCredentials: true } // needed for cookies
+        { withCredentials: true }, // needed for cookies
       );
 
       localStorage.clear();
       // notify.success("Logged out successfully!");
-        logout(); 
+      logout();
       navigate("/");
     } catch (error) {
       console.error("Logout error:", error);
