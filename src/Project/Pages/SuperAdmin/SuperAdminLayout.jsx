@@ -1,18 +1,17 @@
-import React from 'react'
-import { Outlet } from 'react-router-dom'
-import SuperAdminSidebar from './SuperAdminSidebar'
+import React from "react";
+import { Outlet } from "react-router-dom";
+import SuperAdminSidebar from "./SuperAdminSidebar";
 
 function SuperAdminLayout() {
   return (
-        <div className="flex">
+    <div className="flex">
       <SuperAdminSidebar />
 
       <div className="flex-1 p-6 bg-gray-100 min-h-screen">
-        <Outlet
-         />
+        <Outlet />
       </div>
     </div>
-  )
+  );
 }
 
-export default SuperAdminLayout
+export default SuperAdminLayout;
