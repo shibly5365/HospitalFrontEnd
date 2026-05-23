@@ -1,13 +1,13 @@
-import { apiClient } from "../../../services/queryClient";
-// ModernDoctorAppointments.jsx
 import React, { useState, useEffect } from "react";
-import { Users, Calendar } from "lucide-react";
+import { Users, Calendar, Plus } from "lucide-react";
 import Header from "./DoctorPages/appointments/Header";
 import StatsCards from "./DoctorPages/appointments/StatsCards";
 import SearchFilters from "./DoctorPages/appointments/SearchFilters";
 import ViewToggle from "./DoctorPages/appointments/ViewToggle";
 import AppointmentCard from "./DoctorPages/appointments/AppointmentCard";
 import NewAppointmentModal from "./DoctorPages/appointments/NewAppointmentModal";
+import { apiClient } from "../../../services/queryClient";
+import AppointmentDetailsModal from "./DoctorPages/appointments/AppointmentDetailsModal"; // ← New
 
 const ITEMS_PER_PAGE = 10;
 
@@ -20,16 +20,13 @@ const ModernDoctorAppointments = () => {
 
   const [appointments, setAppointments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-
-  /* --------------------------------------------------
-     FETCH APPOINTMENTS
-  -------------------------------------------------- */
+  const [selectedAppointment, setSelectedAppointment] = useState(null); // ← New
   const fetchAppointments = async () => {
     try {
-      const res = await apiClient.get(
-        "/doctor/allAppointment",
-        { withCredentials: true },
-      );
+      const res = await apiClient.get("/doctor/allAppointment", {
+        withCredentials: true,
+      });
+      console.log("res.da", res.data);
 
       const formatted = res.data.appointments.map((a) => ({
         _id: a._id,
@@ -38,12 +35,11 @@ const ModernDoctorAppointments = () => {
           age: a.patient?.age,
           gender: a.patient?.gender,
           phone: a.patient?.contact,
-          avatar: a.patient?.fullName
-            ? a.patient.fullName
-                .split(" ")
-                .map((w) => w[0])
-                .join("")
-            : "P",
+          avatar:
+            a.patient?.fullName
+              ?.split(" ")
+              .map((w) => w[0])
+              .join("") || "P",
         },
         reason: a.reason,
         timeSlot: a.timeSlot,
@@ -51,9 +47,7 @@ const ModernDoctorAppointments = () => {
         consultationType: a.consultationType,
         date: a.appointmentDate,
         notes: a.notes || "",
-        isUrgent: false,
-
-        // ✅ ADD THIS
+        isUrgent: a.isUrgent || false,
         videoCallEnabled: a.videoCallEnabled,
       }));
 
@@ -71,9 +65,6 @@ const ModernDoctorAppointments = () => {
     setCurrentPage(1);
   }, [searchTerm, statusFilter, dateFilter]);
 
-  /* --------------------------------------------------
-     STATS
-  -------------------------------------------------- */
   const stats = {
     total: appointments.length,
     confirmed: appointments.filter((a) => a.status === "Confirmed").length,
@@ -81,9 +72,6 @@ const ModernDoctorAppointments = () => {
     completed: appointments.filter((a) => a.status === "Completed").length,
   };
 
-  /* --------------------------------------------------
-     UPDATE STATUS
-  -------------------------------------------------- */
   const handleUpdateStatus = async (appointmentId, newStatus) => {
     try {
       const res = await apiClient.put(
@@ -91,7 +79,8 @@ const ModernDoctorAppointments = () => {
         { status: newStatus },
         { withCredentials: true },
       );
-      console.log(res.data);
+console.log("res",res.data);
+
       const updated = res.data.appointment;
 
       setAppointments((prev) =>
@@ -99,8 +88,6 @@ const ModernDoctorAppointments = () => {
           appt._id === appointmentId
             ? {
                 ...appt,
-
-                // ✅ important fields
                 status: updated.status,
                 videoCallEnabled: updated.videoCallEnabled,
                 videoCallStatus: updated.videoCallStatus,
@@ -116,10 +103,6 @@ const ModernDoctorAppointments = () => {
     }
   };
 
-  /* --------------------------------------------------
-     FILTER
-  -------------------------------------------------- */
-
   const filteredAppointments = appointments.filter((appt) => {
     const matchesSearch =
       appt.patient?.fullName
@@ -133,30 +116,33 @@ const ModernDoctorAppointments = () => {
     return matchesSearch && matchesStatus;
   });
 
-  /* --------------------------------------------------
-     🔥 SORT: ONLY Pending first (NO time-based sorting)
-  -------------------------------------------------- */
   const sortedAppointments = [...filteredAppointments].sort((a, b) => {
     if (a.status === "Pending" && b.status !== "Pending") return -1;
     if (a.status !== "Pending" && b.status === "Pending") return 1;
-    return 0; // keep original order
+    return 0;
   });
 
-  /* --------------------------------------------------
-     PAGINATION
-  -------------------------------------------------- */
   const totalPages = Math.ceil(sortedAppointments.length / ITEMS_PER_PAGE);
-
   const paginatedAppointments = sortedAppointments.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE,
   );
 
-  /* --------------------------------------------------
-     UI
-  -------------------------------------------------- */
+  const clearFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("All Status");
+    setDateFilter("Today");
+  };
+  const handleViewDetails = (appointment) => {
+    setSelectedAppointment(appointment);
+  };
+
+  const closeDetails = () => {
+    setSelectedAppointment(null);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gray-50">
       <Header onNewAppointment={() => setShowForm(true)} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -169,6 +155,7 @@ const ModernDoctorAppointments = () => {
           onStatusFilterChange={(e) => setStatusFilter(e.target.value)}
           dateFilter={dateFilter}
           onDateFilterChange={(e) => setDateFilter(e.target.value)}
+          onClearFilters={clearFilters}
         />
 
         <ViewToggle
@@ -178,48 +165,56 @@ const ModernDoctorAppointments = () => {
         />
 
         {view === "list" && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {paginatedAppointments.length > 0 ? (
               paginatedAppointments.map((appt) => (
                 <AppointmentCard
                   key={appt._id}
                   appointment={appt}
                   onUpdateStatus={handleUpdateStatus}
+                  onViewDetails={handleViewDetails}
                 />
               ))
             ) : (
-              <div className="text-center py-16 bg-white rounded-2xl shadow-md">
-                <Users className="mx-auto text-gray-400 mb-4" size={64} />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              <div className="bg-white rounded-3xl py-20 text-center border border-gray-100">
+                <div className="mx-auto w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mb-6">
+                  <Users className="text-gray-400" size={40} />
+                </div>
+                <h3 className="text-2xl font-semibold text-gray-900 mb-2">
                   No appointments found
                 </h3>
-                <p className="text-gray-500">Try adjusting your filters</p>
+                <p className="text-gray-500 mb-8 max-w-sm mx-auto">
+                  We couldn't find any appointments matching your current
+                  filters.
+                </p>
+                <button
+                  onClick={clearFilters}
+                  className="px-6 py-3 bg-gray-900 text-white rounded-2xl hover:bg-gray-800 transition"
+                >
+                  Clear Filters
+                </button>
               </div>
             )}
 
-            {/* PAGINATION */}
+            {/* Modern Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center mt-8 gap-2">
+              <div className="flex justify-center items-center gap-2 mt-10">
                 <button
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage((p) => p - 1)}
-                  className={`px-4 py-2 rounded-lg border ${
-                    currentPage === 1
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      : "bg-white hover:bg-blue-50"
-                  }`}
+                  className="px-5 py-2.5 rounded-2xl border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
-                  Prev
+                  Previous
                 </button>
 
                 {[...Array(totalPages)].map((_, i) => (
                   <button
                     key={i}
                     onClick={() => setCurrentPage(i + 1)}
-                    className={`px-4 py-2 rounded-lg border ${
+                    className={`w-10 h-10 rounded-2xl font-medium transition ${
                       currentPage === i + 1
-                        ? "bg-blue-600 text-white"
-                        : "bg-white hover:bg-blue-50"
+                        ? "bg-blue-600 text-white shadow-lg"
+                        : "border border-gray-200 hover:bg-gray-50"
                     }`}
                   >
                     {i + 1}
@@ -229,11 +224,7 @@ const ModernDoctorAppointments = () => {
                 <button
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage((p) => p + 1)}
-                  className={`px-4 py-2 rounded-lg border ${
-                    currentPage === totalPages
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      : "bg-white hover:bg-blue-50"
-                  }`}
+                  className="px-5 py-2.5 rounded-2xl border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
                   Next
                 </button>
@@ -243,9 +234,9 @@ const ModernDoctorAppointments = () => {
         )}
 
         {view === "calendar" && (
-          <div className="bg-white rounded-2xl p-16 text-center shadow-md">
-            <Calendar className="mx-auto text-gray-400 mb-4" size={64} />
-            <h3 className="text-2xl font-bold text-gray-700 mb-2">
+          <div className="bg-white rounded-3xl p-16 text-center border border-gray-100">
+            <Calendar className="mx-auto text-gray-300 mb-6" size={80} />
+            <h3 className="text-2xl font-semibold text-gray-900 mb-2">
               Calendar View
             </h3>
             <p className="text-gray-500">Coming soon</p>
@@ -256,6 +247,12 @@ const ModernDoctorAppointments = () => {
       <NewAppointmentModal
         isOpen={showForm}
         onClose={() => setShowForm(false)}
+      />
+      <AppointmentDetailsModal
+        appointment={selectedAppointment}
+        isOpen={!!selectedAppointment}
+        onClose={closeDetails}
+        onUpdateStatus={handleUpdateStatus}
       />
     </div>
   );

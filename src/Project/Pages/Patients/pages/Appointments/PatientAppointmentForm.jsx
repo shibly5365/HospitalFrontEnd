@@ -41,6 +41,7 @@ const AppointmentBooking = () => {
     reason: "",
     consultationFee: incoming.doctor?.rate || 0,
     patientName: "",
+    age: "",
     dob: "",
     gender: "",
     email: "",
@@ -67,15 +68,21 @@ const AppointmentBooking = () => {
 
   const calculateAge = (dob) => {
     if (!dob) return "";
+
     const birthDate = new Date(dob);
     const today = new Date();
+
     let age = today.getFullYear() - birthDate.getFullYear();
+
     const monthDiff = today.getMonth() - birthDate.getMonth();
+
     if (
       monthDiff < 0 ||
       (monthDiff === 0 && today.getDate() < birthDate.getDate())
-    )
+    ) {
       age--;
+    }
+
     return age;
   };
 
@@ -104,45 +111,87 @@ const AppointmentBooking = () => {
   };
 
   const handleSubmitAppointment = async () => {
-    // -------- Full Validation --------
+    // -------- Validation --------
     if (!formData.doctorId) return notify.error("Doctor not selected!");
+
     if (!formData.appointmentDate)
       return notify.error("Select appointment date!");
 
-    // Validate timeSlot properly
-    if (!formData.timeSlot?.start || !formData.timeSlot?.end) {
+    if (!formData.timeSlot?.start || !formData.timeSlot?.end)
       return notify.error("Select a valid time slot!");
-    }
 
     if (!formData.consultationType)
       return notify.error("Select consultation type!");
 
     if (!formData.reason) return notify.error("Please enter your reason!");
 
-    // Patient details validation
     if (!formData.patientName) return notify.error("Enter patient name!");
-    if (!formData.dob || isNaN(new Date(formData.dob).getTime()))
-      return notify.error("Enter a valid date of birth!");
+
+    if (!formData.dob) return notify.error("Enter DOB!");
+
     if (!formData.gender) return notify.error("Select gender!");
 
-    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email))
-      return notify.error("Enter a valid email!");
+    if (!formData.email) return notify.error("Enter email!");
 
-    if (!formData.phone || !/^\d{10,15}$/.test(formData.phone))
-      return notify.error("Enter a valid phone number!");
+    if (!formData.phone) return notify.error("Enter phone number!");
 
-    // Payment validation
     if (!formData.paymentMethod) return notify.error("Select payment method!");
 
     try {
-      await apiClient.post("/patient/create", formData, {
+      // ✅ Calculate Age
+      const age = calculateAge(formData.dob);
+
+      // ✅ Send all data including age
+      const payload = {
+        ...formData,
+        age,
+      };
+
+      console.log("Sending Payload:", payload);
+
+      // ✅ Create Appointment
+      const res = await apiClient.post("/patient/create", payload, {
         withCredentials: true,
       });
-      notify.success("Appointment booked successfully!");
-      navigate("/patient/patient-appointments");
+
+      // ✅ CASH PAYMENT FLOW
+      if (formData.paymentMethod === "Cash") {
+        notify.success("Appointment booked successfully!");
+
+        navigate("/patient/patient-appointments");
+
+        return;
+      }
+
+      // ✅ DEMO ONLINE PAYMENT FLOW
+      notify.info("Processing payment...");
+
+      setTimeout(async () => {
+        try {
+          // ✅ Fake Payment Success
+          await apiClient.put(
+            `/patient/payment-success/${res.data.payment._id}`,
+            {},
+            {
+              withCredentials: true,
+            },
+          );
+
+          notify.success("Payment successful & appointment booked!");
+
+          navigate("/patient/patient-appointments");
+        } catch (paymentErr) {
+          console.error(paymentErr);
+
+          notify.error("Payment update failed");
+        }
+      }, 2000);
     } catch (err) {
       console.error("Backend error:", err?.response?.data || err);
-      notify.error("Failed to book appointment. Try again.");
+
+      notify.error(
+        err?.response?.data?.message || "Failed to book appointment",
+      );
     }
   };
 

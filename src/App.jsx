@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "./context/ThemeContext";
 
 function App() {
+  console.log("APP STARTED");
   return (
     <ThemeProvider>
       <AppRoutes />

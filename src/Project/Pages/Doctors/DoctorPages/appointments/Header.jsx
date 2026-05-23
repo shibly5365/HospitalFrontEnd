@@ -1,28 +1,36 @@
-// components/Header.jsx
-import React from 'react';
-import { Activity, Calendar } from 'lucide-react';
+import React from "react";
+import { Plus, Calendar } from "lucide-react";
 
 const Header = ({ onNewAppointment }) => {
+  const today = new Date().toLocaleDateString("en-IN", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+
   return (
-    <div className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+    <div className="sticky top-0 z-50 bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="py-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <Activity className="text-blue-600" size={32} />
-                Appointments
-              </h1>
-              <p className="text-gray-600 mt-1">Manage your patient schedule efficiently</p>
+        <div className="py-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-blue-600 rounded-2xl flex items-center justify-center">
+                <Calendar className="text-white" size={22} />
+              </div>
+              <div>
+                <h1 className="text-3xl font-semibold text-gray-900">Appointments</h1>
+                <p className="text-gray-500 text-sm mt-0.5">{today}</p>
+              </div>
             </div>
-            <button
-              onClick={onNewAppointment}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition duration-200 flex items-center gap-2 font-semibold"
-            >
-              <Calendar size={20} />
-              New Appointment
-            </button>
           </div>
+
+          <button
+            onClick={onNewAppointment}
+            className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-3xl font-medium transition-all active:scale-95 shadow-lg shadow-blue-500/20"
+          >
+            <Plus size={20} />
+            New Appointment
+          </button>
         </div>
       </div>
     </div>
