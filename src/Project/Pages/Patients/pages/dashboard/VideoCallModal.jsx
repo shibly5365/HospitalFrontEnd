@@ -121,7 +121,11 @@ export default function VideoCallModal({
       setCallActive(false);
 
       // ONLY FOR PATIENT
-      if (role === "patient") {
+      if (
+        role === "patient" &&
+        appointment.status === "Completed" &&
+        !appointment.feedbackGiven
+      ) {
         setShowFeedback(true);
       } else {
         if (onCallEnd) onCallEnd();
@@ -205,11 +209,10 @@ export default function VideoCallModal({
                 <button
                   onClick={handleStartCall}
                   disabled={loading || (!canJoin && !roomId)}
-                  className={`rounded-lg px-6 py-2 text-white ${
-                    loading || !canJoin
+                  className={`rounded-lg px-6 py-2 text-white ${loading || !canJoin
                       ? "cursor-not-allowed bg-gray-400"
                       : "bg-purple-600 hover:bg-purple-700"
-                  }`}
+                    }`}
                 >
                   {loading ? "Joining..." : "Join Call"}
                 </button>

@@ -8,13 +8,72 @@ const Payments = () => {
   ];
 
   return (
-    <div className="bg-white p-4 rounded shadow">
-      <h2 className="text-xl font-semibold mb-4">Payments / Earnings</h2>
+    <div
+      className="
+    bg-[var(--surface)]
+    border border-[var(--line)]
+    p-6
+    rounded-2xl
+    shadow-sm
+  "
+    >
+      {/* HEADER */}
+      <div className="mb-6">
+        <h2
+          className="
+        text-2xl font-semibold
+        text-[var(--text)]
+      "
+        >
+          Payments / Earnings
+        </h2>
+
+        <p
+          className="
+        text-sm
+        text-[var(--muted)]
+        mt-1
+      "
+        >
+          Track your payment history and earnings
+        </p>
+      </div>
+
+      {/* CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {earnings.map((e) => (
-          <div key={e.label} className="p-4 rounded shadow bg-green-50">
-            <p className="text-gray-500">{e.label}</p>
-            <p className="text-xl font-bold">{e.value}</p>
+          <div
+            key={e.label}
+            className="
+            p-5
+            rounded-2xl
+
+            bg-[var(--surface-soft)]
+            border border-[var(--line)]
+
+            hover:border-[var(--brand)]
+            transition-all
+          "
+          >
+            <p
+              className="
+            text-sm
+            text-[var(--muted)]
+            mb-2
+          "
+            >
+              {e.label}
+            </p>
+
+            <p
+              className="
+            text-3xl
+            font-bold
+            text-[var(--text)]
+          "
+            >
+              {e.value}
+            </p>
           </div>
         ))}
       </div>

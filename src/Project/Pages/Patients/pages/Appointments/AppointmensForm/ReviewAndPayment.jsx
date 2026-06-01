@@ -43,20 +43,20 @@ const ReviewAndPayment = ({ formData, onInputChange }) => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-800">Review & Payment</h2>
+        <h2 className="text-2xl font-bold theme-text">Review & Payment</h2>
 
-        <p className="text-gray-500 mt-1">Verify your appointment details</p>
+        <p className="theme-text mt-1">Verify your appointment details</p>
       </div>
 
       {/* Appointment Summary */}
-      <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 space-y-4">
-        <h3 className="font-semibold text-lg text-gray-800">
+      <div className="theme-card rounded-2xl p-6 space-y-4">
+       <h3 className="font-semibold text-lg theme-text">
           Appointment Summary
         </h3>
 
         <div className="space-y-3 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-600">Doctor</span>
+            <span className="theme-text-muted">Doctor</span>
 
             <span className="font-semibold">
               {formData.doctorName || "N/A"}
@@ -64,7 +64,7 @@ const ReviewAndPayment = ({ formData, onInputChange }) => {
           </div>
 
           <div className="flex justify-between">
-            <span className="text-gray-600">Date & Time</span>
+            <span className="theme-text-muted">Date & Time</span>
 
             <span className="font-semibold">
               {formData.appointmentDate} • {formData.timeSlot?.start} -
@@ -73,7 +73,7 @@ const ReviewAndPayment = ({ formData, onInputChange }) => {
           </div>
 
           <div className="flex justify-between">
-            <span className="text-gray-600">Consultation Type</span>
+            <span className="theme-text-muted">Consultation Type</span>
 
             <span className="font-semibold capitalize">
               {formData.consultationType || "N/A"}
@@ -81,7 +81,7 @@ const ReviewAndPayment = ({ formData, onInputChange }) => {
           </div>
 
           <div className="flex justify-between">
-            <span className="text-gray-600">Patient Name</span>
+            <span className="theme-text-muted">Patient Name</span>
 
             <span className="font-semibold">
               {formData.patientName || "N/A"}
@@ -89,7 +89,7 @@ const ReviewAndPayment = ({ formData, onInputChange }) => {
           </div>
 
           <div className="flex justify-between">
-            <span className="text-gray-600">Contact</span>
+            <span className="theme-text-muted">Contact</span>
 
             <span className="font-semibold">{formData.phone || "N/A"}</span>
           </div>
@@ -98,7 +98,7 @@ const ReviewAndPayment = ({ formData, onInputChange }) => {
 
       {/* Payment Methods */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-4">
+        <label className="block text-sm font-medium theme-text mb-4">
           Payment Method
         </label>
 
@@ -113,22 +113,19 @@ const ReviewAndPayment = ({ formData, onInputChange }) => {
                 key={method.value}
                 type="button"
                 onClick={() => onInputChange("paymentMethod", method.value)}
-                className={`border rounded-2xl p-4 flex items-center gap-3 transition-all ${
-                  active
-                    ? "border-blue-600 bg-blue-50 shadow-md"
-                    : "border-gray-200 hover:border-blue-300"
-                }`}
+                className={`border rounded-2xl p-4 flex items-center gap-3 transition-all ${active
+                  ? "theme-card shadow-md"
+                  : "theme-card opacity-80"
+                  }`}
               >
                 <Icon
-                  className={`w-5 h-5 ${
-                    active ? "text-blue-600" : "text-gray-500"
-                  }`}
+                  className={`w-5 h-5 ${active ? "theme-brand" : "theme-text"
+                    }`}
                 />
 
                 <span
-                  className={`font-medium ${
-                    active ? "text-blue-700" : "text-gray-700"
-                  }`}
+                  className={`font-medium ${active ? "text-blue-700" : "text-gray-700"
+                    }`}
                 >
                   {method.label}
                 </span>
@@ -165,16 +162,16 @@ const ReviewAndPayment = ({ formData, onInputChange }) => {
       )}
 
       {/* Fee Breakdown */}
-      <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-3">
+      <div className="theme-soft theme-border rounded-2xl p-5 space-y-3">
         <div className="flex justify-between">
-          <span className="text-gray-600">Consultation Fee</span>
+          <span className="theme-text-muted">Consultation Fee</span>
 
           <span className="font-medium">₹{formData.consultationFee || 0}</span>
         </div>
 
         {formData.consultationType?.toLowerCase() === "online" && (
           <div className="flex justify-between">
-            <span className="text-gray-600">Online Consultation Charge</span>
+            <span className="theme-text-muted">Online Consultation Charge</span>
 
             <span className="font-medium">₹300</span>
           </div>
@@ -183,7 +180,7 @@ const ReviewAndPayment = ({ formData, onInputChange }) => {
         <div className="border-t pt-3 flex justify-between items-center">
           <span className="text-lg font-bold">Total Amount</span>
 
-          <span className="text-2xl font-bold text-blue-600">
+          <span className="text-2xl font-bold theme-brand">
             ₹{consultationFee}
           </span>
         </div>
@@ -193,7 +190,7 @@ const ReviewAndPayment = ({ formData, onInputChange }) => {
       <div className="flex items-start gap-3">
         <input type="checkbox" id="confirm" className="mt-1" />
 
-        <label htmlFor="confirm" className="text-sm text-gray-600">
+        <label htmlFor="confirm" className="text-sm theme-text-muted">
           I confirm that all information provided is accurate and I agree to the
           hospital terms and conditions.
         </label>

@@ -14,6 +14,7 @@ const AppointmentBooking = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const incoming = location.state || {}; // { doctor, selectedDate, selectedSlot }
+  window.console.log(incoming)
 
   // Keep doctor object for display
   const [selectedDoctorObj] = useState(incoming.doctor || null);
@@ -227,11 +228,11 @@ const AppointmentBooking = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+    <div className="min-h-screen theme-bg py-8 px-4">
       <div className="max-w-3xl mx-auto mb-4">
         <button
           onClick={() => navigate("/patient/patient-appointments")}
-          className="flex items-center gap-2 px-5 py-2 bg-white shadow-md rounded-xl text-gray-700 hover:bg-gray-100 border border-gray-200"
+          className="flex items-center gap-2 px-5 py-2 theme-card rounded-xl hover:opacity-90"
         >
           <Home className="w-5 h-5" />
           Home
@@ -239,12 +240,12 @@ const AppointmentBooking = () => {
       </div>
 
       <div className="max-w-3xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="theme-card rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-800">
+            <h1 className="text-3xl font-bold theme-text">
               Book Your Appointment
             </h1>
-            <p className="text-gray-600 mt-2">
+            <p className="theme-text-muted mt-2">
               Complete the form to schedule your visit
             </p>
           </div>
@@ -252,11 +253,11 @@ const AppointmentBooking = () => {
           <StepIndicator step={step} />
           <div className="mt-8">{renderCurrentStep()}</div>
 
-          <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
+          <div className="flex justify-between mt-8 pt-6 border-t theme-border">
             {step > 1 && (
               <button
                 onClick={() => setStep(step - 1)}
-                className="flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                className="flex items-center gap-2 px-6 py-3 theme-soft theme-text rounded-lg transition"
               >
                 <ChevronLeft className="w-5 h-5" />
                 Back
@@ -273,11 +274,10 @@ const AppointmentBooking = () => {
                   setStep(step + 1);
                 }}
                 disabled={!canProceedToNextStep()}
-                className={`flex items-center gap-2 px-6 py-3 rounded-lg transition ml-auto ${
-                  canProceedToNextStep()
-                    ? "bg-blue-600 text-white hover:bg-blue-700"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
+                className={`flex items-center gap-2 px-6 py-3 rounded-lg transition ml-auto ${canProceedToNextStep()
+                    ? "theme-brand-bg text-white"
+                    : "theme-card theme-text-muted opacity-50 cursor-not-allowed"
+                  }`}
               >
                 Next
                 <ChevronRight className="w-5 h-5" />
@@ -285,7 +285,7 @@ const AppointmentBooking = () => {
             ) : (
               <button
                 onClick={handleSubmitAppointment}
-                className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition ml-auto font-semibold"
+                className="px-8 py-3 theme-brand-bg text-white rounded-lg hover:bg-green-700 transition ml-auto font-semibold"
               >
                 Confirm Appointment
               </button>

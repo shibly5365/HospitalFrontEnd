@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, X, CheckCircle } from 'lucide-react';
@@ -12,7 +10,7 @@ const SimpleFeedback = ({ doctor, onSubmit }) => {
 
   const handleSubmit = async () => {
     if (rating === 0) return;
-    
+
     await onSubmit({ rating, comment });
     setShowSuccess(true);
     setTimeout(() => {
@@ -63,9 +61,8 @@ const SimpleFeedback = ({ doctor, onSubmit }) => {
                         className="focus:outline-none"
                       >
                         <Star
-                          className={`w-8 h-8 transition ${
-                            star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-                          }`}
+                          className={`w-8 h-8 transition ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                            }`}
                         />
                       </button>
                     ))}
@@ -93,11 +90,10 @@ const SimpleFeedback = ({ doctor, onSubmit }) => {
                   <button
                     onClick={handleSubmit}
                     disabled={rating === 0}
-                    className={`w-full mt-4 py-2 rounded-lg font-medium transition ${
-                      rating === 0
+                    className={`w-full mt-4 py-2 rounded-lg font-medium transition ${rating === 0
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         : 'bg-blue-500 hover:bg-blue-600 text-white'
-                    }`}
+                      }`}
                   >
                     Submit
                   </button>
@@ -136,12 +132,12 @@ const DoctorFeedbackModal = () => {
               <h2 className="text-xl font-semibold">Dr. Sarah Wilson</h2>
               <p className="text-sm text-gray-500">Cardiologist</p>
             </div>
-            <SimpleFeedback 
-              doctor={{ name: "Dr. Sarah Wilson" }} 
+            <SimpleFeedback
+              doctor={{ name: "Dr. Sarah Wilson" }}
               onSubmit={handleSubmit}
             />
           </div>
-          
+
           {/* Rating Display */}
           <div className="flex items-center gap-1">
             {[1, 2, 3, 4, 5].map((star) => (

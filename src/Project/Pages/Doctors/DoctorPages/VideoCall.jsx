@@ -19,7 +19,7 @@ const resolveRole = () => {
   return "patient";
 };
 
-export default function VideoCall({ 
+export default function VideoCall({
   open,
   appointment,
   onClose,
@@ -148,11 +148,11 @@ export default function VideoCall({
     window.open(`/doctors/doctors-prescription/${appointment._id}`, "_blank");
   };
   const isDoctor = role === "doctor";
-console.log({
-  enabled: appointment.videoCallEnabled,
-  status: appointment.videoCallStatus,
-  room: appointment.videoCallRoomId,
-});
+  console.log({
+    enabled: appointment.videoCallEnabled,
+    status: appointment.videoCallStatus,
+    room: appointment.videoCallRoomId,
+  });
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-60">
       {/* FULL SCREEN WRAPPER */}
@@ -202,11 +202,10 @@ console.log({
                 <button
                   onClick={handleStartCall}
                   disabled={loading || (!canJoin && !isDoctor)}
-                  className={`rounded-lg px-6 py-2 text-white ${
-                    loading || (!canJoin && !isDoctor)
+                  className={`rounded-lg px-6 py-2 text-white ${loading || (!canJoin && !isDoctor)
                       ? "cursor-not-allowed bg-gray-400"
                       : "bg-purple-600 hover:bg-purple-700"
-                  }`}
+                    }`}
                 >
                   {loading ? "Joining..." : "Join Call"}
                 </button>

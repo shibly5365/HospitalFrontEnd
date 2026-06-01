@@ -86,7 +86,7 @@ const PatientPaymentHistory = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen theme-soft flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 dark:text-red-400 mb-4">
             Failed to load payment history
@@ -103,27 +103,27 @@ const PatientPaymentHistory = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen theme-bg">
       <div className="max-w-7xl mx-auto p-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-3xl font-bold theme-text">
               Payment History
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
+            <p className="theme-text-muted">
               View all your consultation and treatment payments
             </p>
           </div>
 
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors mt-4 md:mt-0">
+          <button className="flex items-center gap-2 px-5 py-2.5 theme-card border border-gray-300 dark:border-gray-700 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors mt-4 md:mt-0">
             <Download size={20} />
             Export History
           </button>
         </div>
 
         {/* Patient Summary */}
-        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 mb-8">
+        <div className="theme-card rounded-3xl shadow-sm p-6 mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center gap-8">
             {/* LEFT */}
             <div className="flex items-center gap-5 flex-1">
@@ -137,11 +137,11 @@ const PatientPaymentHistory = () => {
               />
 
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                <h2 className="text-3xl font-bold theme-text">
                   {patient?.name || "Unknown Patient"}
                 </h2>
 
-                <p className="text-gray-500 dark:text-gray-400 mt-1">
+                <p className="theme-text-muted mt-1">
                   Patient ID: {patient?.patientId || "N/A"}
                 </p>
               </div>
@@ -149,8 +149,8 @@ const PatientPaymentHistory = () => {
 
             {/* RIGHT STATS */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full lg:w-auto">
-              <div className="bg-gray-50 dark:bg-gray-950 rounded-2xl px-6 py-5 text-center border border-gray-100 dark:border-gray-800 min-w-[150px]">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="theme-soft rounded-2xl px-6 py-5 text-center border border-gray-100 dark:border-gray-800 min-w-[150px]">
+                <p className="text-sm theme-text-muted">
                   Appointments
                 </p>
 
@@ -159,26 +159,26 @@ const PatientPaymentHistory = () => {
                 </p>
               </div>
 
-              <div className="bg-gray-50 dark:bg-gray-950 rounded-2xl px-6 py-5 text-center border border-gray-100 dark:border-gray-800 min-w-[150px]">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="theme-soft rounded-2xl px-6 py-5 text-center border border-gray-100 dark:border-gray-800 min-w-[150px]">
+                <p className="text-sm theme-text-muted">
                   Total Spent
                 </p>
 
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+                <p className="text-3xl font-bold theme-text mt-2">
                   ₹{totalSpent}
                 </p>
               </div>
 
-              <div className="bg-gray-50 dark:bg-gray-950 rounded-2xl px-6 py-5 text-center border border-gray-100 dark:border-gray-800 min-w-[150px]">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="theme-soft rounded-2xl px-6 py-5 text-center border border-gray-100 dark:border-gray-800 min-w-[150px]">
+                <p className="text-sm theme-text-muted">
                   Last Payment
                 </p>
 
-                <p className="text-lg font-semibold text-gray-900 dark:text-white mt-2">
+                <p className="text-lg font-semibold theme-text mt-2">
                   {lastPayment?.appointment?.date
                     ? new Date(
-                        lastPayment.appointment.date,
-                      ).toLocaleDateString()
+                      lastPayment.appointment.date,
+                    ).toLocaleDateString()
                     : "—"}
                 </p>
               </div>
@@ -196,14 +196,14 @@ const PatientPaymentHistory = () => {
             <input
               type="text"
               placeholder="Search by doctor or payment ID..."
-              className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:border-indigo-500"
+              className="w-full pl-12 pr-4 py-3 theme-card rounded-2xl focus:outline-none focus:border-indigo-500"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
           <select
-            className="px-5 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none"
+            className="px-5 py-3 theme-card rounded-2xl focus:outline-none"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -213,7 +213,7 @@ const PatientPaymentHistory = () => {
             <option value="Failed">Failed</option>
           </select>
 
-          <button className="px-5 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800">
+          <button className="px-5 py-3 theme-card border border-gray-200 dark:border-gray-700 rounded-2xl flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800">
             <Calendar size={20} />
             Date Filter
           </button>
@@ -228,30 +228,30 @@ const PatientPaymentHistory = () => {
 
         {/* Table */}
         {!isLoading && (
-          <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+          <div className="theme-card rounded-3xl shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 sticky top-0">
+                <thead className="theme-soft border-b border-gray-200 dark:border-gray-800 sticky top-0">
                   <tr>
-                    <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                    <th className="px-6 py-5 text-left text-sm font-medium theme-text-muted">
                       Payment ID
                     </th>
-                    <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                    <th className="px-6 py-5 text-left text-sm font-medium theme-text-muted">
                       Doctor
                     </th>
-                    <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                    <th className="px-6 py-5 text-left text-sm font-medium theme-text-muted">
                       Date
                     </th>
-                    <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                    <th className="px-6 py-5 text-left text-sm font-medium theme-text-muted">
                       Type
                     </th>
-                    <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                    <th className="px-6 py-5 text-left text-sm font-medium theme-text-muted">
                       Amount
                     </th>
-                    <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                    <th className="px-6 py-5 text-left text-sm font-medium theme-text-muted">
                       Status
                     </th>
-                    <th className="px-6 py-5 text-right text-sm font-medium text-gray-500 dark:text-gray-400">
+                    <th className="px-6 py-5 text-right text-sm font-medium theme-text-muted">
                       Actions
                     </th>
                   </tr>
@@ -265,11 +265,11 @@ const PatientPaymentHistory = () => {
                       {/* PAYMENT ID */}
                       <td className="px-6 py-6">
                         <div>
-                          <p className="font-semibold text-gray-900 dark:text-white tracking-wide">
+                          <p className="font-semibold theme-text tracking-wide">
                             {payment.paymentId}
                           </p>
 
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          <p className="text-xs theme-text-muted mt-1">
                             Transaction ID
                           </p>
                         </div>
@@ -292,11 +292,11 @@ const PatientPaymentHistory = () => {
                           </div>
 
                           <div>
-                            <p className="font-semibold text-gray-900 dark:text-white">
+                            <p className="font-semibold theme-text">
                               {payment.doctor?.name}
                             </p>
 
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                            <p className="text-sm theme-text-muted mt-0.5">
                               {payment.doctor?.specialization}
                             </p>
                           </div>
@@ -306,13 +306,13 @@ const PatientPaymentHistory = () => {
                       {/* DATE & TIME */}
                       <td className="px-6 py-6">
                         <div>
-                          <p className="font-medium text-gray-900 dark:text-white">
+                          <p className="font-medium theme-text">
                             {new Date(
                               payment.appointment?.date,
                             ).toLocaleDateString()}
                           </p>
 
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                          <p className="text-sm theme-text-muted mt-1">
                             {payment.appointment?.time?.start} -{" "}
                             {payment.appointment?.time?.end}
                           </p>
@@ -323,11 +323,10 @@ const PatientPaymentHistory = () => {
                       <td className="px-6 py-6">
                         <span
                           className={`inline-flex items-center px-4 py-2 rounded-2xl text-xs font-semibold tracking-wide
-          ${
-            payment.appointment?.type === "Online"
-              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-              : "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
-          }`}
+          ${payment.appointment?.type === "Online"
+                              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                              : "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
+                            }`}
                         >
                           {payment.appointment?.type}
                         </span>
@@ -336,11 +335,11 @@ const PatientPaymentHistory = () => {
                       {/* AMOUNT */}
                       <td className="px-6 py-6">
                         <div>
-                          <p className="text-lg font-bold text-gray-900 dark:text-white">
+                          <p className="text-lg font-bold theme-text">
                             ₹{payment.amount}
                           </p>
 
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          <p className="text-xs theme-text-muted mt-1">
                             {payment.paymentMethod}
                           </p>
                         </div>
@@ -388,7 +387,7 @@ const PatientPaymentHistory = () => {
               {/* Pagination */}
               {filteredPayments.length > itemsPerPage && (
                 <div className="flex items-center justify-between mt-6 px-2">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm theme-text-muted">
                     Showing {(currentPage - 1) * itemsPerPage + 1} -{" "}
                     {Math.min(
                       currentPage * itemsPerPage,
@@ -411,11 +410,10 @@ const PatientPaymentHistory = () => {
                         key={index}
                         onClick={() => setCurrentPage(index + 1)}
                         className={`w-10 h-10 rounded-xl font-medium transition-all
-          ${
-            currentPage === index + 1
-              ? "bg-indigo-600 text-white"
-              : "border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
-          }`}
+          ${currentPage === index + 1
+                            ? "bg-indigo-600 text-white"
+                            : "border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
+                          }`}
                       >
                         {index + 1}
                       </button>
@@ -445,7 +443,7 @@ const PatientPaymentHistory = () => {
       {/* Payment Details Modal */}
       {selectedPaymentId && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+          <div className="theme-card rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
               <div>
                 <h3 className="text-2xl font-semibold">Payment Details</h3>
@@ -490,7 +488,7 @@ const PatientPaymentHistory = () => {
                   </div>
 
                   {/* Breakdown */}
-                  <div className="bg-gray-50 dark:bg-gray-950 rounded-2xl p-6 mb-8">
+                  <div className="theme-soft rounded-2xl p-6 mb-8">
                     <h5 className="font-semibold mb-4">Payment Breakdown</h5>
                     <div className="space-y-3">
                       <div className="flex justify-between">
@@ -498,40 +496,40 @@ const PatientPaymentHistory = () => {
                         <span>
                           ₹
                           {selectedPayment?.payment?.billBreakdown
-                            ?.consultationFee || selectedPayment.amount}
+                            ?.consultationFee}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span>Service Charge</span>
                         <span>
-                          ₹{selectedPayment.breakdown?.serviceCharge || 0}
+                          ₹{selectedPayment.payment.billBreakdown?.serviceCharge || 0}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span>Tax (GST)</span>
-                        <span>₹{selectedPayment.breakdown?.tax || 0}</span>
+                        <span>₹{selectedPayment.payment.billBreakdown?.tax || 0}</span>
                       </div>
                       <hr className="my-3" />
                       <div className="flex justify-between text-lg font-semibold">
                         <span>Total</span>
-                        <span>₹{selectedPayment.amount}</span>
+                        <span>₹{selectedPayment.payment.billBreakdown?.total}</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                      <p className="text-sm theme-text-muted mb-1">
                         Appointment
                       </p>
 
-                      <p className="font-medium text-gray-900 dark:text-white">
+                      <p className="font-medium theme-text">
                         {new Date(
                           selectedPayment?.payment?.appointment?.date,
                         ).toLocaleDateString()}
                       </p>
 
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      <p className="text-sm theme-text-muted mt-1">
                         {selectedPayment?.payment?.appointment?.time?.start} -{" "}
                         {selectedPayment?.payment?.appointment?.time?.end}
                       </p>

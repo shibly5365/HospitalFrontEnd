@@ -157,8 +157,7 @@ const PtientsDepartment = () => {
                 <button
                   onClick={() =>
                     navigate(
-                      `/patient/patient-departments/${
-                        dept._id || dept.id
+                      `/patient/patient-departments/${dept._id || dept.id
                       }`
                     )
                   }

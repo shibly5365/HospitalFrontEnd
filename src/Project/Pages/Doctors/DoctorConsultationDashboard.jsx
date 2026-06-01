@@ -17,46 +17,83 @@ const DoctorConsultationDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // =======================
-  // 🔥 FETCH CONSULTATIONS
-  // =======================
+  // =========================
+  // FETCH ALL CONSULTATIONS
+  // =========================
   useEffect(() => {
     const fetchConsultations = async () => {
       try {
         setLoading(true);
 
-        const res = await apiClient.get("/doctor/getall", {
+        const res = await apiClient.get("/doctor/getAllConsultations", {
           withCredentials: true,
         });
-        // console.log(res.data.data);
 
         setConsultations(res.data.data || []);
-        setLoading(false);
       } catch (err) {
         console.log("Error fetching consultations:", err);
+
         setError("Failed to load consultations");
+      } finally {
         setLoading(false);
       }
     };
 
     fetchConsultations();
   }, []);
-  // console.log(consultations);
 
-  const uniqueConsultations = [];
-  const seen = new Set();
+  // =========================
+  // FETCH SINGLE CONSULTATION
+  // =========================
+  const handleSelectConsultation = async (id) => {
+    try {
+      setLoading(true);
 
-  consultations.forEach((c) => {
-    if (!seen.has(c.patientId)) {
-      seen.add(c.patientId);
-      uniqueConsultations.push(c);
+      const res = await apiClient.get(`/doctor/getConsultations/${id}`, {
+        withCredentials: true,
+      });
+
+      // window.console.log(res.data.data);
+
+      setSelectedConsultation(res.data.consultation || res.data.data);
+    } catch (err) {
+      console.log("Error fetching consultation:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // =========================
+  // REMOVE DUPLICATES
+  const patientMap = new Map();
+
+  consultations.forEach((consultation) => {
+    const patientId = consultation.patient?._id;
+
+    // if patient not added
+    if (!patientMap.has(patientId)) {
+      patientMap.set(patientId, consultation);
+    } else {
+      // compare dates and keep latest
+      const existing = patientMap.get(patientId);
+
+      const existingDate = new Date(existing.createdAt);
+      const newDate = new Date(consultation.createdAt);
+
+      if (newDate > existingDate) {
+        patientMap.set(patientId, consultation);
+      }
     }
   });
-  // console.log("uni",uniqueConsultations);
 
+  const uniqueConsultations = Array.from(patientMap.values());
+
+  // =========================
+  // FILTER CONSULTATIONS
+  // =========================
   const filteredConsultations = uniqueConsultations.filter((consultation) => {
     const matchesSearch =
-      consultation.patient?.patientName
+      consultation.patient?.fullName
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
       consultation.patient?.patientId
@@ -64,18 +101,16 @@ const DoctorConsultationDashboard = () => {
         .includes(searchTerm.toLowerCase());
 
     const matchesType =
-      filterType === "all" || consultation.type === filterType;
+      filterType === "all" || consultation.consultationType === filterType;
 
     const matchesStatus =
       filterStatus === "all" || consultation.status === filterStatus;
 
     return matchesSearch && matchesType && matchesStatus;
   });
-  // console.log("fsdi",filteredConsultations);
-  // console.log(selectedConsultation);
 
   return (
-   <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <Header />
 
       <div className="max-w-7xl mx-auto px-6 py-8">
@@ -84,6 +119,7 @@ const DoctorConsultationDashboard = () => {
             Loading consultations...
           </p>
         )}
+
         {error && <p className="text-red-600">{error}</p>}
 
         <SearchFilters
@@ -97,7 +133,7 @@ const DoctorConsultationDashboard = () => {
 
         <ConsultationsGrid
           consultations={filteredConsultations}
-          onSelectConsultation={setSelectedConsultation}
+          onSelectConsultation={handleSelectConsultation}
         />
       </div>
 

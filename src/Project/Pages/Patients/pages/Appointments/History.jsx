@@ -68,12 +68,12 @@ const History = () => {
 
       const today =
         todayRes.status === "fulfilled" &&
-        Array.isArray(todayRes.value?.data?.appointments)
+          Array.isArray(todayRes.value?.data?.appointments)
           ? todayRes.value.data.appointments
           : [];
       const all =
         allRes.status === "fulfilled" &&
-        Array.isArray(allRes.value?.data?.appointments)
+          Array.isArray(allRes.value?.data?.appointments)
           ? allRes.value.data.appointments
           : [];
 
@@ -165,12 +165,12 @@ const History = () => {
   };
 
   const StatusBadge = ({ status }) => {
-const styles = {
-  Pending: "bg-amber-500/15 text-amber-400 border-amber-500/20",
-  Confirmed: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
-  Completed: "bg-green-500/15 text-green-400 border-green-500/20",
-  Cancelled: "bg-red-500/15 text-red-400 border-red-500/20",
-};
+    const styles = {
+      Pending: "bg-amber-500/15 text-amber-400 border-amber-500/20",
+      Confirmed: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
+      Completed: "bg-green-500/15 text-green-400 border-green-500/20",
+      Cancelled: "bg-red-500/15 text-red-400 border-red-500/20",
+    };
     return (
       <span
         className={`px-4 py-1 text-xs font-semibold rounded-full border ${styles[status] || "bg-gray-100 theme-text-muted"}`}
@@ -247,11 +247,10 @@ const styles = {
                 setCurrentPage(1);
                 setSearch("");
               }}
-              className={`px-7 py-3.5 rounded-2xl font-medium whitespace-nowrap transition-all ${
-                activeTab === tab.id
+              className={`px-7 py-3.5 rounded-2xl font-medium whitespace-nowrap transition-all ${activeTab === tab.id
                   ? `bg-${tab.color}-600 text-white shadow-md`
                   : "hover:opacity-90 theme-text-muted"
-              }`}
+                }`}
             >
               {tab.label}{" "}
               <span className="ml-1.5 text-xs opacity-70">
@@ -279,10 +278,10 @@ const styles = {
         {paginatedAppointments.length > 0 ? (
           <div
             className={
-  ["confirmed", "upcoming"].includes(activeTab)
-    ? "grid grid-cols-1 xl:grid-cols-2 gap-7"
-    : "space-y-5"
-}
+              ["confirmed", "upcoming"].includes(activeTab)
+                ? "grid grid-cols-1 xl:grid-cols-2 gap-7"
+                : "space-y-5"
+            }
           >
             {paginatedAppointments.map((appt) => {
               const { date, time } = formatDateTime(appt.appointmentDate);
@@ -542,13 +541,12 @@ const styles = {
               return (
                 <div
                   key={appt._id}
-                  className={`theme-surface rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all border ${
-                    activeTab === "pending"
+                  className={`theme-surface rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all border ${activeTab === "pending"
                       ? "border-amber-200"
                       : activeTab === "cancelled"
                         ? "border-red-100 opacity-95"
                         : "theme-border"
-                  }`}
+                    }`}
                 >
                   <div className="flex gap-5">
                     <div

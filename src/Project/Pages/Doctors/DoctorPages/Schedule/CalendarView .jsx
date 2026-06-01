@@ -179,7 +179,6 @@ const CalendarLeaveRequest = () => {
         dateClick={handleDateClick}
         showNonCurrentDates={false}
         fixedWeekCount={false}
-        eventClick={(info) => console.log(info.event.title)}
       />
 
       {showModal && selectedDate && (

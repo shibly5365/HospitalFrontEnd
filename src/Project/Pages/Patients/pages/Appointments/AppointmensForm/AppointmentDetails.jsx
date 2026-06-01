@@ -17,21 +17,21 @@ const AppointmentDetails = ({ formData, onInputChange, incomingDoctor }) => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Appointment Details</h2>
+      <h2 className="text-2xl font-bold theme-text mb-6">Appointment Details</h2>
 
       {/* Doctor */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Selected Doctor *</label>
+        <label className="block text-sm font-medium theme-text-muted mb-2">Selected Doctor *</label>
         {incomingDoctor ? (
-          <div className="p-3 bg-gray-100 rounded-lg">
+         <div className="p-3 theme-soft rounded-lg border theme-border">
             <p className="font-semibold">{incomingDoctor.name}</p>
-            <p className="text-gray-600">{incomingDoctor.title}</p>
+            <p className="theme-text-muted">{incomingDoctor.title}</p>
           </div>
         ) : (
           <select
             value={formData.doctorId}
             onChange={(e) => onInputChange("doctorId", e.target.value)}
-            className="w-full px-4 py-3 border rounded-lg"
+            className="w-full px-4 py-3 theme-card theme-text rounded-lg"
           >
             <option value="">Choose a doctor</option>
           </select>
@@ -40,23 +40,23 @@ const AppointmentDetails = ({ formData, onInputChange, incomingDoctor }) => {
 
       {/* Department */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Department *</label>
+        <label className="block text-sm font-medium theme-text-muted mb-2">Department *</label>
         <input
           type="text"
           value={formData.department}
           onChange={(e) => onInputChange("department", e.target.value)}
           placeholder="Enter Department"
-          className="w-full px-4 py-3 border rounded-lg"
+          className="w-full px-4 py-3 theme-card theme-text rounded-lg"
         />
       </div>
 
       {/* Consultation Type */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Consultation Type *</label>
+        <label className="block text-sm font-medium theme-text-muted mb-2">Consultation Type *</label>
         <select
           value={formData.consultationType}
           onChange={(e) => onInputChange("consultationType", e.target.value)}
-          className="w-full px-4 py-3 border rounded-lg"
+          className="w-full px-4 py-3 theme-card theme-text rounded-lg"
         >
           <option value="">Select Type</option>
           <option value="Online">Online</option>
@@ -66,7 +66,7 @@ const AppointmentDetails = ({ formData, onInputChange, incomingDoctor }) => {
 
       {/* Date */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium theme-text-muted mb-2">
           <Calendar className="inline w-4 h-4 mr-1" />
           Appointment Date *
         </label>
@@ -74,7 +74,7 @@ const AppointmentDetails = ({ formData, onInputChange, incomingDoctor }) => {
           type="date"
           value={formData.appointmentDate}
           onChange={(e) => onInputChange("appointmentDate", e.target.value)}
-          className="w-full px-4 py-3 border rounded-lg"
+          className="w-full px-4 py-3 theme-card theme-text rounded-lg"
         />
       </div>
 
@@ -100,12 +100,12 @@ const AppointmentDetails = ({ formData, onInputChange, incomingDoctor }) => {
 
       {/* Reason */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Reason for Visit *</label>
+        <label className="block text-sm font-medium theme-text-muted mb-2">Reason for Visit *</label>
         <textarea
           value={formData.reason}
           onChange={(e) => onInputChange("reason", e.target.value)}
           rows="4"
-          className="w-full px-4 py-3 border rounded-lg"
+          className="w-full px-4 py-3 theme-card theme-text rounded-lg"
         />
       </div>
     </div>

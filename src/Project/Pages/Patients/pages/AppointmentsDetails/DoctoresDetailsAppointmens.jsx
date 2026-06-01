@@ -321,54 +321,7 @@ function DoctoresDetailsAppointmens({
         </div>
       </div>
 
-      {/* Buttons */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        {/* Book */}
-        <motion.button
-          whileHover={{
-            scale: 1.05,
-          }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() =>
-            onBook(doctor)
-          }
-          className="
-            flex-1
-            py-3
-            rounded-xl
-            bg-gradient-to-r
-            from-purple-600
-            to-indigo-600
-            text-white
-            font-semibold
-            shadow-md
-            hover:shadow-lg
-          "
-        >
-          Book Now
-        </motion.button>
 
-        {/* Chat */}
-        <motion.button
-          whileHover={{
-            scale: 1.05,
-          }}
-          whileTap={{ scale: 0.95 }}
-          className="
-            flex-1
-            py-3
-            rounded-xl
-            border-2
-            theme-border
-            theme-text
-            font-semibold
-            hover:bg-white/5
-            transition-all
-          "
-        >
-          Chat
-        </motion.button>
-      </div>
     </motion.div>
   );
 }
