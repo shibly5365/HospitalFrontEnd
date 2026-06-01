@@ -1,103 +1,106 @@
+import React, { useState, useMemo } from "react";
+import {
+  Search,
+  Download,
+  Eye,
+  Calendar,
+  CreditCard,
+  MapPin,
+  X,
+  Loader2,
+} from "lucide-react";
+import { useTheme } from "../../../../context/ThemeContext";
+import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "../../../../services/queryClient";
 
+// API Call Functions
+const fetchPayments = async () => {
+  const { data } = await apiClient.get("/patient/payment");
+  return data;
+};
 
-import React, { useState, useMemo } from 'react';
-import { 
-  Search, Download, Eye, Calendar, CreditCard, 
-  MapPin, X 
-} from 'lucide-react';
-import { useTheme } from '../../../../context/ThemeContext';   // ← Import your theme hook
-
-const dummyData = [
-  {
-    id: "1",
-    paymentId: "PAY-20250514-7842",
-    doctorName: "Dr. Priya Sharma",
-    doctorSpecialization: "Cardiologist",
-    doctorImage: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop",
-    hospitalName: "Medicare Superspeciality Hospital",
-    hospitalAddress: "MG Road, Kochi, Kerala 682011",
-    appointmentDate: "2025-05-10",
-    appointmentTime: "10:30 AM",
-    paymentDate: "2025-05-10",
-    consultationType: "Offline",
-    amount: 1250,
-    paymentMethod: "UPI",
-    status: "Paid",
-    transactionId: "UPI9876543210",
-    prescriptionId: "PRX-458291",
-    notes: "Regular follow-up for hypertension. BP under control.",
-    breakdown: { consultationFee: 1100, serviceCharge: 100, tax: 50 }
-  },
-  {
-    id: "2",
-    paymentId: "PAY-20250512-6591",
-    doctorName: "Dr. Arjun Menon",
-    doctorSpecialization: "Orthopedic Surgeon",
-    doctorImage: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&h=150&fit=crop",
-    hospitalName: "Lakeshore Hospital",
-    hospitalAddress: "NH Bypass, Kochi, Kerala",
-    appointmentDate: "2025-05-08",
-    appointmentTime: "03:00 PM",
-    paymentDate: "2025-05-08",
-    consultationType: "Online",
-    amount: 800,
-    paymentMethod: "Card",
-    status: "Paid",
-    transactionId: "CARD-4582-XXXX-9012",
-    prescriptionId: "PRX-458292",
-    notes: "Knee pain consultation",
-    breakdown: { consultationFee: 700, serviceCharge: 70, tax: 30 }
-  },
-  {
-    id: "3",
-    paymentId: "PAY-20250505-3321",
-    doctorName: "Dr. Ananya Nair",
-    doctorSpecialization: "Pediatrician",
-    doctorImage: "https://images.unsplash.com/photo-1594824476967-4e9f7c0f0c0e?w=150&h=150&fit=crop",
-    hospitalName: "Kerala Medical Center",
-    hospitalAddress: "Vyttila, Kochi",
-    appointmentDate: "2025-05-05",
-    appointmentTime: "11:00 AM",
-    paymentDate: "2025-05-05",
-    consultationType: "Offline",
-    amount: 600,
-    paymentMethod: "UPI",
-    status: "Pending",
-    transactionId: "PENDING-112233",
-    prescriptionId: "PRX-458293",
-    notes: "Child fever follow-up",
-    breakdown: { consultationFee: 550, serviceCharge: 30, tax: 20 }
-  },
-];
+const fetchPaymentById = async (id) => {
+  const { data } = await apiClient.get(`/patient/payment/${id}`);
+  return data;
+};
 
 const statusColors = {
   Paid: "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800",
-  Pending: "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800",
-  Failed: "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
+  Pending:
+    "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800",
+  Failed:
+    "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
 };
 
 const PatientPaymentHistory = () => {
-  const { theme } = useTheme();        // ← Using your theme context
+  const { theme } = useTheme();
 
-  const [payments] = useState(dummyData);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [selectedPaymentId, setSelectedPaymentId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const itemsPerPage = 6;
+
+  // Fetch All Payments
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["patientPayments"],
+    queryFn: fetchPayments,
+    staleTime: 1000 * 60 * 2,
+  });
+
+  const payments = Array.isArray(data) ? data : data?.payments || [];
+  const patient = data?.patient;
+
+  // Fetch Single Payment Details
+  const { data: selectedPayment, isLoading: isLoadingDetails } = useQuery({
+    queryKey: ["paymentDetail", selectedPaymentId],
+    queryFn: () => fetchPaymentById(selectedPaymentId),
+    enabled: !!selectedPaymentId,
+  });
 
   const filteredPayments = useMemo(() => {
     return payments.filter((payment) => {
-      const matchesSearch = 
-        payment.doctorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        payment.paymentId.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesStatus = statusFilter === 'All' || payment.status === statusFilter;
-      
+      const matchesSearch =
+        payment.doctor?.name
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        payment.paymentId?.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesStatus =
+        statusFilter === "All" || payment.paymentStatus === statusFilter;
+
       return matchesSearch && matchesStatus;
     });
   }, [payments, searchTerm, statusFilter]);
+  const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
 
-  const totalSpent = payments.reduce((sum, p) => sum + p.amount, 0);
+  const paginatedPayments = filteredPayments.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
+  const totalSpent = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
   const lastPayment = payments[0];
+  window.console.log("faa", selectedPayment);
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 dark:text-red-400 mb-4">
+            Failed to load payment history
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-indigo-600 text-white rounded-2xl hover:bg-indigo-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -105,43 +108,79 @@ const PatientPaymentHistory = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Payment History</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Payment History
+            </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
               View all your consultation and treatment payments
             </p>
           </div>
-          
+
           <button className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors mt-4 md:mt-0">
             <Download size={20} />
             Export History
           </button>
         </div>
 
-        {/* Patient Summary Card */}
+        {/* Patient Summary */}
         <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 mb-8">
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            <img 
-              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop" 
-              alt="Patient" 
-              className="w-24 h-24 rounded-2xl object-cover"
-            />
-            <div className="flex-1">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Nuh Ahmed</h2>
-              <p className="text-gray-500 dark:text-gray-400">Patient ID: PT-984721</p>
+          <div className="flex flex-col lg:flex-row lg:items-center gap-8">
+            {/* LEFT */}
+            <div className="flex items-center gap-5 flex-1">
+              <img
+                src={
+                  patient?.profileImage ||
+                  "https://ui-avatars.com/api/?name=Patient"
+                }
+                alt=""
+                className="w-24 h-24 rounded-3xl object-cover border border-gray-200 dark:border-gray-700 shadow-sm"
+              />
+
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {patient?.name || "Unknown Patient"}
+                </h2>
+
+                <p className="text-gray-500 dark:text-gray-400 mt-1">
+                  Patient ID: {patient?.patientId || "N/A"}
+                </p>
+              </div>
             </div>
-            
-            <div className="grid grid-cols-3 gap-8 text-center">
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Appointments</p>
-                <p className="text-3xl font-bold text-indigo-600">{payments.length}</p>
+
+            {/* RIGHT STATS */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full lg:w-auto">
+              <div className="bg-gray-50 dark:bg-gray-950 rounded-2xl px-6 py-5 text-center border border-gray-100 dark:border-gray-800 min-w-[150px]">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Appointments
+                </p>
+
+                <p className="text-3xl font-bold text-indigo-600 mt-2">
+                  {payments.length}
+                </p>
               </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Total Spent</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">₹{totalSpent}</p>
+
+              <div className="bg-gray-50 dark:bg-gray-950 rounded-2xl px-6 py-5 text-center border border-gray-100 dark:border-gray-800 min-w-[150px]">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Total Spent
+                </p>
+
+                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+                  ₹{totalSpent}
+                </p>
               </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Last Payment</p>
-                <p className="text-lg font-medium text-gray-900 dark:text-white">{lastPayment?.paymentDate}</p>
+
+              <div className="bg-gray-50 dark:bg-gray-950 rounded-2xl px-6 py-5 text-center border border-gray-100 dark:border-gray-800 min-w-[150px]">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Last Payment
+                </p>
+
+                <p className="text-lg font-semibold text-gray-900 dark:text-white mt-2">
+                  {lastPayment?.appointment?.date
+                    ? new Date(
+                        lastPayment.appointment.date,
+                      ).toLocaleDateString()
+                    : "—"}
+                </p>
               </div>
             </div>
           </div>
@@ -150,18 +189,21 @@ const PatientPaymentHistory = () => {
         {/* Filters */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-3.5 text-gray-400" size={20} />
+            <Search
+              className="absolute left-4 top-3.5 text-gray-400"
+              size={20}
+            />
             <input
               type="text"
               placeholder="Search by doctor or payment ID..."
-              className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:border-indigo-500 text-gray-900 dark:text-white"
+              className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:border-indigo-500"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
           <select
-            className="px-5 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none text-gray-900 dark:text-white"
+            className="px-5 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -171,169 +213,348 @@ const PatientPaymentHistory = () => {
             <option value="Failed">Failed</option>
           </select>
 
-          <button className="px-5 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300">
+          <button className="px-5 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800">
             <Calendar size={20} />
             Date Filter
           </button>
         </div>
 
-        {/* Payment Table */}
-        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 sticky top-0">
-                <tr>
-                  <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Payment ID</th>
-                  <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Doctor</th>
-                  <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Date</th>
-                  <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Type</th>
-                  <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Amount</th>
-                  <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
-                  <th className="px-6 py-5 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                {filteredPayments.map((payment) => (
-                  <tr key={payment.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    <td className="px-6 py-5 font-medium text-gray-900 dark:text-white">{payment.paymentId}</td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-3">
-                        <img 
-                          src={payment.doctorImage} 
-                          alt="" 
-                          className="w-9 h-9 rounded-full object-cover" 
-                        />
-                        <div>
-                          <p className="font-medium text-gray-900 dark:text-white">{payment.doctorName}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{payment.doctorSpecialization}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5 text-sm text-gray-900 dark:text-white">
-                      <div>{payment.paymentDate}</div>
-                      <div className="text-gray-500 dark:text-gray-400 text-xs">{payment.appointmentTime}</div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
-                        ${payment.consultationType === 'Online' 
-                          ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' 
-                          : 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'}`}>
-                        {payment.consultationType}
-                      </span>
-                    </td>
-                    <td className="px-6 py-5 font-semibold text-lg text-gray-900 dark:text-white">₹{payment.amount}</td>
-                    <td className="px-6 py-5">
-                      <span className={`inline-flex items-center px-4 py-1.5 rounded-2xl text-sm font-medium border ${statusColors[payment.status]}`}>
-                        {payment.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-5 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => setSelectedPayment(payment)}
-                          className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl transition-colors"
-                        >
-                          <Eye size={20} className="text-gray-600 dark:text-gray-400" />
-                        </button>
-                        <button className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl transition-colors">
-                          <Download size={20} className="text-gray-600 dark:text-gray-400" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* Loading */}
+        {isLoading && (
+          <div className="flex justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
           </div>
-        </div>
+        )}
 
-        {filteredPayments.length === 0 && (
-          <div className="text-center py-20 text-gray-400 dark:text-gray-500">
+        {/* Table */}
+        {!isLoading && (
+          <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 sticky top-0">
+                  <tr>
+                    <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Payment ID
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Doctor
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Date
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Type
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Amount
+                    </th>
+                    <th className="px-6 py-5 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Status
+                    </th>
+                    <th className="px-6 py-5 text-right text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {paginatedPayments.map((payment) => (
+                    <tr
+                      key={payment._id || payment.id}
+                      className="group hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-all duration-300"
+                    >
+                      {/* PAYMENT ID */}
+                      <td className="px-6 py-6">
+                        <div>
+                          <p className="font-semibold text-gray-900 dark:text-white tracking-wide">
+                            {payment.paymentId}
+                          </p>
+
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            Transaction ID
+                          </p>
+                        </div>
+                      </td>
+
+                      {/* DOCTOR */}
+                      <td className="px-6 py-6">
+                        <div className="flex items-center gap-4">
+                          <div className="relative">
+                            <img
+                              src={
+                                payment.doctor?.profileImage ||
+                                "https://ui-avatars.com/api/?name=Doctor"
+                              }
+                              alt=""
+                              className="w-12 h-12 rounded-2xl object-cover border border-gray-200 dark:border-gray-700 shadow-sm"
+                            />
+
+                            <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-white dark:border-gray-900" />
+                          </div>
+
+                          <div>
+                            <p className="font-semibold text-gray-900 dark:text-white">
+                              {payment.doctor?.name}
+                            </p>
+
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                              {payment.doctor?.specialization}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* DATE & TIME */}
+                      <td className="px-6 py-6">
+                        <div>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {new Date(
+                              payment.appointment?.date,
+                            ).toLocaleDateString()}
+                          </p>
+
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            {payment.appointment?.time?.start} -{" "}
+                            {payment.appointment?.time?.end}
+                          </p>
+                        </div>
+                      </td>
+
+                      {/* CONSULTATION TYPE */}
+                      <td className="px-6 py-6">
+                        <span
+                          className={`inline-flex items-center px-4 py-2 rounded-2xl text-xs font-semibold tracking-wide
+          ${
+            payment.appointment?.type === "Online"
+              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+              : "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
+          }`}
+                        >
+                          {payment.appointment?.type}
+                        </span>
+                      </td>
+
+                      {/* AMOUNT */}
+                      <td className="px-6 py-6">
+                        <div>
+                          <p className="text-lg font-bold text-gray-900 dark:text-white">
+                            ₹{payment.amount}
+                          </p>
+
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            {payment.paymentMethod}
+                          </p>
+                        </div>
+                      </td>
+
+                      {/* STATUS */}
+                      <td className="px-6 py-6">
+                        <span
+                          className={`inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-semibold border
+          ${statusColors[payment.paymentStatus]}`}
+                        >
+                          <span className="w-2 h-2 rounded-full bg-current opacity-80" />
+
+                          {payment.paymentStatus}
+                        </span>
+                      </td>
+
+                      {/* ACTIONS */}
+                      <td className="px-6 py-6">
+                        <div className="flex items-center justify-end gap-3">
+                          <button
+                            onClick={() =>
+                              setSelectedPaymentId(payment._id || payment.id)
+                            }
+                            className="w-11 h-11 rounded-2xl flex items-center justify-center border border-gray-200 dark:border-gray-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-200"
+                          >
+                            <Eye
+                              size={18}
+                              className="text-gray-600 dark:text-gray-300"
+                            />
+                          </button>
+
+                          <button className="w-11 h-11 rounded-2xl flex items-center justify-center border border-gray-200 dark:border-gray-700 hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-300 dark:hover:border-green-700 transition-all duration-200">
+                            <Download
+                              size={18}
+                              className="text-gray-600 dark:text-gray-300"
+                            />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {/* Pagination */}
+              {filteredPayments.length > itemsPerPage && (
+                <div className="flex items-center justify-between mt-6 px-2">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Showing {(currentPage - 1) * itemsPerPage + 1} -{" "}
+                    {Math.min(
+                      currentPage * itemsPerPage,
+                      filteredPayments.length,
+                    )}{" "}
+                    of {filteredPayments.length} payments
+                  </p>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage((prev) => prev - 1)}
+                      className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 disabled:opacity-40 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                    >
+                      Prev
+                    </button>
+
+                    {Array.from({ length: totalPages }).map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentPage(index + 1)}
+                        className={`w-10 h-10 rounded-xl font-medium transition-all
+          ${
+            currentPage === index + 1
+              ? "bg-indigo-600 text-white"
+              : "border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
+          }`}
+                      >
+                        {index + 1}
+                      </button>
+                    ))}
+
+                    <button
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage((prev) => prev + 1)}
+                      className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 disabled:opacity-40 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {filteredPayments.length === 0 && !isLoading && (
+          <div className="text-center py-20 text-gray-400">
             No payment records found
           </div>
         )}
       </div>
 
-      {/* Payment Details Modal - Improved Dark Mode */}
-      {selectedPayment && (
+      {/* Payment Details Modal */}
+      {selectedPaymentId && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-900 rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
               <div>
-                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white">Payment Details</h3>
-                <p className="text-gray-500 dark:text-gray-400">{selectedPayment.paymentId}</p>
+                <h3 className="text-2xl font-semibold">Payment Details</h3>
+                <p className="text-gray-500">
+                  {selectedPayment?.doctor?.paymentId}
+                </p>
               </div>
-              <button 
-                onClick={() => setSelectedPayment(null)}
-                className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl text-gray-700 dark:text-gray-300"
+              <button
+                onClick={() => setSelectedPaymentId(null)}
+                className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl"
               >
                 <X size={26} />
               </button>
             </div>
 
             <div className="p-6 overflow-y-auto max-h-[70vh]">
-              {/* Doctor Info */}
-              <div className="flex gap-6 mb-8">
-                <img 
-                  src={selectedPayment.doctorImage} 
-                  alt={selectedPayment.doctorName}
-                  className="w-24 h-24 rounded-2xl object-cover"
-                />
-                <div>
-                  <h4 className="text-2xl font-semibold text-gray-900 dark:text-white">{selectedPayment.doctorName}</h4>
-                  <p className="text-indigo-600 dark:text-indigo-500 font-medium">{selectedPayment.doctorSpecialization}</p>
-                  <div className="flex items-center gap-2 mt-3 text-gray-600 dark:text-gray-400">
-                    <MapPin size={18} />
-                    <span>{selectedPayment.hospitalName}</span>
-                  </div>
+              {isLoadingDetails ? (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
                 </div>
-              </div>
+              ) : selectedPayment ? (
+                <>
+                  {/* Doctor Info */}
+                  <div className="flex gap-6 mb-8">
+                    <img
+                      src={selectedPayment?.payment?.doctor?.profileImage}
+                      alt=""
+                      className="w-24 h-24 rounded-2xl object-cover"
+                    />
+                    <div>
+                      <h4 className="text-2xl font-semibold">
+                        {selectedPayment?.payment?.doctor?.name}
+                      </h4>
+                      <p className="text-indigo-600">
+                        {selectedPayment?.payment?.doctor?.specialization}
+                      </p>
+                      <div className="flex items-center gap-2 mt-3 text-gray-600 dark:text-gray-400">
+                        <MapPin size={18} />
+                        <span>{selectedPayment.hospitalName}</span>
+                      </div>
+                    </div>
+                  </div>
 
-              {/* Payment Breakdown */}
-              <div className="bg-gray-50 dark:bg-gray-950 rounded-2xl p-6 mb-8">
-                <h5 className="font-semibold mb-4 text-gray-900 dark:text-white">Payment Breakdown</h5>
-                <div className="space-y-3 text-gray-700 dark:text-gray-300">
-                  <div className="flex justify-between">
-                    <span>Consultation Fee</span>
-                    <span>₹{selectedPayment.breakdown.consultationFee}</span>
+                  {/* Breakdown */}
+                  <div className="bg-gray-50 dark:bg-gray-950 rounded-2xl p-6 mb-8">
+                    <h5 className="font-semibold mb-4">Payment Breakdown</h5>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span>Consultation Fee</span>
+                        <span>
+                          ₹
+                          {selectedPayment?.payment?.billBreakdown
+                            ?.consultationFee || selectedPayment.amount}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Service Charge</span>
+                        <span>
+                          ₹{selectedPayment.breakdown?.serviceCharge || 0}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Tax (GST)</span>
+                        <span>₹{selectedPayment.breakdown?.tax || 0}</span>
+                      </div>
+                      <hr className="my-3" />
+                      <div className="flex justify-between text-lg font-semibold">
+                        <span>Total</span>
+                        <span>₹{selectedPayment.amount}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Service Charge</span>
-                    <span>₹{selectedPayment.breakdown.serviceCharge}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Tax (GST)</span>
-                    <span>₹{selectedPayment.breakdown.tax}</span>
-                  </div>
-                  <hr className="my-3 border-gray-200 dark:border-gray-700" />
-                  <div className="flex justify-between text-lg font-semibold text-gray-900 dark:text-white">
-                    <span>Total Amount</span>
-                    <span>₹{selectedPayment.amount}</span>
-                  </div>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700 dark:text-gray-300">
-                <div>
-                  <p className="text-gray-500 dark:text-gray-400 mb-1">Appointment</p>
-                  <p className="font-medium">{selectedPayment.appointmentDate} • {selectedPayment.appointmentTime}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 dark:text-gray-400 mb-1">Payment Method</p>
-                  <p className="font-medium flex items-center gap-2">
-                    <CreditCard size={18} /> {selectedPayment.paymentMethod}
-                  </p>
-                </div>
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                        Appointment
+                      </p>
+
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {new Date(
+                          selectedPayment?.payment?.appointment?.date,
+                        ).toLocaleDateString()}
+                      </p>
+
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        {selectedPayment?.payment?.appointment?.time?.start} -{" "}
+                        {selectedPayment?.payment?.appointment?.time?.end}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 mb-1">Payment Method</p>
+                      <p className="flex items-center gap-2">
+                        <CreditCard size={18} />{" "}
+                        {selectedPayment?.payment?.paymentMethod}
+                      </p>
+                    </div>
+                  </div>
+                </>
+              ) : null}
             </div>
 
             <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex gap-3">
-              <button className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-medium transition">
+              <button className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-medium">
                 Download Invoice
               </button>
-              <button 
-                onClick={() => setSelectedPayment(null)}
-                className="flex-1 py-4 border border-gray-300 dark:border-gray-700 rounded-2xl font-medium text-gray-700 dark:text-gray-300"
+              <button
+                onClick={() => setSelectedPaymentId(null)}
+                className="flex-1 py-4 border border-gray-300 dark:border-gray-700 rounded-2xl font-medium"
               >
                 Close
               </button>

@@ -36,15 +36,15 @@ const DoctorSchedules = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 p-6">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-3">
-            <Calendar className="text-blue-600" size={32} />
+         <h1 className="text-3xl font-bold text-[var(--text)] mb-2 flex items-center justify-center gap-3">
+           <Calendar className="text-[var(--brand)]" size={32} />
             Doctor Schedule Management
           </h1>
-          <p className="text-gray-600">Manage your availability and appointment slots</p>
+         <p className="text-[var(--muted)]">Manage your availability and appointment slots</p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">

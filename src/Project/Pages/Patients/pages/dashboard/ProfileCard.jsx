@@ -1,21 +1,22 @@
 import { apiClient } from "../../../../../services/queryClient";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ProfileCard({ isVisible }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await apiClient.get(
-          "/patient/dashboard",
-          { withCredentials: true }
-        );
+        const res = await apiClient.get("/patient/dashboard", {
+          withCredentials: true,
+        });
 
         const data = res.data;
         // console.log(data);
-        
+
         // Adjust this depending on your actual backend response
         const user = data.patientInfo ?? data.user ?? data.profile ?? null;
         setProfile(user);
@@ -44,7 +45,7 @@ export default function ProfileCard({ isVisible }) {
       </div>
     );
   }
-// console.log(profile);
+  // console.log(profile);
 
   // 🧠 Format name: capitalize first letter
   const formattedName =
@@ -53,8 +54,7 @@ export default function ProfileCard({ isVisible }) {
 
   // 🧩 Use Cloudinary URL if available, else fallback image
   const profileImageURL =
-    profile.profileImage ||
-    "https://randomuser.me/api/portraits/men/32.jpg";
+    profile.profileImage || "https://randomuser.me/api/portraits/men/32.jpg";
 
   return (
     <div
@@ -73,9 +73,13 @@ export default function ProfileCard({ isVisible }) {
           Email: #{profile.email ?? "N/A"}
         </p>
         <p className="text-sm text-white/80 mt-1">
-          Age: {profile.age ?? "N/A"} • Blood Type: {profile.bloodGroup ?? "N/A"}
+          Age: {profile.age ?? "N/A"} • Blood Type:{" "}
+          {profile.bloodGroup ?? "N/A"}
         </p>
-        <button className="mt-4 bg-white text-blue-600 font-semibold px-4 py-2 rounded-xl shadow-md hover:bg-blue-50 transition-all">
+        <button
+          className="mt-4 bg-white text-blue-600 font-semibold px-4 py-2 rounded-xl shadow-md hover:bg-blue-50 transition-all"
+          onClick={() => navigate("/patient/settings")}
+        >
           Edit Profile
         </button>
       </div>

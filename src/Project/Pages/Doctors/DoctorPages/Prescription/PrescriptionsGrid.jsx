@@ -7,9 +7,9 @@ const PrescriptionsGrid = ({ prescriptions, onViewPrescription }) => {
     
   if (prescriptions.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-md p-12 text-center">
-        <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-        <p className="text-gray-500 text-lg">No prescriptions found</p>
+      <div className="bg-[var(--surface)] rounded-xl shadow-sm p-12 text-center">
+        <FileText className="w-16 h-16 text-[var(--muted)] mx-auto mb-4" />
+        <p className="text-[var(--muted)] text-lg">No prescriptions found</p>
       </div>
     );
   }

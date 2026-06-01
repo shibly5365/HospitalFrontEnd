@@ -14,12 +14,12 @@ const StatsCards = ({ stats }) => {
       {statItems.map((item, index) => (
         <div
           key={index}
-          className="bg-white rounded-3xl p-6 border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 group"
+          className="bg-[var(--surface)] rounded-3xl p-6 border border-[var(--line)] hover:border-[var(--line)] hover:shadow-xl transition-all duration-300 group"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm font-medium">{item.label}</p>
-              <p className="text-4xl font-semibold text-gray-900 mt-3 tracking-tighter">
+              <p className="text-[var(--muted)] text-sm font-medium">{item.label}</p>
+              <p className="text-4xl font-semibold text-[var(--text)] mt-3 tracking-tighter">
                 {item.value}
               </p>
             </div>

@@ -13,17 +13,17 @@ const SearchFilters = ({
   const hasActiveFilters = searchTerm || statusFilter !== "All Status" || dateFilter !== "Today";
 
   return (
-    <div className="bg-white rounded-3xl p-6 border border-gray-100 mb-8">
+    <div className="bg-[var(--surface)] rounded-3xl p-6 border border-[var(--line)] mb-8">
       <div className="flex flex-col md:flex-row gap-4">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={20} />
           <input
             type="text"
             placeholder="Search patients or reason..."
             value={searchTerm}
             onChange={onSearchChange}
-            className="w-full pl-11 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-3xl focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
+            className="w-full pl-11 pr-4 py-4 bg-[var(--surface-soft)] border border-[var(--line)] rounded-3xl focus:outline-none focus:border-blue-500 focus:bg-[var(--surface)] transition-all"
           />
         </div>
 
@@ -31,7 +31,7 @@ const SearchFilters = ({
         <select
           value={statusFilter}
           onChange={onStatusFilterChange}
-          className="px-6 py-4 bg-gray-50 border border-gray-200 rounded-3xl focus:outline-none focus:border-blue-500 transition-all"
+          className="px-6 py-4 bg-[var(--surface-soft)] border border-[var(--line)] rounded-3xl focus:outline-none focus:border-blue-500 transition-all"
         >
           <option>All Status</option>
           <option>Pending</option>
@@ -44,7 +44,7 @@ const SearchFilters = ({
         <select
           value={dateFilter}
           onChange={onDateFilterChange}
-          className="px-6 py-4 bg-gray-50 border border-gray-200 rounded-3xl focus:outline-none focus:border-blue-500 transition-all"
+          className="px-6 py-4 bg-[var(--surface-soft)] border border-[var(--line)] rounded-3xl focus:outline-none focus:border-blue-500 transition-all"
         >
           <option>Today</option>
           <option>Tomorrow</option>

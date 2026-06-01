@@ -17,10 +17,9 @@ const CalendarLeaveRequest = () => {
   // ================= FETCH DATA =================
   const fetchAvailability = async () => {
     try {
-      const res = await apiClient.get(
-        `/doctor/availability`,
-        { withCredentials: true },
-      );
+      const res = await apiClient.get(`/doctor/availability`, {
+        withCredentials: true,
+      });
 
       console.log("API DATA:", res.data);
 
@@ -59,7 +58,8 @@ const CalendarLeaveRequest = () => {
           title: "Available",
           start: d.formatted,
           end: d.formatted,
-          color: "green",
+          backgroundColor: "#16a34a",
+          borderColor: "#16a34a",
         }));
 
       // ================= LEAVES =================
@@ -77,7 +77,9 @@ const CalendarLeaveRequest = () => {
           title: l.status === "pending" ? "Pending Leave" : "Approved Leave",
           start: l.date,
           end: l.date,
-          color: l.status === "pending" ? "orange" : "red",
+          backgroundColor: l.status === "pending" ? "#f59e0b" : "#ef4444",
+
+          borderColor: l.status === "pending" ? "#f59e0b" : "#ef4444",
         }));
 
       // ================= MERGE =================
@@ -142,11 +144,9 @@ const CalendarLeaveRequest = () => {
     };
 
     try {
-      await apiClient.post(
-        "/doctor/leave-request",
-        payload,
-        { withCredentials: true },
-      );
+      await apiClient.post("/doctor/leave-request", payload, {
+        withCredentials: true,
+      });
 
       // ✅ refresh data
       await fetchAvailability();
@@ -161,10 +161,16 @@ const CalendarLeaveRequest = () => {
   };
 
   return (
-    <div className="bg-white p-4 rounded shadow">
-      <h2 className="text-xl font-semibold mb-4">
-        Doctor Calendar & Leave Request
-      </h2>
+    <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl shadow-sm">
+      <div className="mb-6">
+        <h2 className="text-2xl font-semibold text-[var(--text)]">
+          Doctor Calendar & Leave Request
+        </h2>
+
+        <p className="text-sm text-[var(--muted)] mt-1">
+          Manage availability and request leave days
+        </p>
+      </div>
 
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
@@ -173,83 +179,164 @@ const CalendarLeaveRequest = () => {
         dateClick={handleDateClick}
         showNonCurrentDates={false}
         fixedWeekCount={false}
-        eventClick={(info) => alert(`Event: ${info.event.title}`)}
+        eventClick={(info) => console.log(info.event.title)}
       />
 
       {showModal && selectedDate && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded p-6 w-96 shadow-lg">
-            <h3 className="font-semibold text-lg mb-4 text-center">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 p-4">
+          <div
+            className="
+          bg-[var(--surface)]
+          border border-[var(--line)]
+          rounded-2xl
+          p-6
+          w-full max-w-md
+          shadow-xl
+        "
+          >
+            <h3
+              className="
+            text-xl font-semibold
+            text-[var(--text)]
+            text-center mb-6
+          "
+            >
               Request Leave
             </h3>
 
-            <div className="mb-4">
-              <label className="block mb-2 text-sm">
-                Leave Type
+            <div className="space-y-4">
+              {/* TYPE */}
+              <div>
+                <label className="block text-sm font-medium text-[var(--text)] mb-2">
+                  Leave Type
+                </label>
+
                 <select
                   name="type"
                   value={leaveForm.type}
                   onChange={handleFormChange}
-                  className="w-full border p-2 mt-1 rounded"
+                  className="
+                  w-full
+                  border border-[var(--line)]
+                  bg-[var(--surface)]
+                  text-[var(--text)]
+                  rounded-xl
+                  px-4 py-3
+                  outline-none
+                  focus:ring-2 focus:ring-[var(--brand)]
+                "
                 >
                   <option value="sick">Sick</option>
                   <option value="casual">Casual</option>
                 </select>
-              </label>
+              </div>
 
-              <label className="block mb-2 text-sm">
-                Description
+              {/* DESCRIPTION */}
+              <div>
+                <label className="block text-sm font-medium text-[var(--text)] mb-2">
+                  Description
+                </label>
+
                 <textarea
                   name="description"
                   value={leaveForm.description}
                   onChange={handleFormChange}
                   placeholder="Enter reason"
-                  className="w-full border p-2 mt-1 rounded resize-none"
-                />
-              </label>
-            </div>
-
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex-1 mr-2">
-                <label className="block text-sm font-medium mb-1">
-                  Selected Date
-                </label>
-                <input
-                  type="text"
-                  value={selectedDate}
-                  readOnly
-                  className="w-full border p-2 rounded bg-gray-100"
+                  className="
+                  w-full
+                  border border-[var(--line)]
+                  bg-[var(--surface)]
+                  text-[var(--text)]
+                  placeholder:text-[var(--muted)]
+                  rounded-xl
+                  px-4 py-3
+                  resize-none
+                  outline-none
+                  focus:ring-2 focus:ring-[var(--brand)]
+                "
+                  rows={4}
                 />
               </div>
-              <div className="flex-1 ml-2">
-                <label className="block text-sm font-medium mb-1">
-                  Duration
-                </label>
-                <select
-                  name="duration"
-                  value={leaveForm.duration}
-                  onChange={handleFormChange}
-                  className="w-full border p-2 rounded"
+
+              {/* DATE + DURATION */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-[var(--text)] mb-2">
+                    Selected Date
+                  </label>
+
+                  <input
+                    type="text"
+                    value={selectedDate}
+                    readOnly
+                    className="
+                    w-full
+                    border border-[var(--line)]
+                    bg-[var(--surface-soft)]
+                    text-[var(--text)]
+                    rounded-xl
+                    px-4 py-3
+                  "
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-[var(--text)] mb-2">
+                    Duration
+                  </label>
+
+                  <select
+                    name="duration"
+                    value={leaveForm.duration}
+                    onChange={handleFormChange}
+                    className="
+                    w-full
+                    border border-[var(--line)]
+                    bg-[var(--surface)]
+                    text-[var(--text)]
+                    rounded-xl
+                    px-4 py-3
+                    outline-none
+                    focus:ring-2 focus:ring-[var(--brand)]
+                  "
+                  >
+                    <option value="Full Day">Full Day</option>
+
+                    <option value="Half Day">Half Day</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* BUTTONS */}
+              <div className="flex justify-end gap-3 pt-4">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="
+                  px-5 py-2.5
+                  rounded-xl
+                  bg-[var(--surface-soft)]
+                  text-[var(--text)]
+                  hover:bg-[var(--line)]
+                  transition
+                "
                 >
-                  <option value="Full Day">Full Day</option>
-                  <option value="Half Day">Half Day</option>
-                </select>
-              </div>
-            </div>
+                  Cancel
+                </button>
 
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowModal(false)}
-                className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSubmitLeave}
-                className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
-              >
-                Request
-              </button>
+                <button
+                  onClick={handleSubmitLeave}
+                  className="
+                  px-5 py-2.5
+                  rounded-xl
+                  bg-[var(--brand)]
+                  text-white
+                  hover:bg-[var(--brand-dark)]
+                  transition
+                "
+                >
+                  Request Leave
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -8,13 +8,9 @@ export default function Header({ isVisible }) {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const res = await apiClient.get(
-          "/patient/dashboard",
-          {
-            withCredentials: true, // important if you're using cookies for auth
-          },
-        );
-    
+        const res = await apiClient.get("/patient/dashboard", {
+          withCredentials: true, // important if you're using cookies for auth
+        });
 
         setPatient(res.data);
       } catch (error) {
@@ -27,6 +23,7 @@ export default function Header({ isVisible }) {
     fetchDashboardData();
   }, []);
 
+  window.console.log(patient);
 
   if (loading) {
     return (
@@ -71,7 +68,7 @@ export default function Header({ isVisible }) {
           </div>
         </div>
 
-       <div className="theme-card backdrop-blur-sm rounded-2xl px-4 py-2 shadow-sm flex items-center gap-3">
+        <div className="theme-card backdrop-blur-sm rounded-2xl px-4 py-2 shadow-sm flex items-center gap-3">
           {/* Profile Image */}
           <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-teal-400">
             <img
@@ -86,9 +83,9 @@ export default function Header({ isVisible }) {
 
           {/* Patient ID */}
           <div>
-           <p className="text-sm theme-text-muted">Patient ID</p>
+            <p className="text-sm theme-text-muted">Patient ID</p>
             <p className="font-semibold theme-text">
-              #{patient?._id?.slice(-6).toUpperCase() || "N/A"}
+              {patient.patientInfo.patientId || "N/A"}
             </p>
           </div>
         </div>

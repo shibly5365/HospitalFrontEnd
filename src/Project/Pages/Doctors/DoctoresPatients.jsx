@@ -1,7 +1,7 @@
 import { apiClient } from "../../../services/queryClient";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import DashboardNav from "./DashboardNav";
+import Header from "./DoctorPages/dashboard/Header";
 import HeaderSection from "./DoctorPages/Patients/HeaderSection";
 // import StatsCards from "./DoctorPages/Patients/StatsCards";
 import SearchFilterBar from "./DoctorPages/Patients/SearchFilterBar";
@@ -25,10 +25,9 @@ const DoctoresPatients = () => {
     const fetchPatients = async () => {
       try {
         setLoading(true);
-        const { data } = await apiClient.get(
-          "/doctor/getallPatients",
-          { withCredentials: true }
-        );
+        const { data } = await apiClient.get("/doctor/getallPatients", {
+          withCredentials: true,
+        });
 
         if (data.success) {
           setPatients(data.patients);
@@ -46,21 +45,20 @@ const DoctoresPatients = () => {
     fetchPatients();
   }, []);
 
-  const filteredPatients = patients.filter((patient) =>
-    patient.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.reason?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.phone?.includes(searchTerm)
+  const filteredPatients = patients.filter(
+    (patient) =>
+      patient.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient.reason?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient.phone?.includes(searchTerm),
   );
 
   if (loading) return <LoadingState />;
   if (error) return <ErrorState error={error} />;
 
-  console.log("adaskd",activePatient);
-  
   return (
-    <div className="bg-gray-50 min-h-screen">
+   <div className="bg-[var(--bg)] text-[var(--text)] min-h-screen">
       <div className="sticky top-0 z-50">
-        <DashboardNav />
+        <Header />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -81,13 +79,11 @@ const DoctoresPatients = () => {
             try {
               const { data } = await apiClient.get(
                 `/doctor/allPatients/${patient.id}`,
-                { withCredentials: true }
+                { withCredentials: true },
               );
-              console.log(data);
-              
 
               if (data.success) {
-                setActivePatient(data);  // store full data
+                setActivePatient(data); // store full data
                 setIsDrawerOpen(true);
               }
             } catch (err) {

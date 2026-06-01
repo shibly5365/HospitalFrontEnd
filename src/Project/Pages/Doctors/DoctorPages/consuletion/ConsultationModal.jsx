@@ -2,7 +2,7 @@ import React from 'react';
 import { X, User, Phone, Activity, Pill, Clock, Video, CheckCircle, Edit, Download } from 'lucide-react';
 
 const ConsultationModal = ({ consultation, onClose }) => {
-  console.log(consultation);
+ window.console.log("conso",consultation);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

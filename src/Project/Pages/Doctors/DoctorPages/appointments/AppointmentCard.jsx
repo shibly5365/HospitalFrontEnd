@@ -14,9 +14,6 @@ import {
 import VideoCall from "../VideoCall";
 
 const AppointmentCard = ({ appointment, onUpdateStatus, onViewDetails }) => {
-  console.log("CARD DATA:", appointment);
-console.log("VIEW FN:", onViewDetails);
-  
   const [openVideo, setOpenVideo] = useState(false);
 
   const {
@@ -55,8 +52,8 @@ console.log("VIEW FN:", onViewDetails);
       label: "Completed",
     },
     Cancelled: {
-      bg: "bg-gray-100",
-      text: "text-gray-600",
+      bg: "bg-[var(--surface-soft)]",
+      text: "text-[var(--muted)]",
       dot: "bg-gray-400",
       label: "Cancelled",
     },
@@ -68,7 +65,7 @@ console.log("VIEW FN:", onViewDetails);
 
   return (
     <>
-      <div className="group bg-white rounded-3xl border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 overflow-hidden">
+      <div className="group bg-[var(--surface)] rounded-3xl border border-[var(--line)] hover:border-[var(--line)] hover:shadow-xl transition-all duration-300 overflow-hidden">
         {/* Top Accent Bar */}
         <div className={`h-1 w-full ${currentStatus.dot}`} />
 
@@ -150,15 +147,15 @@ const PatientInfo = ({
 
     {/* Details - More Compact */}
     <div className="flex-1 min-w-0">
-      <h3 className="text-xl font-semibold text-gray-900 tracking-tight">
+      <h3 className="text-xl font-semibold text-[var(--text)] tracking-tight">
         {patient?.fullName}
       </h3>
-      <p className="text-gray-600 text-sm mt-1">
+      <p className="text-[var(--muted)] text-sm mt-1">
         {patient.age}y • {patient?.gender} • {patient?.phone}
       </p>
 
       {appointmentDate && (
-        <div className="flex items-center gap-2 mt-3 text-gray-500 text-sm">
+        <div className="flex items-center gap-2 mt-3 text-[var(--muted)] text-sm">
           <CalendarIcon size={16} />
           <span>
             {new Date(appointmentDate).toLocaleDateString("en-IN", {
@@ -170,14 +167,14 @@ const PatientInfo = ({
         </div>
       )}
 
-      <div className="flex items-center gap-2 mt-2 text-gray-500 text-sm">
+      <div className="flex items-center gap-2 mt-2 text-[var(--muted)] text-sm">
         <Clock size={16} />
         <span>{duration} min</span>
       </div>
 
-      <p className="font-medium text-gray-800 mt-4 line-clamp-2">{reason}</p>
+      <p className="font-medium text-[var(--text)] mt-4 line-clamp-2">{reason}</p>
       {notes && (
-        <p className="mt-2 text-sm text-gray-500 italic line-clamp-1">
+        <p className="mt-2 text-sm text-[var(--muted)] italic line-clamp-1">
           "{notes}"
         </p>
       )}
@@ -187,15 +184,15 @@ const PatientInfo = ({
 
 const TimeAndType = ({ timeSlot, consultationType }) => (
   <div className="space-y-3">
-    <div className="bg-gray-50 rounded-2xl p-4 flex items-center gap-4">
-      <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center flex-shrink-0">
+    <div className="bg-[var(--surface-soft)] rounded-2xl p-4 flex items-center gap-4">
+      <div className="w-10 h-10 bg-[var(--surface)] rounded-xl shadow-sm flex items-center justify-center flex-shrink-0">
         <Clock size={22} className="text-indigo-600" />
       </div>
       <div>
-        <p className="text-xs uppercase tracking-widest text-gray-500 font-medium">
+        <p className="text-xs uppercase tracking-widest text-[var(--muted)] font-medium">
           Time
         </p>
-        <p className="text-lg font-semibold text-gray-900">
+        <p className="text-lg font-semibold text-[var(--text)]">
           {timeSlot?.start} — {timeSlot?.end}
         </p>
       </div>
@@ -248,7 +245,7 @@ const ActionButtons = ({
 
           <button
             onClick={() => onUpdateStatus(appointmentId, "Cancelled")}
-            className="flex-1 flex items-center justify-center gap-2 bg-white border border-red-200 hover:bg-red-50 text-red-700 px-5 py-3 rounded-2xl font-medium transition-all"
+            className="flex-1 flex items-center justify-center gap-2 bg-[var(--surface)] border border-red-200 hover:bg-red-50 text-red-700 px-5 py-3 rounded-2xl font-medium transition-all"
           >
             <XCircle size={18} />
             Cancel
@@ -269,8 +266,8 @@ const ActionButtons = ({
             </button>
           )}
 
-          <button className="p-3 bg-white border border-gray-200 hover:bg-gray-50 rounded-2xl transition-all">
-            <Phone size={20} className="text-gray-600" />
+          <button className="p-3 bg-[var(--surface)] border border-gray-200 hover:bg-[var(--surface-soft)] rounded-2xl transition-all">
+            <Phone size={20} className="text-[var(--muted)]" />
           </button>
         </>
       )}
@@ -284,19 +281,19 @@ const ActionButtons = ({
       {/* View Details + Quick Actions */}
       <div className="flex gap-2 ml-auto">
         <button
-          onClick={() => onViewDetails && onViewDetails(appointmentId)}
+          onClick={() => onViewDetails && onViewDetails(appointment)}
           className="flex items-center gap-2 px-5 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-2xl font-medium transition-all text-sm"
         >
           <Eye size={18} />
           Details
         </button>
 
-        <button className="p-3 bg-gray-100 hover:bg-gray-200 rounded-2xl transition-all">
-          <MessageSquare size={20} className="text-gray-600" />
+        <button className="p-3 bg-[var(--surface-soft)] hover:bg-gray-200 rounded-2xl transition-all">
+          <MessageSquare size={20} className="text-[var(--muted)]" />
         </button>
 
-        <button className="p-3 bg-gray-100 hover:bg-gray-200 rounded-2xl transition-all">
-          <MoreVertical size={20} className="text-gray-600" />
+        <button className="p-3 bg-[var(--surface-soft)] hover:bg-gray-200 rounded-2xl transition-all">
+          <MoreVertical size={20} className="text-[var(--muted)]" />
         </button>
       </div>
     </div>

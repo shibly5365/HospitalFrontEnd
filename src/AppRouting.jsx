@@ -480,7 +480,11 @@ const AppRoutes = () => {
             { path: "consultation", element: <ConsultationHistory /> },
             { path: "settings", element: <PatientSettings /> },
             { path: "book-appointments", element: <AppointmentBooking /> },
-            { path: "payment-history", element: <PatientPaymentHistorys /> },
+            { path: "payment-history", element: (
+                <ChatProvider>
+                  <PatientPaymentHistorys />
+                </ChatProvider>
+              ),},
             {
               path: "prescrption-history",
               element: (

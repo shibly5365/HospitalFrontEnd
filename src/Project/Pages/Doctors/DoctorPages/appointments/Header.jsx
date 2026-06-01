@@ -9,7 +9,7 @@ const Header = ({ onNewAppointment }) => {
   });
 
   return (
-    <div className="sticky top-0 z-50 bg-white border-b border-gray-200">
+   <div className="sticky top-0 z-50 bg-[var(--surface)] border-b border-[var(--line)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -18,8 +18,8 @@ const Header = ({ onNewAppointment }) => {
                 <Calendar className="text-white" size={22} />
               </div>
               <div>
-                <h1 className="text-3xl font-semibold text-gray-900">Appointments</h1>
-                <p className="text-gray-500 text-sm mt-0.5">{today}</p>
+               <h1 className="text-3xl font-semibold text-[var(--text)]">Appointments</h1>
+               <p className="text-[var(--muted)] text-sm mt-0.5">{today}</p>
               </div>
             </div>
           </div>

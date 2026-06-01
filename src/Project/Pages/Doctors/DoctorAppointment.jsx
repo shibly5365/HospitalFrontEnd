@@ -23,31 +23,61 @@ const ModernDoctorAppointments = () => {
   const [selectedAppointment, setSelectedAppointment] = useState(null); // ← New
   const fetchAppointments = async () => {
     try {
+      const params = {};
+
+      // ✅ Search
+      if (searchTerm) {
+        params.search = searchTerm;
+      }
+
+      // ✅ Status
+      if (statusFilter !== "All Status") {
+        params.status = statusFilter;
+      }
+
+      // ✅ Date Filter
+      if (dateFilter) {
+        const formattedFilter = dateFilter.replace(/\s/g, "");
+        params.quickFilter = formattedFilter;
+      }
+
       const res = await apiClient.get("/doctor/allAppointment", {
+        params,
         withCredentials: true,
       });
+
       console.log("res.da", res.data);
 
       const formatted = res.data.appointments.map((a) => ({
         _id: a._id,
+
         patient: {
           fullName: a.patient?.fullName || "Unknown",
           age: a.patient?.age,
           gender: a.patient?.gender,
           phone: a.patient?.contact,
+
           avatar:
             a.patient?.fullName
               ?.split(" ")
               .map((w) => w[0])
               .join("") || "P",
         },
+
         reason: a.reason,
+
         timeSlot: a.timeSlot,
+
         status: a.status,
+
         consultationType: a.consultationType,
+
         date: a.appointmentDate,
+
         notes: a.notes || "",
+
         isUrgent: a.isUrgent || false,
+
         videoCallEnabled: a.videoCallEnabled,
       }));
 
@@ -59,7 +89,7 @@ const ModernDoctorAppointments = () => {
 
   useEffect(() => {
     fetchAppointments();
-  }, []);
+  }, [searchTerm, statusFilter, dateFilter]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -79,7 +109,7 @@ const ModernDoctorAppointments = () => {
         { status: newStatus },
         { withCredentials: true },
       );
-console.log("res",res.data);
+      console.log("res", res.data);
 
       const updated = res.data.appointment;
 
@@ -142,7 +172,7 @@ console.log("res",res.data);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <Header onNewAppointment={() => setShowForm(true)} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -176,20 +206,20 @@ console.log("res",res.data);
                 />
               ))
             ) : (
-              <div className="bg-white rounded-3xl py-20 text-center border border-gray-100">
+              <div className="bg-[var(--surface)] rounded-3xl py-20 text-center border border-[var(--line)]-100">
                 <div className="mx-auto w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mb-6">
-                  <Users className="text-gray-400" size={40} />
+                  <Users className="text-[var(--text)]-400" size={40} />
                 </div>
-                <h3 className="text-2xl font-semibold text-gray-900 mb-2">
+                <h3 className="text-2xl font-semibold text-[var(--text)]-900 mb-2">
                   No appointments found
                 </h3>
-                <p className="text-gray-500 mb-8 max-w-sm mx-auto">
+                <p className="text-[var(--text)]-500 mb-8 max-w-sm mx-auto">
                   We couldn't find any appointments matching your current
                   filters.
                 </p>
                 <button
                   onClick={clearFilters}
-                  className="px-6 py-3 bg-gray-900 text-white rounded-2xl hover:bg-gray-800 transition"
+                  className="px-6 py-3 bg-gray-900 text-white rounded-2xl hover:bg-[var(--surface-soft)]-800 transition"
                 >
                   Clear Filters
                 </button>
@@ -202,7 +232,7 @@ console.log("res",res.data);
                 <button
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage((p) => p - 1)}
-                  className="px-5 py-2.5 rounded-2xl border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="px-5 py-2.5 rounded-2xl border border-[var(--line)]-200 hover:bg-[var(--surface-soft)]-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
                   Previous
                 </button>
@@ -214,7 +244,7 @@ console.log("res",res.data);
                     className={`w-10 h-10 rounded-2xl font-medium transition ${
                       currentPage === i + 1
                         ? "bg-blue-600 text-white shadow-lg"
-                        : "border border-gray-200 hover:bg-gray-50"
+                        : "border border-[var(--line)]-200 hover:bg-[var(--surface-soft)]-50"
                     }`}
                   >
                     {i + 1}
@@ -224,7 +254,7 @@ console.log("res",res.data);
                 <button
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage((p) => p + 1)}
-                  className="px-5 py-2.5 rounded-2xl border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="px-5 py-2.5 rounded-2xl border border-[var(--line)]-200 hover:bg-[var(--surface-soft)]-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
                   Next
                 </button>
@@ -234,12 +264,15 @@ console.log("res",res.data);
         )}
 
         {view === "calendar" && (
-          <div className="bg-white rounded-3xl p-16 text-center border border-gray-100">
-            <Calendar className="mx-auto text-gray-300 mb-6" size={80} />
-            <h3 className="text-2xl font-semibold text-gray-900 mb-2">
+          <div className="bg-[var(--surface)] rounded-3xl p-16 text-center border border-[var(--line)]-100">
+            <Calendar
+              className="mx-auto text-[var(--text)]-300 mb-6"
+              size={80}
+            />
+            <h3 className="text-2xl font-semibold text-[var(--text)]-900 mb-2">
               Calendar View
             </h3>
-            <p className="text-gray-500">Coming soon</p>
+            <p className="text-[var(--text)]-500">Coming soon</p>
           </div>
         )}
       </div>

@@ -17,7 +17,6 @@ const AppointmentDetailsModal = ({
   onClose,
   onUpdateStatus,
 }) => {
-  console.log("log test");
 
   if (!appointment || !isOpen) return null;
 
@@ -34,16 +33,16 @@ const AppointmentDetailsModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[95vh] overflow-hidden shadow-2xl">
+      <div className="bg-[var(--surface)] rounded-3xl max-w-2xl w-full max-h-[95vh] overflow-hidden shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b px-8 py-6">
+       <div className="flex items-center justify-between border-b border-[var(--line)] px-8 py-6">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-4xl font-bold">
               {patient.avatar}
             </div>
             <div>
               <h2 className="text-2xl font-semibold">{patient.fullName}</h2>
-              <p className="text-gray-500">
+              <p className="text-[var(--muted)]">
                 {patient.age} years • {patient.gender} • {patient.phone}
               </p>
             </div>
@@ -83,10 +82,10 @@ const AppointmentDetailsModal = ({
 
           {/* Appointment Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-gray-50 rounded-2xl p-6">
+            <div className="bg-[var(--surface-soft)] rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-2">
-                <Calendar size={22} className="text-gray-500" />
-                <p className="font-medium text-gray-700">Date</p>
+                <Calendar size={22} className="text-[var(--muted)]" />
+                <p className="font-medium text-[var(--text)]">Date</p>
               </div>
               <p className="text-xl font-semibold">
                 {new Date(date).toLocaleDateString("en-IN", {
@@ -98,10 +97,10 @@ const AppointmentDetailsModal = ({
               </p>
             </div>
 
-            <div className="bg-gray-50 rounded-2xl p-6">
+            <div className="bg-[var(--surface-soft)] rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-2">
-                <Clock size={22} className="text-gray-500" />
-                <p className="font-medium text-gray-700">Time</p>
+                <Clock size={22} className="text-[var(--muted)]" />
+                <p className="font-medium text-[var(--text)]">Time</p>
               </div>
               <p className="text-xl font-semibold">
                 {timeSlot?.start} — {timeSlot?.end}
@@ -114,7 +113,7 @@ const AppointmentDetailsModal = ({
             <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
               <User size={22} /> Reason for Visit
             </h3>
-            <p className="bg-gray-50 p-5 rounded-2xl text-gray-800 leading-relaxed">
+            <p className="bg-[var(--surface-soft)] p-5 rounded-2xl text-[var(--text)] leading-relaxed">
               {reason}
             </p>
           </div>
@@ -122,14 +121,14 @@ const AppointmentDetailsModal = ({
           {notes && (
             <div>
               <h3 className="font-semibold text-lg mb-3">Doctor's Notes</h3>
-              <p className="bg-amber-50 border border-amber-100 p-5 rounded-2xl italic text-gray-700">
+              <p className="bg-amber-50 border border-amber-100 p-5 rounded-2xl italic text-[var(--text)]">
                 "{notes}"
               </p>
             </div>
           )}
 
           {/* Actions */}
-          <div className="flex flex-wrap gap-3 pt-6 border-t">
+          <div className="flex flex-wrap gap-3 pt-6 border-t border-[var(--line)]">
             {status === "Pending" && (
               <>
                 <button
@@ -140,7 +139,7 @@ const AppointmentDetailsModal = ({
                 </button>
                 <button
                   onClick={() => onUpdateStatus(appointment._id, "Cancelled")}
-                  className="flex-1 border border-red-300 text-red-600 hover:bg-red-50 py-4 rounded-2xl font-medium"
+                  className="flex-1 border border-red-200 text-red-600 hover:bg-red-50 py-4 rounded-2xl font-medium"
                 >
                   Cancel Appointment
                 </button>

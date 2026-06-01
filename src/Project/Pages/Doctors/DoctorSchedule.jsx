@@ -8,10 +8,10 @@ const DoctorSchedule = () => {
   const [view, setView] = useState("calendar"); // calendar, schedule, leave, workingDays, payments
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-[var(--bg)] text-[var(--text)] min-h-screen">
       {/* Top Action Bar */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">My Schedule</h1>
+        <h1 className="text-2xl font-bold text-[var(--text)]">My Schedule</h1>
         <div className="flex gap-3 flex-wrap">
           <button
             onClick={() => setView("calendar")}
@@ -25,7 +25,6 @@ const DoctorSchedule = () => {
           >
             Set Schedule
           </button>
-
 
           <button
             onClick={() => setView("payments")}

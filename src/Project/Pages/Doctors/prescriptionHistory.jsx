@@ -1,12 +1,12 @@
 import { apiClient } from "../../../services/queryClient";
 import React, { useState, useEffect } from 'react';
 
-import Header from './DoctorPages/Prescription/Header';
 import SearchFilters from './DoctorPages/Prescription/SearchFilters';
 import StatsCards from './DoctorPages/Prescription/StatsCards';
 import PrescriptionsGrid from './DoctorPages/Prescription/PrescriptionsGrid';
 import Pagination from './DoctorPages/Prescription/Pagination';
 import PrescriptionModal from './DoctorPages/Prescription/PrescriptionModal';
+import Header from "./DoctorPages/dashboard/Header";
 
 const DoctorPrescriptionHistory = () => {
   const [prescriptions, setPrescriptions] = useState([]);
@@ -77,10 +77,10 @@ const DoctorPrescriptionHistory = () => {
   // console.log("sle", selectedPrescription);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <Header />
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+     <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
 
         <SearchFilters
           searchTerm={searchTerm}

@@ -1,34 +1,48 @@
-import React from 'react';
-import { User, Phone, Calendar, FileText, Video, CheckCircle, XCircle, AlertCircle, Activity } from 'lucide-react';
-import ConsultationCard from './ConsultationCard';
-
+import React from "react";
+import {
+  User,
+  Phone,
+  Calendar,
+  FileText,
+  Video,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Activity,
+} from "lucide-react";
+import ConsultationCard from "./ConsultationCard";
 
 const ConsultationsGrid = ({ consultations, onSelectConsultation }) => {
   // console.log("conso",consultations);
-  
+
   const getStatusColor = (status) => {
     const colors = {
-      'Completed': 'bg-green-100 text-green-700',
-      'Pending': 'bg-yellow-100 text-yellow-700',
-      'Cancelled': 'bg-red-100 text-red-700'
+      Completed:
+        "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400",
+
+      Pending:
+        "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400",
+
+      Cancelled: "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400",
     };
-    return colors[status] || 'bg-gray-100 text-gray-700';
+
+    return colors[status] || "bg-[var(--surface-soft)] text-[var(--muted)]";
   };
 
   const getStatusIcon = (status) => {
     const icons = {
-      'Completed': <CheckCircle className="w-4 h-4" />,
-      'Pending': <AlertCircle className="w-4 h-4" />,
-      'Cancelled': <XCircle className="w-4 h-4" />
+      Completed: <CheckCircle className="w-4 h-4" />,
+      Pending: <AlertCircle className="w-4 h-4" />,
+      Cancelled: <XCircle className="w-4 h-4" />,
     };
     return icons[status];
   };
 
   if (consultations.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-md p-12 text-center">
-        <Activity className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-        <p className="text-gray-500 text-lg">No consultations found</p>
+      <div className="bg-[var(--surface)] rounded-xl shadow-sm p-12 text-center">
+        <Activity className="w-16 h-16 text-[var(--muted)] mx-auto mb-4" />
+        <p className="text-[var(--muted)] text-lg">No consultations found</p>
       </div>
     );
   }

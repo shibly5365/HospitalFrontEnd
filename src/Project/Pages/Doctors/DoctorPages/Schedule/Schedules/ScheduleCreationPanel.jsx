@@ -39,7 +39,7 @@ const ScheduleCreationPanel = ({ onScheduleCreated, timeOptions }) => {
       endTime,
       slotDuration,
       breakTime,
-      breakDuration
+      breakDuration,
     );
     if (slots) setGeneratedSlots(slots);
   };
@@ -50,8 +50,7 @@ const ScheduleCreationPanel = ({ onScheduleCreated, timeOptions }) => {
     if (!isRecurring && !selectedDate)
       return notify.error("Please select a date.");
 
-    if (!generatedSlots.length)
-      return notify.error("Generate slots first.");
+    if (!generatedSlots.length) return notify.error("Generate slots first.");
 
     try {
       setLoading(true);
@@ -84,11 +83,9 @@ const ScheduleCreationPanel = ({ onScheduleCreated, timeOptions }) => {
         payload.weeksAhead = 4;
       }
 
-      await apiClient.post(
-        "/doctor/createSchedule",
-        payload,
-        { withCredentials: true }
-      );
+      await apiClient.post("/doctor/createSchedule", payload, {
+        withCredentials: true,
+      });
 
       notify.success("Schedule saved successfully!");
       resetForm();
@@ -103,20 +100,44 @@ const ScheduleCreationPanel = ({ onScheduleCreated, timeOptions }) => {
 
   return (
     <div className="lg:col-span-2">
-      <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+      <div
+        className="
+      bg-[var(--surface)]
+      border border-[var(--line)]
+      rounded-2xl
+      shadow-sm
+      p-6 mb-6
+    "
+      >
+        {/* HEADER */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <Plus size={20} className="text-green-600" /> Create New Schedule
+          <h2
+            className="
+          text-xl font-semibold
+          flex items-center gap-2
+          text-[var(--text)]
+        "
+          >
+            <Plus size={20} className="text-[var(--brand)]" />
+            Create New Schedule
           </h2>
 
           <button
             onClick={resetForm}
-            className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
+            className="
+            text-sm
+            text-[var(--muted)]
+            hover:text-[var(--text)]
+            flex items-center gap-1
+            transition
+          "
           >
-            <RefreshCw size={16} /> Reset
+            <RefreshCw size={16} />
+            Reset
           </button>
         </div>
 
+        {/* FORM */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <ScheduleTypeSelector
             isRecurring={isRecurring}
@@ -146,22 +167,46 @@ const ScheduleCreationPanel = ({ onScheduleCreated, timeOptions }) => {
             timeOptions={timeOptions}
           />
 
+          {/* GENERATE BUTTON */}
           <button
             type="button"
             onClick={handleGenerateSlots}
-            className="w-full bg-green-600 text-white py-3 rounded-lg flex items-center justify-center gap-2"
+            className="
+            w-full
+            bg-[var(--brand)]
+            hover:bg-[var(--brand-dark)]
+            text-white
+            py-3
+            rounded-xl
+            flex items-center justify-center gap-2
+            transition
+          "
           >
-            <RefreshCw size={20} /> Generate Time Slots
+            <RefreshCw size={20} />
+            Generate Time Slots
           </button>
 
           <GeneratedSlotsPreview generatedSlots={generatedSlots} />
 
+          {/* SAVE BUTTON */}
           <button
             type="submit"
             disabled={!generatedSlots.length || loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg flex items-center justify-center gap-2"
+            className="
+            w-full
+            bg-blue-600
+            hover:bg-blue-700
+            disabled:opacity-50
+            disabled:cursor-not-allowed
+            text-white
+            py-3
+            rounded-xl
+            flex items-center justify-center gap-2
+            transition
+          "
           >
             <Save size={20} />
+
             {loading ? "Saving..." : "Save Schedule"}
           </button>
         </form>
