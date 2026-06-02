@@ -8,6 +8,7 @@ import * as Yup from "yup";
 // import { notify } from "../../../Units/notification";
 import { useAuth } from "../../Components/AuthContext";
 import { GoogleLogin } from "@react-oauth/google";
+import { notify } from "../../../UnitsTemp/notification";
 
 // ✅ Yup validation schema
 const loginSchema = Yup.object().shape({
@@ -177,7 +178,9 @@ const Login = () => {
             Or continue with
           </p>
 
-          <div className="mt-4">
+          <div
+            onClick={() => notify.info("Google login is working...")}
+          >
             <GoogleLogin
               onSuccess={async (credentialResponse) => {
                 try {
@@ -188,6 +191,8 @@ const Login = () => {
                   if (res.data.success) {
                     const { user, jwtToken } = res.data;
 
+                    notify.success("Login successful!");
+
                     login(user, jwtToken);
 
                     navigate("/patient/patient-dashboard", {
@@ -195,10 +200,13 @@ const Login = () => {
                     });
                   }
                 } catch (error) {
+                  notify.error("Google login failed");
                   console.error(error);
                 }
               }}
-              onError={() => console.log("Login Failed")}
+              onError={() => {
+                notify.error("Login Failed");
+              }}
             />
           </div>
 
