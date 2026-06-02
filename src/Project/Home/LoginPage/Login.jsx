@@ -7,6 +7,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 // import { notify } from "../../../Units/notification";
 import { useAuth } from "../../Components/AuthContext";
+import { GoogleLogin } from "@react-oauth/google";
 
 // ✅ Yup validation schema
 const loginSchema = Yup.object().shape({
@@ -23,6 +24,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  window.console.log("GOOGLE ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
   // ✅ react-hook-form setup
   const {
@@ -47,7 +49,7 @@ const Login = () => {
 
         login(user, jwtToken); // ✅ fixed
         console.log("LOGIN USER", user);
-console.log("LOGIN TOKEN", jwtToken);
+        console.log("LOGIN TOKEN", jwtToken);
 
         // Redirect to dashboard based on role
         switch (user.role) {
@@ -80,19 +82,23 @@ console.log("LOGIN TOKEN", jwtToken);
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-gray-100">
       {/* Left side */}
-      <div className="hidden md:flex w-1/2 bg-blue-600 text-white flex-col justify-center items-center p-10">
-        <MdLocalHospital size={50} className="mb-4" />
-        <h1 className="text-3xl font-bold mb-2">Welcome to MediCare Pro</h1>
-        <p className="text-center max-w-md opacity-90">
-          Streamline your hospital operations with our comprehensive management
-          system.
+      <div className="hidden md:flex md:w-1/2 bg-blue-600 text-white flex-col justify-center items-center px-12">
+        <MdLocalHospital size={60} className="mb-6" />
+
+        <h1 className="text-4xl font-bold text-center mb-4">
+          Welcome to MediCare Pro
+        </h1>
+
+        <p className="text-center text-lg max-w-md opacity-90 leading-relaxed">
+          Streamline your hospital operations with our comprehensive
+          healthcare management system.
         </p>
       </div>
 
       {/* Right side */}
-      <div className="flex flex-col justify-center items-center w-full md:w-1/2 px-6 relative bg-gray-50">
+      <div className="flex items-center justify-center w-full md:w-1/2 px-6 py-10 relative">
         <div className="absolute top-6 left-6">
           <a
             href="/"
@@ -122,9 +128,8 @@ console.log("LOGIN TOKEN", jwtToken);
                 type="email"
                 {...register("email")}
                 placeholder="Enter your email"
-                className={`mt-1 w-full rounded-lg border ${
-                  errors.email ? "border-red-500" : "border-gray-300"
-                } shadow-sm focus:border-blue-500 focus:ring-blue-500`}
+                className={`mt-1 w-full rounded-lg border ${errors.email ? "border-red-500" : "border-gray-300"
+                  } shadow-sm focus:border-blue-500 focus:ring-blue-500`}
               />
               {errors.email && (
                 <p className="text-red-500 text-sm mt-1">
@@ -141,9 +146,8 @@ console.log("LOGIN TOKEN", jwtToken);
                 type="password"
                 {...register("password")}
                 placeholder="Enter your password"
-                className={`mt-1 w-full rounded-lg border ${
-                  errors.password ? "border-red-500" : "border-gray-300"
-                } shadow-sm focus:border-blue-500 focus:ring-blue-500`}
+                className={`mt-1 w-full rounded-lg border ${errors.password ? "border-red-500" : "border-gray-300"
+                  } shadow-sm focus:border-blue-500 focus:ring-blue-500`}
               />
               {errors.password && (
                 <p className="text-red-500 text-sm mt-1">
@@ -173,23 +177,29 @@ console.log("LOGIN TOKEN", jwtToken);
             Or continue with
           </p>
 
-          <div className="flex gap-4 mt-3">
-            <button className="w-1/2 border rounded-lg py-2 flex items-center justify-center gap-2 hover:bg-gray-50">
-              <img
-                src="https://www.svgrepo.com/show/355037/google.svg"
-                alt=""
-                className="w-5 h-5"
-              />
-              Google
-            </button>
-            <button className="w-1/2 border rounded-lg py-2 flex items-center justify-center gap-2 hover:bg-gray-50">
-              <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQspIoiU8ItPaqHrfoLIxha3iRBMjSrVl825w&s"
-                alt=""
-                className="w-5 h-5"
-              />
-              Facebook
-            </button>
+          <div className="mt-4">
+            <GoogleLogin
+              onSuccess={async (credentialResponse) => {
+                try {
+                  const res = await apiClient.post("/auth/google-login", {
+                    credential: credentialResponse.credential,
+                  });
+
+                  if (res.data.success) {
+                    const { user, jwtToken } = res.data;
+
+                    login(user, jwtToken);
+
+                    navigate("/patient/patient-dashboard", {
+                      replace: true,
+                    });
+                  }
+                } catch (error) {
+                  console.error(error);
+                }
+              }}
+              onError={() => console.log("Login Failed")}
+            />
           </div>
 
           <p className="mt-6 text-center text-sm">

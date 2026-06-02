@@ -182,15 +182,15 @@ const PatientSidebar = ({ isOpen, setIsOpen }) => {
         </div>
 
         {/* User */}
-<div className="mb-6 p-4 rounded-2xl theme-soft border theme-border">
-  <p className="text-sm theme-text-muted">
-    Welcome back,
-  </p>
+        <div className="mb-6 p-4 rounded-2xl theme-soft border theme-border">
+          <p className="text-sm theme-text-muted">
+            Welcome back,
+          </p>
 
-  <p className="text-lg font-bold theme-text truncate">
-    {user?.name || "Patient"}
-  </p>
-</div>
+          <p className="text-lg font-bold theme-text truncate">
+            {user?.name || "Patient"}
+          </p>
+        </div>
 
         {/* Nav */}
         <nav className="flex-1 space-y-2 overflow-y-auto">
@@ -205,10 +205,9 @@ const PatientSidebar = ({ isOpen, setIsOpen }) => {
                   if (window.innerWidth < 768) setIsOpen(false);
                 }}
                 className={({ isActive: linkActive }) =>
-                  `group flex items-center justify-between p-3 rounded-2xl transition-all duration-300 ${
-                    linkActive
-                      ? `bg-gradient-to-r ${item.gradient} text-white shadow-lg`
-                      : "opacity-80 hover:bg-white/10"
+                  `group flex items-center justify-between p-3 rounded-2xl transition-all duration-300 ${linkActive
+                    ? `bg-gradient-to-r ${item.gradient} text-white shadow-lg`
+                    : "opacity-80 hover:bg-white/10"
                   }`
                 }
               >
@@ -229,22 +228,18 @@ const PatientSidebar = ({ isOpen, setIsOpen }) => {
           <p className="text-xs opacity-60 px-2">Theme</p>
 
           <div className="flex gap-2 px-2">
-            {["light", "dark", "blue"].map((t) => (
+            {["light", "dark",].map((t) => (
               <button
                 key={t}
                 onClick={() => {
                   setTheme(t);
                   notify.success(`${t} mode enabled`);
                 }}
-                className={`w-8 h-8 rounded-full border-2 ${
-                  theme === t ? "border-white" : "border-transparent"
-                } ${
-                  t === "dark"
+                className={`w-8 h-8 rounded-full border-2 ${theme === t ? "border-white" : "border-transparent"
+                  } ${t === "dark"
                     ? "bg-black"
-                    : t === "blue"
-                      ? "bg-blue-500"
-                      : "bg-white"
-                }`}
+                    : "bg-white"
+                  }`}
               />
             ))}
           </div>

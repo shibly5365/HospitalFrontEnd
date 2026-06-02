@@ -9,7 +9,6 @@ const Navbar = () => {
     <header className="sticky top-0 z-50 px-4 pt-4 sm:px-6">
       <nav className="glass-surface mx-auto flex max-w-7xl items-center justify-between rounded-2xl px-4 py-3 sm:px-6">
         <button
-          onClick={() => navigate("/")}
           className="flex items-center text-xl font-bold text-[var(--text)]"
         >
           <MdLocalHospital className="mr-2 text-[var(--brand)]" size={28} />

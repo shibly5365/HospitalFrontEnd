@@ -10,14 +10,20 @@ const SearchFilters = ({
   onDateFilterChange,
   onClearFilters,
 }) => {
-  const hasActiveFilters = searchTerm || statusFilter !== "All Status" || dateFilter !== "Today";
+  const hasActiveFilters =
+    searchTerm ||
+    statusFilter !== "All Status" ||
+    dateFilter !== "All Dates";
 
   return (
     <div className="bg-[var(--surface)] rounded-3xl p-6 border border-[var(--line)] mb-8">
       <div className="flex flex-col md:flex-row gap-4">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={20} />
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]"
+            size={20}
+          />
           <input
             type="text"
             placeholder="Search patients or reason..."
@@ -46,6 +52,7 @@ const SearchFilters = ({
           onChange={onDateFilterChange}
           className="px-6 py-4 bg-[var(--surface-soft)] border border-[var(--line)] rounded-3xl focus:outline-none focus:border-blue-500 transition-all"
         >
+          <option>All Dates</option>
           <option>Today</option>
           <option>Tomorrow</option>
           <option>This Week</option>
@@ -57,7 +64,8 @@ const SearchFilters = ({
             onClick={onClearFilters}
             className="px-6 py-4 text-red-600 hover:bg-red-50 rounded-3xl transition flex items-center gap-2 whitespace-nowrap"
           >
-            <X size={18} /> Clear
+            <X size={18} />
+            Clear
           </button>
         )}
       </div>

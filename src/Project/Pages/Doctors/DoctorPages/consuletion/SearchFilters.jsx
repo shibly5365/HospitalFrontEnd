@@ -31,8 +31,8 @@ const SearchFilters = ({
             className="w-full pl-10 pr-4 py-2.5 border border-[var(--line)] rounded-lg focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent outline-none appearance-none bg-[var(--surface)]"
           >
             <option value="all">All Types</option>
-            <option value="online">Online</option>
-            <option value="In-person">In-person</option>
+            <option value="Online">Online</option>
+            <option value="Offline">In-person</option>
           </select>
         </div>
 

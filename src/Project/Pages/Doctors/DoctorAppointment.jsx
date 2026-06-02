@@ -9,7 +9,7 @@ import NewAppointmentModal from "./DoctorPages/appointments/NewAppointmentModal"
 import { apiClient } from "../../../services/queryClient";
 import AppointmentDetailsModal from "./DoctorPages/appointments/AppointmentDetailsModal"; // ← New
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 5;
 
 const ModernDoctorAppointments = () => {
   const [view, setView] = useState("list");

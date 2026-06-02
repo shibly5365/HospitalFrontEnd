@@ -3,77 +3,106 @@ import { useLocation } from "react-router-dom";
 
 const ThemeContext = createContext();
 
-export const ThemeProvider = ({ children }) => {
+export const ThemeProvider = ({
+  children,
+  patientEmail,
+}) => {
   const location = useLocation();
 
-  // Get system theme
   const getSystemTheme = () => {
     return window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
       : "light";
   };
 
-  // Initial patient theme
   const getInitialTheme = () => {
-    const saved = localStorage.getItem("theme");
-    return saved || "system";
-  };
-  const getDoctorTheme = () => {
+    if (!patientEmail) return "system";
+
     return (
       localStorage.getItem(
-        "doctor-theme",
-      ) || "light"
+        `theme_${patientEmail}`
+      ) || "system"
+    );
+  };
+
+  const getDoctorTheme = () => {
+    return (
+      localStorage.getItem("doctor-theme") ||
+      "light"
     );
   };
 
   const [theme, setTheme] = useState(getInitialTheme);
-  const [doctorTheme, setDoctorTheme] = useState(getDoctorTheme);
+  const [doctorTheme, setDoctorTheme] =
+    useState(getDoctorTheme);
+
+  useEffect(() => {
+    setTheme(getInitialTheme());
+  }, [patientEmail]);
 
   useEffect(() => {
     const root = document.documentElement;
 
-    // =========================
-    // PATIENT SIDE THEMES
-    // =========================
+    // PATIENT
     if (location.pathname.startsWith("/patient")) {
-      const appliedTheme = theme === "system" ? getSystemTheme() : theme;
+      const appliedTheme =
+        theme === "system"
+          ? getSystemTheme()
+          : theme;
 
-      root.setAttribute("data-theme", appliedTheme);
-
-
-      localStorage.setItem("theme", theme);
-    }
-
-    // =========================
-    // DOCTOR SIDE THEMES
-    else if (location.pathname.startsWith("/doctors")) {
       root.setAttribute(
         "data-theme",
-        doctorTheme,
+        appliedTheme
+      );
+
+      if (patientEmail) {
+        localStorage.setItem(
+          `theme_${patientEmail}`,
+          theme
+        );
+      }
+    }
+
+    // DOCTOR
+    else if (
+      location.pathname.startsWith("/doctors")
+    ) {
+      root.setAttribute(
+        "data-theme",
+        doctorTheme
       );
 
       localStorage.setItem(
         "doctor-theme",
-        doctorTheme,
+        doctorTheme
       );
     }
 
-    // =========================
-    // OTHER PAGES
-    // =========================
+    // OTHER
     else {
       root.removeAttribute("data-theme");
       root.classList.remove("dark");
     }
-  }, [theme, doctorTheme, location.pathname]);
+  }, [
+    theme,
+    doctorTheme,
+    location.pathname,
+    patientEmail,
+  ]);
 
   return (
     <ThemeContext.Provider
-      value={{ theme, setTheme, doctorTheme, setDoctorTheme }}
+      value={{
+        theme,
+        setTheme,
+        doctorTheme,
+        setDoctorTheme,
+      }}
     >
       {children}
     </ThemeContext.Provider>
   );
 };
 
-export const useTheme = () => useContext(ThemeContext);
+export const useTheme = () =>
+  useContext(ThemeContext);

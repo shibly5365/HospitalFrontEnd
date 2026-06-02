@@ -7,13 +7,16 @@ import App from "./App.jsx";
 import { AuthProvider } from "./Project/Components/AuthContext.jsx";
 import { PatientProvider } from "./context/PatientContext.jsx";
 import { store } from "./store/store.js";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <Provider store={store}>
       <AuthProvider>
         <PatientProvider>
-          <App />
+          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+            <App />
+          </GoogleOAuthProvider>
         </PatientProvider>
       </AuthProvider>
     </Provider>
