@@ -42,7 +42,8 @@ function Card({ children, className = "", gradient = false }) {
 }
 
 function PatientSummary({ patient, onEdit }) {
-  const { name, age, gender, bloodGroup, contact, phone, photo } = patient;
+  window.console.log(patient)
+  const { name, age, gender, bloodGroup, contact, phone,photo } = patient;
   return (
     <Card className="relative overflow-hidden mb-8" gradient>
       <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-3xl -z-0"></div>
@@ -50,8 +51,8 @@ function PatientSummary({ patient, onEdit }) {
         <div className="relative group">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
           <img
-            src={photo}
-            alt="Patient"
+            src={patient.photo}
+            alt="profile"
             className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-4 border-white shadow-2xl object-cover ring-4 ring-blue-100"
           />
           <div className="absolute bottom-1 right-1 w-6 h-6 bg-green-500 rounded-full border-4 border-white"></div>
