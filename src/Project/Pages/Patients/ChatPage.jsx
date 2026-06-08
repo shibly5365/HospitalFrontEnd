@@ -65,19 +65,17 @@ export default function ChatPagePatient() {
     }
   };
   return (
-    <div
-      className="flex flex-col md:flex-row h-[100dvh] theme-bg theme-text overflow-hidden
-"
-    >
+    <div className="flex h-[100dvh] theme-bg theme-text overflow-hidden">
       {/* ==================== SIDEBAR ==================== */}
-      <div className="w-full md:w-80 border-r theme-border theme-card flex flex-col md:h-full h-[35vh]">
+      <div className={`${activeConversation ? "hidden md:flex" : "flex"} w-full md:w-[380px] border-r theme-border theme-card flex-col `}
+      >
         {/* Sidebar Header */}
         <div className="p-3 sm:p-4 border-b theme-border theme-card">
           <div className="flex items-center justify-between mb-4">
-           <h2 className="text-xl sm:text-2xl font-semibold theme-text">
+            <h2 className="text-xl sm:text-2xl font-semibold theme-text">
               Messages
             </h2>
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-600 flex items-center justify-center cursor-pointer hover:bg-blue-500">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg py-3 bg-blue-600 flex items-center justify-center cursor-pointer hover:bg-blue-500">
               +
             </div>
           </div>
@@ -144,49 +142,59 @@ export default function ChatPagePatient() {
       </div>
 
       {/* ==================== MAIN CHAT AREA ==================== */}
-     <div className="flex-1 flex flex-col theme-bg min-h-0">
+<div
+  className={`${!activeConversation ? "hidden md:flex" : "flex"} flex-1 flex-col h-full overflow-hidden theme-bg`}
+>
         {activeConversation ? (
           <>
-            {/* Chat Header - WhatsApp Style */}
-            <div className="min-h-[64px] theme-card border-b theme-border px-5 flex items-center justify-between">
-              <div className="flex items-center gap-4">
+            {/* Header */}
+           <div className="sticky top-0 z-20 h-16 theme-card border-b theme-border px-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setActiveConversation(null)}
+                  className="md:hidden text-lg theme-text"
+                >
+                  ←
+                </button>
+
                 <div className="relative">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-xl">
                     👨‍⚕️
                   </div>
-                  <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 theme-border"></div>
+
+                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 theme-border"></div>
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-base sm:text-lg">
+                  <h3 className="font-semibold text-base">
                     {activeConversation.members?.find(
                       (m) => m._id?.toString() !== user?._id?.toString(),
                     )?.fullName || "Doctor"}
                   </h3>
-                  <p className="text-green-500 text-sm flex items-center gap-1">
-                    ● Online
-                  </p>
+
+                  <p className="text-green-500 text-xs">● Online</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 sm:gap-6 text-xl sm:text-2xl text-gray-300">
-                <FaPhone className="cursor-pointer hover:text-white transition-colors" />
-                <FaVideo className="cursor-pointer hover:text-white transition-colors" />
+              <div className="flex items-center gap-5 text-lg theme-text-muted">
+                <FaPhone className="cursor-pointer hover:text-blue-500 transition-colors" />
+                <FaVideo className="cursor-pointer hover:text-blue-500 transition-colors" />
               </div>
             </div>
 
-            {/* Messages Area - WhatsApp Background */}
+            {/* Messages */}
             <div
-              className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-2
-                         bg-repeat bg-center custom-scrollbar"
-              // style={{ backgroundColor: "#0f172a" }}
+              className="flex-1 overflow-y-scroll overscroll-contain p-3 sm:p-5 space-y-2 custom-scrollbar"
+              style={{
+                backgroundImage:
+                  "url('https://www.transparenttextures.com/patterns/cubes.png')",
+              }}
             >
               <AnimatePresence initial={false}>
                 {messages.map((msg) => {
                   const isOwnMessage =
                     msg.sender?._id?.toString() === user?._id?.toString();
 
-                  // ✅ memo-friendly lightweight time formatting
                   const messageTime = new Date(
                     msg.createdAt || msg.timestamp,
                   ).toLocaleTimeString([], {
@@ -197,26 +205,24 @@ export default function ChatPagePatient() {
                   return (
                     <motion.div
                       key={msg._id}
-                      // ✅ lighter animation
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      transition={{
-                        duration: 0.15,
-                      }}
+                      transition={{ duration: 0.15 }}
                       layout="position"
-                      className={`flex ${
-                        isOwnMessage ? "justify-end" : "justify-start"
-                      }`}
+                      className={`flex ${isOwnMessage ? "justify-end" : "justify-start"
+                        }`}
                     >
                       <div
-                        className={`max-w-[85%] sm:max-w-[75%] lg:max-w-[65%] px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-sm sm:text-[15.2px] leading-relaxed shadow-sm
-          ${
-            isOwnMessage
-              ? "bg-[#0ea5e9] text-white rounded-br-none"
-              : "theme-card theme-text rounded-bl-none"
-          }`}
+                        className={`max-w-[80%] md:max-w-[70%] lg:max-w-[60%]
+                  px-3 py-2 rounded-2xl shadow-sm text-sm sm:text-[15px]
+                  ${isOwnMessage
+                            ? "bg-[#005c4b] text-white rounded-br-md"
+                            : "theme-soft theme-text rounded-bl-md"
+                          }`}
                       >
-                        {msg.messageType === "text" && <p>{msg.text}</p>}
+                        {msg.messageType === "text" && (
+                          <p className="break-words">{msg.text}</p>
+                        )}
 
                         {msg.messageType === "file" && (
                           <a
@@ -243,41 +249,44 @@ export default function ChatPagePatient() {
                           </audio>
                         )}
 
-                        <div className="flex items-center justify-end gap-1 mt-1">
-                          <span className="text-xs opacity-75">
+                        <div className="flex justify-end items-center gap-1 mt-1">
+                          <span className="text-[11px] opacity-70">
                             {messageTime}
                           </span>
 
-                          {isOwnMessage && <span className="text-xs">✓✓</span>}
+                          {isOwnMessage && (
+                            <span className="text-[11px] opacity-70">✓✓</span>
+                          )}
                         </div>
                       </div>
                     </motion.div>
                   );
                 })}
               </AnimatePresence>
+
               <div ref={messagesEndRef} />
             </div>
 
             {/* Expiry Banner */}
             {!canSendMessage && (
-              <div className="bg-red-600 py-3 text-center font-medium text-sm border-t border-red-700">
+              <div className="bg-red-600 py-3 text-center text-sm font-medium text-white">
                 {expiryReason || "Consultation chat has expired"}
               </div>
             )}
 
-            {/* Input Area - WhatsApp Style */}
+            {/* Input */}
             {canSendMessage && (
-              <div className="theme-card border-t theme-border px-2 sm:px-4 py-2 sm:py-3">
-                <div className="flex items-center theme-soft rounded-3xl px-2 sm:px-5 py-2 gap-1 sm:gap-2">
+              <div className="sticky bottom-0 z-20 theme-card border-t theme-border p-2">
+                <div className="flex items-center theme-soft rounded-full px-3 py-2 gap-2">
                   <button
                     onClick={() => setShowEmoji(!showEmoji)}
-                    className="text-yellow-400 hover:text-yellow-300 text-xl sm:text-2xl px-1 sm:px-2"
+                    className="text-yellow-400 text-xl hover:scale-110 transition"
                   >
                     <FaSmile />
                   </button>
 
-                  <label className="cursor-pointer px-3 theme-text-muted hover:opacity-80">
-                    <FaPaperclip size={22} />
+                  <label className="cursor-pointer theme-text-muted hover:opacity-80">
+                    <FaPaperclip size={20} />
                     <input type="file" hidden onChange={handleFileUpload} />
                   </label>
 
@@ -287,23 +296,26 @@ export default function ChatPagePatient() {
                     onChange={(e) => setMessageText(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                     placeholder="Type a message..."
-                    className="flex-1 bg-transparent outline-none px-2 sm:px-4 text-sm sm:text-[15.5px] min-w-0"
+                    className="flex-1 bg-transparent outline-none text-sm px-2 min-w-0"
                   />
 
                   <button
                     onMouseDown={startVoiceRecording}
                     onMouseUp={stopRecording}
-                    className={`px-1 sm:px-3 transition ${isRecording ? "text-red-500 scale-110" : "theme-text-muted hover:opacity-80"}`}
+                    className={`transition ${isRecording
+                        ? "text-red-500 scale-110"
+                        : "theme-text-muted hover:opacity-80"
+                      }`}
                   >
-                    <FaMicrophone size={23} />
+                    <FaMicrophone size={20} />
                   </button>
 
                   <button
                     onClick={() => sendMessage()}
                     disabled={!messageText.trim()}
-                    className="ml-1 sm:ml-2 bg-[#0ea5e9] hover:bg-[#0284c8] text-white w-10 h-10 flex items-center justify-center rounded-full disabled:opacity-50 transition"
+                    className="bg-[#0ea5e9] hover:bg-[#0284c8] text-white w-10 h-10 rounded-full flex items-center justify-center disabled:opacity-50 transition"
                   >
-                    ↑
+                    ➤
                   </button>
                 </div>
               </div>
@@ -312,7 +324,8 @@ export default function ChatPagePatient() {
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center theme-text-muted">
             <div className="text-6xl mb-6 opacity-50">💬</div>
-            <p className="text-base sm:text-xl text-center px-4">
+
+            <p className="text-center text-base sm:text-xl px-4">
               Select a conversation to start messaging
             </p>
           </div>

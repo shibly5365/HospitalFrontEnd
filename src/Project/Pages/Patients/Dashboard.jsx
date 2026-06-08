@@ -11,7 +11,6 @@ import ProfileCard from "./pages/dashboard/ProfileCard";
 import HealthPlans from "./pages/dashboard/HealthPlans";
 import DoctorsList from "./pages/dashboard/DoctorsList";
 import QuickActions from "./pages/dashboard/QuickActions";
-import PatientLoading from "../../../skeletons/SkeletonBase";
 
 export default function Dashboard() {
   const [isVisible, setIsVisible] = useState(false);
@@ -112,10 +111,7 @@ export default function Dashboard() {
     { task: "Regular blood pressure monitoring", completed: false },
   ];
 
-  // 🔄 Loading
-  if (loading) {
-    return <PatientLoading />;
-  }
+
 
   return (
     <div

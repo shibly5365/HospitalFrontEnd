@@ -2,7 +2,6 @@ import { apiClient } from "../../../../../services/queryClient";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react"; // ✅ lightweight arrow icon
-import CommonLoading from "../../../../../skeletons/CommonLoading";
 
 export default function StatsGrid({ isVisible }) {
   const [stats, setStats] = useState([]);
@@ -62,8 +61,8 @@ export default function StatsGrid({ isVisible }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <h1 className="text-lg font-medium">Loading...</h1>
+      <div className="animate-pulse p-4 text-gray-400">
+        Loading ...
       </div>
     );
   }

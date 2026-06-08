@@ -34,7 +34,21 @@ const TABS = [
 function Card({ children, className = "", gradient = false }) {
   return (
     <div
-      className={`theme-card rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 sm:p-5 md:p-6 ${gradient ? "bg-gradient-to-br from-white to-gray-50" : ""} ${className}`}
+      className={`
+        theme-card
+        w-full
+        min-w-0
+        overflow-hidden
+        rounded-2xl md:rounded-3xl
+        shadow-lg hover:shadow-xl
+        transition-all duration-300
+        p-3 sm:p-5 md:p-6
+        ${gradient
+          ? "bg-gradient-to-br from-white to-gray-50"
+          : ""
+        }
+        ${className}
+      `}
     >
       {children}
     </div>
@@ -43,24 +57,24 @@ function Card({ children, className = "", gradient = false }) {
 
 function PatientSummary({ patient, onEdit }) {
   window.console.log(patient)
-  const { name, age, gender, bloodGroup, contact, phone,photo } = patient;
+  const { name, age, gender, bloodGroup, contact, phone, photo } = patient;
   return (
     <Card className="relative overflow-hidden mb-8" gradient>
       <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-3xl -z-0"></div>
-      <div className="relative z-10 flex flex-col lg:flex-row items-center lg:items-start gap-4 md:gap-6">
-        <div className="relative group">
+      <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 min-w-0">
+        <div className="relative group shrink-0">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
           <img
             src={patient.photo}
             alt="profile"
-            className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-4 border-white shadow-2xl object-cover ring-4 ring-blue-100"
+            className="relative w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-full border-4 border-white shadow-2xl object-cover ring-4 ring-blue-100"
           />
           <div className="absolute bottom-1 right-1 w-6 h-6 bg-green-500 rounded-full border-4 border-white"></div>
         </div>
 
-        <div className="flex-1 text-center md:text-left">
-          <div className="flex flex-col md:flex-row md:items-center gap-3 mb-3">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+        <div className="flex-1 min-w-0 text-center md:text-left">
+          <div className="flex flex-col md:flex-row md:items-center gap-3 mb-3 min-w-0">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold break-all">
               {name}
             </h1>
             <div className="flex flex-wrap justify-center md:justify-start gap-2">
@@ -76,14 +90,16 @@ function PatientSummary({ patient, onEdit }) {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 theme-text-muted">
-            <span className="flex items-center justify-center md:justify-start gap-2 group">
+          <div className="flex flex-col gap-3 theme-text-muted">
+            <span className="flex items-start md:items-center justify-center md:justify-start gap-2 group min-w-0">
               <div className="p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors">
                 <Mail size={16} className="text-blue-600" />
               </div>
-              <span className="text-sm break-all">{contact}</span>
+              <span className="text-sm break-all min-w-0">
+                {contact}
+              </span>
             </span>
-            <span className="flex items-center justify-center md:justify-start gap-2 group">
+            <span className="flex items-start md:items-center justify-center md:justify-start gap-2 group min-w-0">
               <div className="p-2 bg-emerald-50 rounded-lg group-hover:bg-emerald-100 transition-colors">
                 <Phone size={16} className="text-emerald-600" />
               </div>
@@ -94,8 +110,7 @@ function PatientSummary({ patient, onEdit }) {
 
         <button
           onClick={onEdit}
-          className="absolute top-3 right-3 sm:top-6 sm:right-6 p-3 bg-gradient-to-br from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group"
-          aria-label="Edit Personal Details"
+          className="absolute top-2 right-2 sm:top-3 sm:right-3 p-2 sm:p-3 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl md:rounded-2xl shadow-lg"
         >
           <Edit2
             size={20}
@@ -117,37 +132,78 @@ function FilterBar({
   onTabChange,
 }) {
   return (
-    <div className="mb-8 space-y-4">
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1 group">
+    <div className="mb-6 md:mb-8 space-y-4">
+      {/* Search + Filter */}
+      <div className="flex flex-col lg:flex-row gap-3">
+        <div className="relative flex-1 group min-w-0">
           <Search
             className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-blue-500 transition-colors"
             size={20}
           />
+
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none theme-card shadow-sm hover:shadow-md"
             placeholder="Search doctors, departments..."
+            className="
+              w-full
+              min-w-0
+              pl-12
+              pr-4
+              py-3
+              text-sm
+              rounded-2xl
+              border-2
+              border-gray-200
+              focus:border-blue-500
+              focus:ring-4
+              focus:ring-blue-100
+              transition-all
+              outline-none
+              theme-card
+              shadow-sm
+              hover:shadow-md
+            "
           />
         </div>
 
-        <div className="relative group sm:w-64">
+        <div className="relative w-full lg:w-64 shrink-0">
           <Filter
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-emerald-500 transition-colors"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
             size={20}
           />
+
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="w-full pl-12 pr-10 py-3.5 rounded-2xl border-2 border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all outline-none theme-card shadow-sm hover:shadow-md appearance-none cursor-pointer"
+            className="
+              w-full
+              pl-12
+              pr-10
+              py-3
+              text-sm
+              rounded-2xl
+              border-2
+              border-gray-200
+              focus:border-emerald-500
+              focus:ring-4
+              focus:ring-emerald-100
+              transition-all
+              outline-none
+              appearance-none
+              cursor-pointer
+              theme-card
+              shadow-sm
+              hover:shadow-md
+            "
           >
             <option value="">All Records</option>
             <option value="Prescriptions">Prescriptions</option>
             <option value="Consultations">Consultations</option>
             <option value="Lab Reports">Lab Reports</option>
           </select>
+
           <ChevronDown
             className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
             size={20}
@@ -155,30 +211,59 @@ function FilterBar({
         </div>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+      {/* Tabs */}
+      <div
+        className="
+          flex
+          gap-2
+          overflow-x-auto
+          whitespace-nowrap
+          pb-2
+          snap-x
+          snap-mandatory
+          w-full
+        "
+      >
         {tabs.map((tab, i) => {
           const Icon = tab.icon;
           const isActive = activeTab === i;
+
           return (
             <button
               key={tab.name}
-              className={`flex items-center gap-2 px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl font-semibold whitespace-nowrap transition-all duration-300 shadow-md hover:shadow-lg ${
-                isActive
-                  ? `bg-gradient-to-r ${
-                      tab.color === "emerald"
-                        ? "from-emerald-500 to-emerald-600"
-                        : tab.color === "blue"
-                          ? "from-blue-500 to-blue-600"
-                          : tab.color === "purple"
-                            ? "from-purple-500 to-purple-600"
-                            : "from-rose-500 to-rose-600"
-                    } text-white scale-105`
-                  : "theme-card theme-text hover:bg-gray-50"
-              }`}
               onClick={() => onTabChange(i)}
+              className={`
+                shrink-0
+                snap-start
+                flex
+                items-center
+                gap-2
+                px-3
+                sm:px-5
+                py-2.5
+                sm:py-3
+                rounded-2xl
+                font-semibold
+                text-sm
+                transition-all
+                duration-300
+                shadow-md
+                hover:shadow-lg
+                ${isActive
+                  ? `bg-gradient-to-r ${tab.color === "emerald"
+                    ? "from-emerald-500 to-emerald-600"
+                    : tab.color === "blue"
+                      ? "from-blue-500 to-blue-600"
+                      : tab.color === "purple"
+                        ? "from-purple-500 to-purple-600"
+                        : "from-rose-500 to-rose-600"
+                  } text-white`
+                  : "theme-card theme-text hover:bg-gray-50"
+                }
+              `}
             >
-              <Icon size={20} className={isActive ? "" : "opacity-60"} />
-              <span className="text-xs sm:text-sm">{tab.name}</span>
+              <Icon size={18} className={isActive ? "" : "opacity-60"} />
+              <span>{tab.name}</span>
             </button>
           );
         })}
@@ -192,7 +277,7 @@ function Modal({ show, onClose, children, title }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="theme-card rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-md mx-2 sm:mx-0 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
+      <div className="theme-card rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-lg mx-2 sm:mx-0 max-h-[85dvh] overflow-y-auto animate-in zoom-in-95 duration-200">
         <div className="sticky top-0 theme-card border-b border-gray-100 p-4 sm:p-5 md:p-6 rounded-t-3xl flex items-center justify-between">
           <h3 className="text-lg sm:text-xl font-bold theme-text">
             {title}
@@ -265,15 +350,17 @@ function PrescriptionsSection({ prescriptions }) {
           {/* Doctor Header */}
           <button
             onClick={() => setOpenDoctor(openDoctor === doctor ? null : doctor)}
-            className="w-full flex items-center justify-between"
+            className="w-full flex items-start sm:items-center justify-between gap-3"
           >
-            <div className="flex items-center gap-3 text-left">
+            <div className="flex items-start sm:items-center gap-3 text-left flex-1 min-w-0">
               <div className="p-3 bg-emerald-500 rounded-xl">
                 <Syringe className="text-white" size={20} />
               </div>
 
-              <div>
-                <h3 className="font-bold theme-text text-lg">{doctor}</h3>
+              <div className="min-w-0">
+                <h3 className="font-bold theme-text text-base sm:text-lg break-words">
+                  {doctor}
+                </h3>
 
                 <p className="text-sm text-emerald-700">
                   {doctorPrescriptions.length} Prescriptions
@@ -292,9 +379,9 @@ function PrescriptionsSection({ prescriptions }) {
                   key={i}
                   className="theme-card rounded-2xl p-4 border border-emerald-100 shadow-sm"
                 >
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div>
-                      <p className="font-semibold theme-text">
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold theme-text break-words">
                         {p.department}
                       </p>
 
@@ -306,7 +393,7 @@ function PrescriptionsSection({ prescriptions }) {
 
                     <button
                       onClick={() => openModal(p)}
-                      className="px-4 py-2 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 transition"
+                      className="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 transition"
                     >
                       View Details
                     </button>
@@ -320,7 +407,7 @@ function PrescriptionsSection({ prescriptions }) {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 mt-6">
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
           <button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((prev) => prev - 1)}
@@ -329,7 +416,7 @@ function PrescriptionsSection({ prescriptions }) {
             Prev
           </button>
 
-          <span className="font-semibold">
+          <span className="font-semibold text-sm sm:text-base">
             Page {currentPage} / {totalPages}
           </span>
 
@@ -352,21 +439,23 @@ function PrescriptionsSection({ prescriptions }) {
         {selected && (
           <div className="space-y-4">
             <div className="p-4 bg-emerald-50 rounded-2xl space-y-2">
-              <div className="flex justify-between">
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
                 <span>Doctor</span>
-                <span className="font-semibold">{selected.doctor}</span>
+                <span className="font-semibold break-words text-right">
+                  {selected.doctor}
+                </span>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
                 <span>Date</span>
-                <span className="font-semibold">{selected.date}</span>
+                <span className="font-semibold break-words text-right">{selected.date}</span>
               </div>
             </div>
 
             <div className="space-y-3">
               {selected.medicines.map((m, i) => (
                 <div key={i} className="p-4 rounded-xl bg-gray-50">
-                  <p className="font-semibold">{m.name}</p>
+                  <p className="font-semibold break-words">{m.name}</p>
 
                   <p className="text-sm theme-text-muted">
                     {m.dosage} • {m.duration}
@@ -440,17 +529,19 @@ function ConsultationsSection({ consultations }) {
           {/* ===================== */}
           <button
             onClick={() => setOpenDoctor(openDoctor === doctor ? null : doctor)}
-            className="w-full flex items-center justify-between"
+            className="w-full flex items-start sm:items-center justify-between gap-3"
           >
-            <div className="flex items-center gap-3 text-left">
+            <div className="flex items-start sm:items-center gap-3 text-left min-w-0 flex-1">
               <div className="p-3 bg-blue-500 rounded-xl shadow-lg">
                 <Stethoscope size={20} className="text-white" />
               </div>
 
-              <div>
-                <h3 className="font-bold theme-text text-lg">{doctor}</h3>
+              <div className="min-w-0">
+                <h3 className="font-bold theme-text text-base sm:text-lg break-words">
+                  {doctor}
+                </h3>
 
-                <div className="flex items-center gap-2 mt-1">
+                <div className="flex flex-wrap items-center gap-2 mt-1">
                   <p className="text-sm text-blue-700">
                     {doctorConsultations[0]?.department}
                   </p>
@@ -479,7 +570,7 @@ function ConsultationsSection({ consultations }) {
                   key={i}
                   className="theme-card rounded-2xl border border-blue-100 p-4 shadow-sm hover:shadow-md transition"
                 >
-                  <div className="flex flex-col lg:flex-row gap-4 lg:items-start lg:justify-between">
+                  <div className="flex flex-col gap-4">
                     {/* Left */}
                     <div className="space-y-3 flex-1">
                       <div className="flex items-center gap-2 text-sm theme-text-muted">
@@ -492,7 +583,7 @@ function ConsultationsSection({ consultations }) {
                           Reason
                         </div>
 
-                        <div className="text-sm theme-text font-medium">
+                        <div className="text-sm theme-text font-medium break-words">
                           {c.reason}
                         </div>
                       </div>
@@ -503,7 +594,7 @@ function ConsultationsSection({ consultations }) {
                             Notes
                           </div>
 
-                          <div className="text-sm theme-text">{c.notes}</div>
+                          <div className="text-sm theme-text break-words">{c.notes}</div>
                         </div>
                       )}
                     </div>
@@ -519,7 +610,7 @@ function ConsultationsSection({ consultations }) {
       {/* Pagination */}
       {/* ===================== */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 pt-4">
+        <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
           <button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((prev) => prev - 1)}
@@ -528,7 +619,7 @@ function ConsultationsSection({ consultations }) {
             Prev
           </button>
 
-          <span className="font-semibold theme-text">
+          <span className="font-semibold theme-text text-sm sm:text-base">
             Page {currentPage} / {totalPages}
           </span>
 
@@ -561,13 +652,13 @@ function LabReportsSection({ labReports }) {
           key={idx}
           className="hover:md:scale-[1.02] transition-transform duration-300 bg-gradient-to-br from-purple-50 to-violet-50 border-2 border-purple-100"
         >
-          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-            <div className="flex items-center gap-3 flex-1">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex items-start gap-3 flex-1 min-w-0">
               <div className="p-2 bg-purple-500 rounded-xl shadow-lg">
                 <File size={20} className="text-white" />
               </div>
-              <div>
-                <h4 className="font-bold theme-text break-words">
+              <div className="min-w-0">
+                <h4 className="font-bold theme-text break-words text-sm sm:text-base">
                   {l.test}
                 </h4>
                 <div className="flex items-center gap-2 text-sm text-purple-700 mt-1">
@@ -577,10 +668,10 @@ function LabReportsSection({ labReports }) {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
               <a
                 href={l.url}
-                className="px-3 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-purple-500 to-violet-500 text-white rounded-xl hover:from-purple-600 hover:to-violet-600 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold flex items-center gap-2"
+                className="w-full sm:w-auto justify-center px-3 sm:px-5 py-3 bg-gradient-to-r from-purple-500 to-violet-500 text-white rounded-xl hover:from-purple-600 hover:to-violet-600 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold flex items-center gap-2"
                 download
               >
                 <Download size={18} />
@@ -590,7 +681,7 @@ function LabReportsSection({ labReports }) {
                 href={l.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-3 sm:px-5 py-2.5 sm:py-3 theme-card text-purple-600 rounded-xl hover:bg-purple-50 transition-all duration-300 border-2 border-purple-200 font-semibold flex items-center gap-2"
+                className="w-full sm:w-auto justify-center px-3 sm:px-5 py-3 theme-card text-purple-600 rounded-xl hover:bg-purple-50 transition-all duration-300 border-2 border-purple-200 font-semibold flex items-center gap-2"
               >
                 <FileText size={18} />
                 <span>Preview</span>
@@ -625,29 +716,29 @@ function VitalsSection({ patient, vitals }) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-      <Card className="bg-gradient-to-br from-rose-50 to-pink-50 border-2 border-rose-100">
+      <Card className="w-full bg-gradient-to-br from-rose-50 to-pink-50 border-2 border-rose-100">
         <h3 className="font-bold theme-text mb-4 flex items-center gap-2">
           <Activity className="text-rose-600" size={24} />
           Medical Information
         </h3>
         <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 theme-card rounded-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 theme-card rounded-xl">
             <span className="theme-text-muted flex items-center gap-2">
               <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
               Blood Group
             </span>
             <span className="font-bold theme-text">{bloodGroup}</span>
           </div>
-          <div className="flex items-center justify-between p-3 theme-card rounded-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 theme-card rounded-xl">
             <span className="theme-text-muted flex items-center gap-2">
               <ShieldPlus size={16} className="text-amber-500" />
               Allergies
             </span>
-            <span className="font-semibold theme-text">
+            <span className="font-semibold theme-text break-words text-right">
               {allergies || "None"}
             </span>
           </div>
-          <div className="flex items-center justify-between p-3 theme-card rounded-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 theme-card rounded-xl">
             <span className="theme-text-muted flex items-center gap-2">
               <Stethoscope size={16} className="text-violet-500" />
               Chronic Conditions
@@ -665,31 +756,30 @@ function VitalsSection({ patient, vitals }) {
           Physical Stats
         </h3>
         <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 theme-card rounded-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 theme-card rounded-xl">
             <span className="theme-text-muted">Height</span>
             <span className="font-bold theme-text">{height || "--"} cm</span>
           </div>
-          <div className="flex items-center justify-between p-3 theme-card rounded-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 theme-card rounded-xl">
             <span className="theme-text-muted">Weight</span>
             <span className="font-bold theme-text">{weight || "--"} kg</span>
           </div>
           <div className="p-4 bg-gradient-to-r from-cyan-100 to-blue-100 rounded-xl border-2 border-cyan-200">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
               <span className="theme-text font-semibold">BMI</span>
               <span className="text-2xl font-bold theme-text">{bmi}</span>
             </div>
             <div
-              className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
-                bmiStatus.color === "green"
-                  ? "bg-green-200 text-green-800"
-                  : bmiStatus.color === "yellow"
-                    ? "bg-yellow-200 text-yellow-800"
-                    : bmiStatus.color === "orange"
-                      ? "bg-orange-200 text-orange-800"
-                      : bmiStatus.color === "red"
-                        ? "bg-red-200 text-red-800"
-                        : "bg-gray-200 theme-text"
-              }`}
+              className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${bmiStatus.color === "green"
+                ? "bg-green-200 text-green-800"
+                : bmiStatus.color === "yellow"
+                  ? "bg-yellow-200 text-yellow-800"
+                  : bmiStatus.color === "orange"
+                    ? "bg-orange-200 text-orange-800"
+                    : bmiStatus.color === "red"
+                      ? "bg-red-200 text-red-800"
+                      : "bg-gray-200 theme-text"
+                }`}
             >
               {bmiStatus.text}
             </div>
@@ -790,18 +880,22 @@ export default function MedicalRecordDashboard() {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30">
-      <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-8 py-4 md:py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2 break-words">
+    <div className="min-h-screen w-full theme-bg overflow-x-hidden">
+      <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 md:py-6">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent break-words">
             Medical Dashboard
           </h1>
-          <p className="text-sm sm:text-base theme-text-muted">
+
+          <p className="mt-2 text-sm sm:text-base theme-text-muted">
             Comprehensive health records and vital information
           </p>
         </div>
 
-        <PatientSummary patient={patient} onEdit={() => setEditModal(true)} />
+        <PatientSummary
+          patient={patient}
+          onEdit={() => setEditModal(true)}
+        />
 
         <FilterBar
           search={search}
@@ -813,7 +907,9 @@ export default function MedicalRecordDashboard() {
           onTabChange={setTab}
         />
 
-        <div className="min-h-[400px]">{renderContent()}</div>
+        <div className="min-h-[300px] md:min-h-[400px]">
+          {renderContent()}
+        </div>
 
         <Modal
           show={editModal}
@@ -825,9 +921,10 @@ export default function MedicalRecordDashboard() {
               Edit functionality coming soon. This will allow you to update
               patient information.
             </p>
+
             <button
               onClick={() => setEditModal(false)}
-              className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 font-semibold shadow-lg"
+              className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl"
             >
               Close
             </button>

@@ -4,7 +4,6 @@ import { toast } from "react-hot-toast";
 import { notify } from "../../../../../UnitsTemp/notification";
 import RescheduleModal from "./RescheduleModal";
 import VideoCallModal from "./VideoCallModal";
-import CommonLoading from "../../../../../skeletons/CommonLoading";
 
 export default function Appointments({ isVisible }) {
   const [appointments, setAppointments] = useState([]);
@@ -231,38 +230,10 @@ export default function Appointments({ isVisible }) {
     }
   };
 
-if (loading) {
+  if (loading) {
     return (
-      <div
-        className={`bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg border transition-all duration-700 ${
-          isVisible ? "opacity-100" : "opacity-0 translate-y-4"
-        }`}
-      >
-        {/* Simple Title Skeleton */}
-        <CommonLoading height="h-8" width="w-64" className="mb-8" />
-
-        {/* Very Simple Appointment Skeletons */}
-        <div className="space-y-5">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="p-5 bg-gray-50 dark:bg-gray-800 rounded-xl border"
-            >
-              <div className="flex justify-between items-center">
-                <div className="space-y-3">
-                  <CommonLoading height="h-5" width="w-56" />
-                  <CommonLoading height="h-4" width="w-[280px]" />
-                </div>
-
-                <CommonLoading 
-                  height="h-10" 
-                  width="w-32" 
-                  className="rounded-lg" 
-                />
-              </div>
-            </div>
-          ))}
-        </div>
+      <div className="animate-pulse p-4 text-gray-400">
+        Loading Appointments info...
       </div>
     );
   }
