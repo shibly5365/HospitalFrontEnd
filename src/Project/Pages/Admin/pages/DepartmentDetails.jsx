@@ -64,7 +64,7 @@ const PatientsDepartmentDetails = () => {
       {/* Department Image */}
       <div className="w-[130%] max-w-7xl mx-auto overflow-hidden rounded-2xl shadow-lg mb-10 bg-gray-50 flex justify-center items-center">
         <img
-          src={department.image }
+          src={department?.departmentImage }
           alt={department.name}
           className="w-[130%] h-[400px] sm:h-[400px] md:h-[400px] lg:h-[550px] object-cover transition-all duration-500 rounded-xl"
         />

@@ -74,7 +74,7 @@ const PtientsDepartment = () => {
             {/* Department Image */}
             <div className="relative overflow-hidden">
               <img
-                src={dept.image}
+                src={dept.departmentImage}
                 alt={dept.name}
                 className="
                   h-[240px]

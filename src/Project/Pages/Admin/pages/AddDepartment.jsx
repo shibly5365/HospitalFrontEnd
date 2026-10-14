@@ -22,7 +22,7 @@ const AddDepartment = () => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    headOfDepartment: "",
+    headOfDepartment:"",
     treatments: [{ title: "", description: "" }],
   });
   const [image, setImage] = useState(null);
@@ -107,7 +107,7 @@ const AddDepartment = () => {
 
       await apiClient.post("/admin/departments", data, {
         withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
+      
       });
 
       navigate("/admin/admin-dashboard");

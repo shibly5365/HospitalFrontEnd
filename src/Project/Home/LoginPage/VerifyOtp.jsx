@@ -12,36 +12,45 @@ const VerifyOtp = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const email = location.state?.email;
+ const email = location.state?.email?.trim().toLowerCase();
 
-  const handleVerify = async () => {
-    if (!otp) {
-      return notify.error("Please enter OTP");
+
+const handleVerify = async () => {
+  if (!email) {
+    notify.error("Email is missing. Please sign up again.");
+    navigate("/signup");
+    return;
+  }
+
+  if (!otp || otp.length !== 6) {
+    notify.error("Please enter a valid 6-digit OTP");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const res = await apiClient.post("/patient/verify-otp", {
+      email,
+      otp,
+    });
+
+    if (res.data.success) {
+      notify.success("Account verified successfully!");
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
     }
+  } catch (err) {
+    notify.error(
+      err?.response?.data?.message || "Verification failed"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
-    try {
-      setLoading(true);
-
-      const res = await apiClient.post("/patient/verify-otp", {
-        email,
-        otp,
-      });
-
-      if (res.data.success) {
-        notify.success("Email verified successfully 🎉");
-
-        setTimeout(() => {
-          navigate("/login");
-        }, 1500);
-      }
-    } catch (err) {
-      notify.error(
-        err?.response?.data?.message || "Verification failed"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-cyan-50 via-white to-blue-100">

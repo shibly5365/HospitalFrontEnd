@@ -15,6 +15,8 @@ const AdminDepartment = () => {
           "/admin/getdepartmenst",
           { withCredentials: true },
         );
+        console.log("resdata",res);
+        
         setDepartments(res.data.data); // backend should return array inside data
         setLoading(false);
         console.log(res.data.data);
@@ -32,7 +34,7 @@ const AdminDepartment = () => {
       <div className="p-8 text-lg font-medium">Loading departments...</div>
     );
   }
-  console.log(departments);
+  console.log("faaa",departments);
   
 
   return (
@@ -57,7 +59,7 @@ const AdminDepartment = () => {
           >
             {/* Department Image */}
             <img
-              src={dept.image}
+              src={dept?.departmentImage}
               alt={dept.name}
               className="h-[240px] w-full object-cover"
             />

@@ -54,7 +54,9 @@ const EditDepartment = () => {
           `/admin/getdepartmenst/${id}`,
           { withCredentials: true },
         );
-        console.log("dfasdfdsa", deptRes.data);
+        // alert(deptRes)
+        console.log("deptRes",deptRes);
+        
 
         const dept = deptRes.data.department || deptRes.data || {};
         console.log("faaa", dept);
@@ -81,6 +83,8 @@ const EditDepartment = () => {
         }
       } catch (err) {
         console.error(err);
+        console.log("errr",err);
+        
         setError("Failed to load department data");
       } finally {
         setLoading(false);
@@ -161,7 +165,7 @@ const EditDepartment = () => {
       
       // Append image if a new one was selected
       if (imageFile) {
-        form.append("departmentImage", imageFile);
+        form.append("image", imageFile);
       }
 
       await apiClient.put(
@@ -169,9 +173,6 @@ const EditDepartment = () => {
         form,
         { 
           withCredentials: true,
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
         },
       );
 

@@ -82,6 +82,7 @@ const PatientsDepartmentDetails = () => {
       .finally(() => setLoading(false));
   }, [id]);
 
+  
   if (loading) {
     return (
       <p className="text-center mt-20 theme-text-muted">
@@ -89,7 +90,7 @@ const PatientsDepartmentDetails = () => {
       </p>
     );
   }
-
+  
   if (!department) {
     return (
       <p className="text-center mt-20 text-red-500">
@@ -97,7 +98,7 @@ const PatientsDepartmentDetails = () => {
       </p>
     );
   }
-
+  
   const totalDoctors =
     department.doctors?.length || 0;
 
@@ -116,7 +117,8 @@ const PatientsDepartmentDetails = () => {
       indexOfFirstDoctor,
       indexOfLastDoctor
     );
-
+    
+    console.log("faaaaaa",department);
   return (
     <div className="theme-bg min-h-screen px-4 sm:px-6 lg:px-20 py-6">
       {/* Header */}
@@ -162,7 +164,7 @@ const PatientsDepartmentDetails = () => {
         "
       >
         <img
-          src={department.image}
+          src={department?.departmentImage}
           alt={department.name}
           className="
             w-full
