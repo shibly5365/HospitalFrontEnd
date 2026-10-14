@@ -41,7 +41,7 @@ const EditDepartment = () => {
 
         // ✅ Doctors API
         const docRes = await apiClient.get(
-          `/admin/getalldoctorDepartments/${id}`,
+          `/admin/getdepartmenst/${id}`,
           { withCredentials: true },
         );
         console.log("gaaa", docRes.data);
